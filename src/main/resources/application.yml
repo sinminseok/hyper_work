@@ -1,1 +1,48 @@
-spring.application.name=run
+spring:
+  profiles:
+    active: docker
+  config:
+    import: "optional:file:.env[.properties]"
+
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  sql:
+    init:
+      mode: always
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      database-platform: org.hibernate.dialect.MySQLDialect
+      defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: false
+        format_sql: false
+
+jwt:
+  secretKey: ${JWT_KEY}
+  access:
+    expiration: 3600000
+    header: Authorization
+  refresh:
+    expiration: 1209600000
+    header: Authorization-refresh
+
+server:
+  tomcat:
+    threads:
+      max: 200
+      min-spare: 20
+      max-queue-capacity: 1000
+    max-connections: 10000
+    accept-count: 500
+    connection-timeout: 60000
+    keep-alive-timeout: 30000
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
