@@ -27,7 +27,9 @@ public class UserSignupRequest {
                 .name(this.name)
                 .brith(this.brith)
                 .email(this.email)
+                .coupon(0)
                 .phoneNumber(this.phoneNumber)
+                .loginType(this.loginType)
                 .password(encodePassword)
                 .build();
     }

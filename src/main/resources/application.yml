@@ -34,6 +34,14 @@ jwt:
     expiration: 1209600000
     header: Authorization-refresh
 
+apple:
+  key-url: https://appleid.apple.com/auth/keys
+
+oauth:
+  android-client-id: ${ANDROID_OAUTH_CLIENT_KEY}
+  ios-client-id: ${IOS_OAUTH_CLIENT_KEY}
+
+
 server:
   tomcat:
     threads:
