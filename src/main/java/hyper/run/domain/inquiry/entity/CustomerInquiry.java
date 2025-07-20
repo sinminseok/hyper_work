@@ -32,8 +32,13 @@ public class CustomerInquiry {
     @Column(name = "refund_price", nullable = true)
     private Integer refundPrice;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "refund_type", nullable = true)
     private RefundType refundType;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "state", nullable = false)
+    private InquiryState state;
 
     @Column(name = "message", updatable = false, nullable = false)
     private String message;

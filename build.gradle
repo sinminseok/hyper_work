@@ -43,10 +43,18 @@ dependencies {
 	implementation 'com.google.api-client:google-api-client:2.0.0'
 	implementation 'com.google.http-client:google-http-client-jackson2:1.40.1'
 
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+
+	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
 	implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
-	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+tasks.withType(JavaExec) {
+	jvmArgs += ['-Dfile.encoding=UTF-8']
 }
 
 tasks.named('test') {

@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(HttpMethod.GET, GET_AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_AUTH_WHITELIST).permitAll()
+                        .requestMatchers(HttpMethod.PATCH, POST_AUTH_WHITELIST).permitAll()
                         .requestMatchers(NOT_AUTH_URL).permitAll()
                         .requestMatchers("/actuator/**").permitAll()
                         .requestMatchers("/logs-viewer.html").permitAll()

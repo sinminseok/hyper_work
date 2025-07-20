@@ -1,9 +1,11 @@
 spring:
-  profiles:
-    active: docker
   config:
     import: "optional:file:.env[.properties]"
-
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: ${DB_URL}
@@ -13,6 +15,12 @@ spring:
   sql:
     init:
       mode: always
+      data-locations: classpath:data.sql
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URL}
+      database: ${MONGO_DB_NAME}
+      auto-index-creation: true
 
   jpa:
     hibernate:
@@ -24,6 +32,14 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
+  redis:
+    host: localhost
+    port: 6379
+
+aligo:
+  user-id: your_aligo_id
+  api-key: your_aligo_api_key
+  sender: 01012345678   # 발신자 번호 (사전 등록된 번호여야 함)
 
 jwt:
   secretKey: ${JWT_KEY}

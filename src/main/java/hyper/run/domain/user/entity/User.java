@@ -1,6 +1,7 @@
 package hyper.run.domain.user.entity;
 
 import hyper.run.domain.game.entity.Game;
+import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.exception.custom.InsufficientCouponException;
 import jakarta.persistence.*;
@@ -17,7 +18,7 @@ import java.util.List;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "game_id", updatable = false)
+    @Column(name = "user_id", updatable = false)
     private Long id;
 
     @Column(name = "name", nullable = false)
@@ -26,6 +27,7 @@ public class User {
     @Column(name = "email", nullable = true)
     private String email;
 
+    @Setter
     @Column(name = "password", nullable = true)
     private String password;
 
@@ -41,8 +43,8 @@ public class User {
     @Column(name = "coupon", nullable = false)
     private int coupon;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Game> games;
+    @Column(name = "profile_url", nullable = true)
+    private String profileUrl;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
@@ -51,14 +53,30 @@ public class User {
     @Column(name = "refreshToken", nullable = true)
     private String refreshToken;
 
-    public void applyGame(final Game game){
-        validateCouponAmount();
-        games.add(game);
+
+    public void decreaseCoupon(){
+        this.coupon -= 1;
+    }
+
+    public void increaseCoupon(){
+        this.coupon -= 1;
+    }
+
+    public void chargeCoupon(final int amount){
+        this.coupon += amount;
     }
 
     public void validateCouponAmount(){
         if(coupon < 1) {
             throw new InsufficientCouponException("쿠폰 수량 부족");
         }
+    }
+
+    public void addPayment(Payment payment){
+        this.payments.add(payment);
+        payment.setUser(this); // 양방향 관계 유지
+    }
+    public void updatePassword(final String encodePassword){
+        this.password = encodePassword;
     }
 }

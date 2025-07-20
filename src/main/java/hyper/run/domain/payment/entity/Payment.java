@@ -3,10 +3,7 @@ package hyper.run.domain.payment.entity;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -23,20 +20,28 @@ public class Payment {
     @Column(name = "payment_id", updatable = false)
     private Long id;
 
-    @Column(name = "price")
+    @Column(name = "price", nullable = false)
     private int price;
 
+    @Column(name = "coupon_amount", nullable = true)
+    private int couponAmount;
+
     @Enumerated(EnumType.STRING)
-    @Column(name = "state")
+    @Column(name = "state", nullable = false)
     private PaymentState state;
 
+    @Column(name = "payment_method", nullable = true)
     private String paymentMethod;
 
+    @Column(name = "payment_at", nullable = false)
+    private LocalDateTime paymentAt;
+
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private Long gameId;
-
-    private LocalDateTime paymentAt;
+    public void updateState(PaymentState updateState){
+        this.state = updateState;
+    }
 }

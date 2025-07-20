@@ -1,4 +1,4 @@
-package hyper.run.domain.user.dto;
+package hyper.run.domain.user.dto.request;
 
 
 import hyper.run.domain.user.entity.LoginType;
