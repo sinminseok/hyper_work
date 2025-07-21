@@ -25,15 +25,26 @@ public class GameHistory {
     private Long userId;
 
     @Field("rank")
+    @Setter
     private int rank;
 
     @Field("prize")
     private Integer prize;
 
-    @Field("average_bpm")
-    private Integer averageBpm;
+    @Field("target_bpm")
+    private Integer targetBpm;
 
     @Field("target_cadence")
     private Integer targetCadence;
+
+    @Field("current_bpm")
+    private double currentBpm;
+
+    @Field("current_cadence")
+    private double currentCadence;
+
+    @Field("current_distance")
+    private double currentDistance;
+
 
 }
