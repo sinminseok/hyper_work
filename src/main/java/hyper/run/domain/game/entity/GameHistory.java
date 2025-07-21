@@ -29,7 +29,8 @@ public class GameHistory {
     private int rank;
 
     @Field("prize")
-    private Integer prize;
+    @Setter
+    private double prize;
 
     @Field("target_bpm")
     private Integer targetBpm;
@@ -38,13 +39,39 @@ public class GameHistory {
     private Integer targetCadence;
 
     @Field("current_bpm")
+    @Setter
     private double currentBpm;
 
     @Field("current_cadence")
+    @Setter
     private double currentCadence;
 
     @Field("current_distance")
+    @Setter
     private double currentDistance;
 
+    @Field("current_flight_time")
+    @Setter
+    private double currentFlightTime;
 
+    @Field("current_ground_contact_time")
+    @Setter
+    private double currentGroundContactTime;
+
+    @Field("current_power")
+    @Setter
+    private double currentPower;
+
+    @Field("current_vertical_oscillation")
+    @Setter
+    private double currentVerticalOscillation;
+
+
+    public double calculateCadenceScore(){
+        return Math.abs(targetCadence - currentCadence);
+    }
+
+    public double calculateHeartBeatScore() {
+        return Math.abs(targetBpm - currentBpm);
+    }
 }

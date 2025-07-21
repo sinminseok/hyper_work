@@ -1,51 +1,92 @@
 package hyper.run.domain.game.service.impl;
 
-import hyper.run.domain.game.dto.response.RankResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
+import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.GameRankService;
+import hyper.run.domain.user.entity.User;
+import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.List;
 
 /**
- * 가장 멀리 달리고 있는 사람순서대로 순위 정하기
+ * 가장 멀리 달린 순서대로 순위를 정하는 게임
+ * todo 단순 거리로만 랭킹을 판별하는건 반례가 있음 이를 해결해야됨 ex) 최종적으로 모든 사람이 같은 거리에 도달
  */
 @Service
 @RequiredArgsConstructor
 public class SpeedRankService implements GameRankService {
 
-    private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
+    private final UserRepository userRepository;
 
-
-    /**
-     * 스피드가 빠를수록 높은 점수 (이동한 거리가 많을수록 높은 점수)
-     */
     @Override
     public void calculateRank(Game game) {
-        List<GameHistory> gameHistories = gameHistoryRepository.findAllByGameId(game.getId());
+        List<GameHistory> gameHistories = fetchSortedHistories(game);
 
-        // 1. currentDistance 기준으로 내림차순 정렬
-        gameHistories.sort((g1, g2) -> Double.compare(g2.getCurrentDistance(), g1.getCurrentDistance()));
-
-        // 2. 순위 매기기 (1등부터 시작)
-        int rank = 1;
-        for (GameHistory history : gameHistories) {
-            history.setRank(rank++);
-        }
-
-        // 3. 업데이트된 rank를 DB에 반영
+        assignRanks(gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
     }
 
     @Override
-    public void generateGame(LocalDate date, double totalPrize) {
+    public void saveGameResult(Game game) {
+        List<GameHistory> gameHistories = fetchSortedHistories(game);
 
+        assignRanks(gameHistories);
+        distributePrizes(game, gameHistories);
+        gameHistoryRepository.saveAll(gameHistories);
+    }
+
+    private List<GameHistory> fetchSortedHistories(Game game) {
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        // currentDistance 기준 내림차순 정렬ㅊ(멀리간 사람이 스피드가 빠른거로 간주) - 수정해야댐
+        histories.sort((g1, g2) -> Double.compare(g2.getCurrentDistance(), g1.getCurrentDistance()));
+        return histories;
+    }
+
+    private void assignRanks(List<GameHistory> histories) {
+        int rank = 1;
+        for (GameHistory history : histories) {
+            history.setRank(rank++);
+        }
+    }
+
+    private void distributePrizes(Game game, List<GameHistory> histories) {
+        for (int i = 0; i < Math.min(3, histories.size()); i++) {
+            GameHistory history = histories.get(i);
+            User user = OptionalUtil.getOrElseThrow(userRepository.findById(history.getUserId()), "존재하지 않는 사용자 아이디 입니다.");
+
+            double prize = switch (i) {
+                case 0 -> game.getFirstPlacePrize();
+                case 1 -> game.getSecondPlacePrize();
+                case 2 -> game.getThirdPlacePrize();
+                default -> 0;
+            };
+
+            user.increasePoint(prize);
+            history.setPrize(prize);
+
+            switch (i) {
+                case 0 -> game.setFirstUserName(user.getName());
+                case 1 -> game.setSecondUserName(user.getName());
+                case 2 -> game.setThirdUserName(user.getName());
+            }
+        }
+    }
+
+    @Override
+    public void generateGame(LocalDate date, double totalPrize) {
+        // 자동 게임 생성 로직 필요 시 구현
+    }
+
+    @Override
+    public GameType getGameType() {
+        return GameType.SPEED;
     }
 }

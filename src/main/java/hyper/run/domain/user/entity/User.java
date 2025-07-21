@@ -43,6 +43,10 @@ public class User {
     @Column(name = "coupon", nullable = false)
     private int coupon;
 
+    @Column(name = "point", nullable = false)
+    @Setter
+    private double point;
+
     @Column(name = "profile_url", nullable = true)
     private String profileUrl;
 
@@ -53,6 +57,9 @@ public class User {
     @Column(name = "refreshToken", nullable = true)
     private String refreshToken;
 
+    public void increasePoint(double updatePoint){
+        this.point += updatePoint;
+    }
 
     public void decreaseCoupon(){
         this.coupon -= 1;

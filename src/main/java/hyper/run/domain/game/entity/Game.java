@@ -2,10 +2,7 @@ package hyper.run.domain.game.entity;
 
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -59,12 +56,15 @@ public class Game {
     private double thirdPlacePrize; // 3등 상금 (총상금의 5%)
 
     @Column(name = "first_user_name", nullable = true)
+    @Setter
     private String firstUserName; // 우승자 이름
 
     @Column(name = "second_user_name", nullable = true)
+    @Setter
     private String secondUserName; // 2등 이름
 
     @Column(name = "third_user_name", nullable = true)
+    @Setter
     private String thirdUserName; // 3등 이름
 
 

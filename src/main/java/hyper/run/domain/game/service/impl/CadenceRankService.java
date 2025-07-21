@@ -1,6 +1,5 @@
 package hyper.run.domain.game.service.impl;
 
-import hyper.run.domain.game.dto.response.RankResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameHistory;
@@ -8,7 +7,9 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.GameRankService;
+import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -17,51 +18,97 @@ import java.util.List;
 
 import static hyper.run.domain.game.utils.GamePrizeCalculator.*;
 
-/**
- * 사용자가 설정한 케이던스(발걸음) 에 가장 근접할 수록 높은 점수
- */
 @RequiredArgsConstructor
 @Service
 public class CadenceRankService implements GameRankService {
 
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
+    private final UserRepository userRepository;
 
-    //30초마다 자동 갱신
-    //해당 메서드에서 각각 참여한 모든 사용자의 rank 를 최신순으로 나타낸다.
-    //Game 의 1,2,3 등은 게임 종료후 갱신힌다.
     @Override
-    public RankResponse calculateRank(Long gameId) {
-        //하나의 경기에 참여한 모든 사용자를 비교해 순위를 비교해야 한다.
+    public void calculateRank(Game game) {
+        List<GameHistory> gameHistories = fetchSortedHistories(game);
+        assignRanks(gameHistories);
+        gameHistoryRepository.saveAll(gameHistories);
+    }
 
-        return null;
+    @Override
+    public void saveGameResult(Game game) {
+        List<GameHistory> gameHistories = fetchSortedHistories(game);
+        assignRanks(gameHistories);
+        distributePrizes(game, gameHistories);
+        gameHistoryRepository.saveAll(gameHistories);
+    }
+
+    private List<GameHistory> fetchSortedHistories(Game game) {
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        histories.sort((g1, g2) -> Double.compare(g2.calculateCadenceScore(), g1.calculateCadenceScore())); // 내림차순
+        return histories;
+    }
+
+    private void assignRanks(List<GameHistory> histories) {
+        int rank = 1;
+        for (GameHistory history : histories) {
+            history.setRank(rank++);
+        }
+    }
+
+    private void distributePrizes(Game game, List<GameHistory> histories) {
+        for (int i = 0; i < Math.min(3, histories.size()); i++) {
+            GameHistory history = histories.get(i);
+            User user = OptionalUtil.getOrElseThrow(
+                    userRepository.findById(history.getUserId()),
+                    "존재하지 않는 사용자 아이디 입니다."
+            );
+
+            double prize = switch (i) {
+                case 0 -> game.getFirstPlacePrize();
+                case 1 -> game.getSecondPlacePrize();
+                case 2 -> game.getThirdPlacePrize();
+                default -> 0;
+            };
+
+            user.increasePoint(prize);
+            history.setPrize(prize);
+
+            switch (i) {
+                case 0 -> game.setFirstUserName(user.getName());
+                case 1 -> game.setSecondUserName(user.getName());
+                case 2 -> game.setThirdUserName(user.getName());
+            }
+        }
     }
 
     @Override
     public void generateGame(LocalDate date, double totalPrize) {
-        for(GameDistance distance : GameDistance.values()) {
-            //i 는 시간
-            for(int i=5; i <= 23; i += distance.getTime()){
-                if(i + distance.getTime() > 24) break;
+        for (GameDistance distance : GameDistance.values()) {
+            for (int i = 5; i <= 23; i += distance.getTime()) {
+                if (i + distance.getTime() > 24) break;
                 Game game = createGame(distance, date, i, totalPrize);
                 gameRepository.save(game);
             }
         }
     }
 
-    private Game createGame(GameDistance distance, LocalDate date, int startTime, double totalPrize){
+    private Game createGame(GameDistance distance, LocalDate date, int startTime, double totalPrize) {
         return Game.builder()
                 .name(GameType.CADENCE.getName() + "-" + distance.getName())
                 .type(GameType.CADENCE)
                 .distance(distance)
                 .gameDate(date)
-                .startAt(date.atTime(startTime, 0)) // 예: 2025-07-21T05:00
-                .endAt(date.atTime(startTime, 0).plusHours(distance.getTime())) // 예: +3시간 등
+                .startAt(date.atTime(startTime, 0))
+                .endAt(date.atTime(startTime, 0).plusHours(distance.getTime()))
                 .participatedCount(0)
                 .totalPrize(totalPrize)
                 .firstPlacePrize(calculateFirstPlacePrize(totalPrize))
                 .secondPlacePrize(calculateSecondPlacePrize(totalPrize))
                 .thirdPlacePrize(calculateThirdPlacePrize(totalPrize))
                 .build();
+    }
+
+    @Override
+    public GameType getGameType() {
+        return GameType.CADENCE;
     }
 }

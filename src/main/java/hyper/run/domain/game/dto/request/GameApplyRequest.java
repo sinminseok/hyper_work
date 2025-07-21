@@ -19,7 +19,7 @@ public class GameApplyRequest {
                 .prize(0)
                 .rank(0);
         if (this.averageBpm != null) {
-            builder.averageBpm(this.averageBpm);
+            builder.targetBpm(this.averageBpm);
         }
         if (this.targetCadence != null) {
             builder.targetCadence(this.targetCadence);
