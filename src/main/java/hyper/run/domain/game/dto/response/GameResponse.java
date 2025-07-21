@@ -38,6 +38,12 @@ public class GameResponse {
 
     private GameStatus status;
 
+    private String firstUserName;
+
+    private String secondUserName;
+
+    private String thirdUserName;
+
     public static GameResponse toResponse(Game game, GameStatus status) {
         return GameResponse.builder()
                 .id(game.getId())
@@ -52,6 +58,9 @@ public class GameResponse {
                 .secondPlacePrize(game.getSecondPlacePrize())
                 .thirdPlacePrize(game.getThirdPlacePrize())
                 .status(status)
+                .firstUserName(game.getFirstUserName())
+                .secondUserName(game.getSecondUserName())
+                .thirdUserName(game.getThirdUserName())
                 .build();
     }
 }

@@ -16,6 +16,7 @@ public final class AuthUrlPatterns {
             V1_BASE_API_URL + "/auth/**",
             V1_BASE_API_URL + "/apple",
             V1_BASE_API_URL + "/users",
+            V1_BASE_API_URL + "/users/password",
             V1_BASE_API_URL + "/games/test",
     };
 

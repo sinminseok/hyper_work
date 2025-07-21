@@ -59,7 +59,7 @@ public class User {
     }
 
     public void increaseCoupon(){
-        this.coupon -= 1;
+        this.coupon += 1;
     }
 
     public void chargeCoupon(final int amount){

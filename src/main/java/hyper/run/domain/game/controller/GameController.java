@@ -1,6 +1,7 @@
 package hyper.run.domain.game.controller;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.domain.game.service.impl.CadenceRankService;
@@ -44,6 +45,9 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 경기 취소 API
+     */
     @PatchMapping("/{gameId}/cancel")
     public ResponseEntity<?> cancelGame(@PathVariable Long gameId) {
         String email = getLoginEmailBySecurityContext();
@@ -58,8 +62,30 @@ public class GameController {
     @GetMapping
     public ResponseEntity<?> getMainGamesAll(){
         String email = getLoginEmailBySecurityContext();
-        List<GameResponse> myParticipateGames = gameService.getGames(email);
+        List<GameResponse> myParticipateGames = gameService.findGames(email);
         SuccessResponse response = new SuccessResponse(true, "참가중인 경기 조회 성공", myParticipateGames);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
+
+    /**
+     * 자신의 경기 참여 내역 조회 (순위, 상금 포함)
+     */
+    @GetMapping("/history")
+    public ResponseEntity<?> getGameHistories(){
+        String email = getLoginEmailBySecurityContext();
+        List<GameHistoryResponse> gameHistories = gameService.findMyGameHistories(email);
+        SuccessResponse response = new SuccessResponse(true, "경기 기록 조회 성공", gameHistories);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 경기 단일 조회
+     */
+    @GetMapping("/{gameId}")
+    public ResponseEntity<?> getGame(@PathVariable Long gameId){
+        GameResponse gameResponse = gameService.findById(gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 단일 조회 성공", gameResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

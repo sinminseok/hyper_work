@@ -1,6 +1,7 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
@@ -16,7 +17,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -59,13 +59,33 @@ public class GameService {
      * todo 성능 개선 필요
      * 예정된 경기를 조회한다. 이때 자신이 이미 신청한 경기와 신청하지 않은 경기를 구분한다.
      */
-    public List<GameResponse> getGames(final String userEmail) {
+    public List<GameResponse> findGames(final String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 이메일 입니다."));
         LocalDateTime now = LocalDateTime.now();
         return gameRepository.findUpcomingGames(now).stream()
                 .filter(game -> game.isInProgress() || game.isNotYetStart())
                 .map(game -> GameResponse.toResponse(game, determineGameStatus(game, user.getId())))
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * 자신의 종료된 경기 참여 내역을 모두 조회한다.
+     */
+    public List<GameHistoryResponse> findMyGameHistories(final String email) {
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 이메일 입니다."));
+
+        return gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .map(gameHistory -> {
+                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), "존재하지 않는 게임 ID 입니다."
+                    );
+                    return GameHistoryResponse.toResponse(game, gameHistory);
+                })
+                .toList();
+    }
+
+    public GameResponse findById(final Long gameId){
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), "존재하지 않는 게임 ID 입니다.");
+        return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
     }
 
     private GameStatus determineGameStatus(Game game, Long userId) {

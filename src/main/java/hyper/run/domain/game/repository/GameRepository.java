@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -16,4 +17,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.startAt > :now")
     List<Game> findUpcomingGames(@Param("now") LocalDateTime now);
 
+    @Query("SELECT g FROM Game g " +
+            "WHERE g.gameDate = :targetDate " +
+            "AND FUNCTION('HOUR', g.startAt) = :targetHour")
+    List<Game> findGamesByDateAndHour(@Param("targetDate") LocalDate targetDate, @Param("targetHour") int targetHour);
 }

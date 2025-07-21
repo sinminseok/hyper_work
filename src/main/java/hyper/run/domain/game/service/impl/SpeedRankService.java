@@ -1,6 +1,7 @@
 //package hyper.run.domain.game.service.impl;
 //
 //import hyper.run.domain.game.dto.response.RankResponse;
+//import hyper.run.domain.game.entity.GameHistory;
 //import hyper.run.domain.game.repository.GameRepository;
 //import hyper.run.domain.game.service.GameRankService;
 //import lombok.RequiredArgsConstructor;
@@ -15,6 +16,7 @@
 //public class SpeedRankService implements GameRankService {
 //
 //    private final GameRepository gameRepository;
+//    private final GameHistory gameHistory;
 //
 //    @Override
 //    public RankResponse calculateRank() {

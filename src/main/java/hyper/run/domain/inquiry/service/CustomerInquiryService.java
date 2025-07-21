@@ -23,7 +23,7 @@ public class CustomerInquiryService {
     @Transactional
     public void applyInquiry(final String email, final InquiryRequest request) {
         Long userId = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.").getId();
-        if (request.getType() == InquiryType.REFUND) {
+        if (request.getType() == InquiryType.REFUND && request.getPaymentId() != null) {
             saveRefundInquiry(userId, request);
         } else {
             saveCommonInquiry(userId, request);
