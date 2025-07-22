@@ -15,6 +15,8 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.List;
 
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
+
 /**
  * 사용자가 설정한 BPM(심박수)에 가까울수록 높은 점수
  */
@@ -59,7 +61,7 @@ public class HeartBeatRankService implements GameRankService {
             GameHistory history = histories.get(i);
             User user = OptionalUtil.getOrElseThrow(
                     userRepository.findById(history.getUserId()),
-                    "존재하지 않는 사용자 아이디 입니다."
+                    NOT_EXIST_USER_ID
             );
 
             double prize = switch (i) {

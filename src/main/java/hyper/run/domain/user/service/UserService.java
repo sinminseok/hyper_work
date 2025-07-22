@@ -2,6 +2,7 @@ package hyper.run.domain.user.service;
 
 import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
+import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
@@ -13,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 
 @Service
 @RequiredArgsConstructor
@@ -28,7 +31,7 @@ public class UserService {
 
     @Transactional
     public void editPassword(final String email, final String encodePassword) {
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 이메일입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         user.updatePassword(encodePassword);
     }
 
@@ -40,7 +43,7 @@ public class UserService {
     @Transactional
     public void chargeCoupon(final String email, final int amount){
         //사용자가 실제로 결제했는지를 검증하는 메서드 만들면 좋을듯함
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         user.chargeCoupon(amount);
     }
 
@@ -59,7 +62,7 @@ public class UserService {
      * 내 프로필 조회 메서드
      */
     public UserProfileResponse getMyProfile(final String email) {
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return UserProfileResponse.toProfileResponse(user);
     }
 
@@ -67,7 +70,7 @@ public class UserService {
      * 내 잔여 쿠폰 조회 메서드
      */
     public int getMyCouponAmount(final String email){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return user.getCoupon();
     }
 
@@ -75,7 +78,7 @@ public class UserService {
      * 자신의 모든 결제 내역을 조회하는 메서드
      */
     public List<PaymentResponse> getMyPayments(final String email){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return user.getPayments().stream()
                 .map(p->PaymentResponse.toResponse(p))
                 .collect(Collectors.toList());
@@ -83,7 +86,15 @@ public class UserService {
 
     @Transactional
     public void deleteUser(final String email){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         userRepository.delete(user);
+    }
+
+    @Transactional
+    public void updateProfile(String email, UserUpdateRequest userUpdateRequest) {
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        user.setBrith(userUpdateRequest.getBrith());
+        user.setName(userUpdateRequest.getName());
+        user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
     }
 }

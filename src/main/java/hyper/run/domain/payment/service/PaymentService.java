@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
+
 @Service
 @RequiredArgsConstructor
 public class PaymentService {
@@ -25,7 +27,7 @@ public class PaymentService {
      * 결제 메서드
      */
     public void pay(final String email, final PaymentRequest request){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 이메일입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         user.addPayment(payment);
         repository.save(payment); // Payment 저장
@@ -35,7 +37,7 @@ public class PaymentService {
      * 환불 가능한 결제 내역 모두 조회 메서드
      */
     public List<PaymentResponse> findPossibleRefundPayment(final String email) {
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 이메일입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return user.getPayments().stream()
                 .filter(payment -> payment.getState() == PaymentState.PAYMENT_COMPLETED) //결제 완료된 내역들만
                 .map(PaymentResponse::toResponse)

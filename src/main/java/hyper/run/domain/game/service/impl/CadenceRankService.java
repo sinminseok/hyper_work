@@ -17,6 +17,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static hyper.run.domain.game.utils.GamePrizeCalculator.*;
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
 
 @RequiredArgsConstructor
 @Service
@@ -57,10 +58,7 @@ public class CadenceRankService implements GameRankService {
     private void distributePrizes(Game game, List<GameHistory> histories) {
         for (int i = 0; i < Math.min(3, histories.size()); i++) {
             GameHistory history = histories.get(i);
-            User user = OptionalUtil.getOrElseThrow(
-                    userRepository.findById(history.getUserId()),
-                    "존재하지 않는 사용자 아이디 입니다."
-            );
+            User user = OptionalUtil.getOrElseThrow(userRepository.findById(history.getUserId()), NOT_EXIST_USER_ID);
 
             double prize = switch (i) {
                 case 0 -> game.getFirstPlacePrize();

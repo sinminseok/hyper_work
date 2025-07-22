@@ -29,7 +29,7 @@ public class GameHistoryResponse {
 
     private int participatedCount;
 
-    private int myPrize;
+    private double myPrize;
 
     public static GameHistoryResponse toResponse(Game game , GameHistory gameHistory){
         return GameHistoryResponse.builder()

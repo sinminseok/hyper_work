@@ -1,6 +1,7 @@
 package hyper.run.domain.user.controller;
 
 import hyper.run.domain.user.dto.request.UserSignupRequest;
+import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
@@ -28,6 +29,17 @@ public class UserController {
         String encode = passwordEncoder.encode(userSignupRequest.getPassword());
         userService.save(userSignupRequest, encode);
         SuccessResponse response = new SuccessResponse(true, "회원 가입 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 프로필 수정 API
+     */
+    @PatchMapping
+    public ResponseEntity<?> updateProfile(@RequestBody UserUpdateRequest userUpdateRequest){
+        String email = getLoginEmailBySecurityContext();
+        userService.updateProfile(email, userUpdateRequest);
+        SuccessResponse response = new SuccessResponse(true, "회원 정보 수정", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
@@ -95,6 +107,9 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 회원 삭제 API
+     */
     @DeleteMapping
     public ResponseEntity<?> deleteUser(){
         String email = getLoginEmailBySecurityContext();

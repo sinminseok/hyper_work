@@ -12,6 +12,9 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.client.RestTemplate;
 
+/**
+ * 문자 전송 클래스
+ */
 @Service
 @RequiredArgsConstructor
 public class SmsService {

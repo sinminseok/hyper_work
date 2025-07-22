@@ -12,6 +12,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_PAYMENT_ID;
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
+
 @Service
 @RequiredArgsConstructor
 public class CustomerInquiryService {
@@ -22,7 +25,7 @@ public class CustomerInquiryService {
 
     @Transactional
     public void applyInquiry(final String email, final InquiryRequest request) {
-        Long userId = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.").getId();
+        Long userId = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL).getId();
         if (request.getType() == InquiryType.REFUND && request.getPaymentId() != null) {
             saveRefundInquiry(userId, request);
         } else {
@@ -31,7 +34,7 @@ public class CustomerInquiryService {
     }
 
     private void saveRefundInquiry(Long userId, InquiryRequest request) {
-        Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findById(request.getPaymentId()), "존재하지 않는 결제 ID 입니다.");
+        Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findById(request.getPaymentId()), NOT_EXIST_PAYMENT_ID);
         payment.updateState(PaymentState.REFUND_REQUESTED);
         repository.save(request.toRefundInquiry(userId));
     }

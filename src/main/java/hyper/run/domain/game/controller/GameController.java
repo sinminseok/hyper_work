@@ -21,17 +21,6 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 public class GameController {
 
     private final GameService gameService;
-    //private final CadenceRankService cadenceRankService;
-
-    /**
-     * 경기 생성 테스트용 API
-     */
-    @PostMapping("/test")
-    public ResponseEntity<?> testGameGenerate(){
-        //cadenceRankService.generateGame(LocalDate.of(2025,10,23), 100000);
-        SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
 
     /**
      * 경기 신청 API

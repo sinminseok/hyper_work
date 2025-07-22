@@ -21,6 +21,7 @@ public class User {
     @Column(name = "user_id", updatable = false)
     private Long id;
 
+    @Setter
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -31,9 +32,11 @@ public class User {
     @Column(name = "password", nullable = true)
     private String password;
 
+    @Setter
     @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 
+    @Setter
     @Column(name = "brith", nullable = false)
     private String brith;
 

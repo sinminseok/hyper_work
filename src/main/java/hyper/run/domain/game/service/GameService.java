@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static hyper.run.exception.ErrorMessages.*;
+
 @Service
 @RequiredArgsConstructor
 public class GameService {
@@ -34,10 +36,10 @@ public class GameService {
      */
     @Transactional
     public void applyGame(final String userEmail, final GameApplyRequest request){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(userEmail), "존재하지 않는 사용자 이메일 입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(userEmail), NOT_EXIST_USER_EMAIL);
         user.validateCouponAmount();
         gameHistoryRepository.save(request.toGameHistory(user.getId()));
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(request.getGameId()), "존재하지 않는 경기 아이디입니다.");
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(request.getGameId()), NOT_EXIST_GAME_ID);
         game.increaseParticipatedCount();
         user.decreaseCoupon();
     }
@@ -47,12 +49,12 @@ public class GameService {
      */
     @Transactional
     public void cancelGame(final String email, final Long gameId){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), "존재하지 않는 사용자 이메일 입니다.");
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), "존재하지 않는 게임입니다.");
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         game.decreaseParticipatedCount();
-        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(user.getId(), gameId), "존재하지 않는 게임 참여 기록입니다.");
-        gameHistoryRepository.delete(gameHistory);
-        user.increaseCoupon();
+        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(user.getId(), gameId), NOT_EXIST_GAME_GISTORY_ID);
+        gameHistoryRepository.delete(gameHistory); // GameHistory 삭제
+        user.increaseCoupon(); // 사용자 쿠폰 1개 증가
     }
 
     /**
@@ -60,7 +62,7 @@ public class GameService {
      * 예정된 경기를 조회한다. 이때 자신이 이미 신청한 경기와 신청하지 않은 경기를 구분한다.
      */
     public List<GameResponse> findGames(final String userEmail) {
-        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 이메일 입니다."));
+        User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
         LocalDateTime now = LocalDateTime.now();
         return gameRepository.findUpcomingGames(now).stream()
                 .filter(game -> game.isInProgress() || game.isNotYetStart())
@@ -72,11 +74,11 @@ public class GameService {
      * 자신의 종료된 경기 참여 내역을 모두 조회한다.
      */
     public List<GameHistoryResponse> findMyGameHistories(final String email) {
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 사용자 이메일 입니다."));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
 
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
                 .map(gameHistory -> {
-                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), "존재하지 않는 게임 ID 입니다."
+                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID
                     );
                     return GameHistoryResponse.toResponse(game, gameHistory);
                 })
@@ -84,7 +86,7 @@ public class GameService {
     }
 
     public GameResponse findById(final Long gameId){
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), "존재하지 않는 게임 ID 입니다.");
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
     }
 
