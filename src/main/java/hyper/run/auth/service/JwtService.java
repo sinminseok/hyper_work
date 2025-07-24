@@ -6,6 +6,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hyper.run.auth.dto.LoginResponse;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.ErrorResponseCode;
+import hyper.run.exception.custom.AuthException;
 import hyper.run.utils.SuccessResponse;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -76,7 +78,7 @@ public class JwtService {
             response.getWriter().flush();
             response.getWriter().close();
         } catch (IOException e) {
-            throw new IllegalArgumentException(FAIL_TO_TRANSFER_TOKEN);
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, FAIL_TO_TRANSFER_TOKEN);
         }
 
     }
@@ -112,7 +114,7 @@ public class JwtService {
         try {
             JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
         } catch (Exception e) {
-            throw new IllegalArgumentException(NOT_VALID_TOKEN);
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, NOT_VALID_TOKEN);
         }
     }
 }

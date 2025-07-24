@@ -15,30 +15,29 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Game {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "game_id", updatable = false)
     private Long id;
 
-    private String name;
+    private String name; // 경기 이름
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", nullable = false)
-    private GameType type;
+    private GameType type; // 경기 유형
 
     @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
-    private GameDistance distance;
+    private GameDistance distance; // 경기 거리
 
     @Column(name = "game_date")
-    private LocalDate gameDate;
+    private LocalDate gameDate; // 경기 날짜
 
     @Column(name = "start_at")
-    private LocalDateTime startAt;
+    private LocalDateTime startAt; // 경기 시작 시간
 
     @Column(name = "end_at")
-    private LocalDateTime endAt;
+    private LocalDateTime endAt; // 경기 종료 시간
 
     @Column(name = "participated_count")
     private int participatedCount; // 총 참여 인원
@@ -76,16 +75,15 @@ public class Game {
         this.participatedCount -= 1;
     }
 
-    // 현재 시간이 startAt과 endAt 사이에 포함되어 있는지 확인
+    // 경기 진행 여부 확인
     public boolean isInProgress() {
         LocalDateTime now = LocalDateTime.now();
         return now.isAfter(startAt) && now.isBefore(endAt);
     }
 
-    // 현재 시간이 startAt 이전인지 확인
+    // 경기 시작 여부 확인
     public boolean isNotYetStart() {
         LocalDateTime now = LocalDateTime.now();
         return now.isBefore(startAt);
     }
-
 }

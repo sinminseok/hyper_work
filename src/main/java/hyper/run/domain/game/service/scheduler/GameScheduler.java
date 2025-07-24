@@ -51,7 +51,7 @@ public class GameScheduler {
             }
         };
 
-        timer.scheduleAtFixedRate(task, 0, 10 * 1000);
+        timer.scheduleAtFixedRate(task, 0, 30 * 1000); // 30초마다 실행
         runningTimers.put(game.getId(), timer);
     }
 }

@@ -56,7 +56,7 @@ public class GameController {
     }
 
     /**
-     * 자신의 경기 참여 내역 조회 (순위, 상금 포함)
+     * 자신의 경기 참여 내역 조회 API (순위, 상금 포함)
      */
     @GetMapping("/history")
     public ResponseEntity<?> getGameHistories(){
@@ -67,7 +67,19 @@ public class GameController {
     }
 
     /**
-     * 경기 단일 조회
+     * 진행중 Or 참가 예정인 자신의 경기 모두 조회 API
+     */
+    @GetMapping("/participate/history")
+    public ResponseEntity<?> getParticipateGameHistories(){
+        String email = getLoginEmailBySecurityContext();
+        List<GameHistoryResponse> gameHistories = gameService.findMyParticipateGames(email);
+        SuccessResponse response = new SuccessResponse(true, "참가중 or 참가 예정인 경기 기록 조회", gameHistories);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+
+    /**
+     * 경기 단일 조회 API
      */
     @GetMapping("/{gameId}")
     public ResponseEntity<?> getGame(@PathVariable Long gameId){

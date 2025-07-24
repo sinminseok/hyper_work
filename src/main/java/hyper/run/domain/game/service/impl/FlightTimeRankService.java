@@ -42,14 +42,26 @@ public class FlightTimeRankService implements GameRankService {
 
     private List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-        histories.sort((g1, g2) -> Double.compare(g2.getCurrentFlightTime(), g1.getCurrentFlightTime())); // 내림차순
+
+        histories.sort((g1, g2) -> {
+            // isDone이 true인 객체가 항상 앞에 오도록
+            if (g1.isDone() && !g2.isDone()) return -1;
+            if (!g1.isDone() && g2.isDone()) return 1;
+
+            // 둘 다 isDone이 같으면 (false인 경우만 해당), cadence score 기준 내림차순
+            return Double.compare(g2.getCurrentFlightTime(), g1.getCurrentFlightTime());
+        });
+
         return histories;
     }
 
+
     private void assignRanks(List<GameHistory> histories) {
-        int rank = 1;
-        for (GameHistory history : histories) {
-            history.setRank(rank++);
+        for(int i=0; i < histories.size(); i++){
+            GameHistory history = histories.get(i);
+            if(!history.isDone()) {
+                history.setRank(i + 1);
+            }
         }
     }
 

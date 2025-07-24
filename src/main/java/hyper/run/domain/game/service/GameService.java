@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.*;
@@ -75,16 +76,34 @@ public class GameService {
      */
     public List<GameHistoryResponse> findMyGameHistories(final String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
-
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
                 .map(gameHistory -> {
-                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID
-                    );
+                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
                     return GameHistoryResponse.toResponse(game, gameHistory);
                 })
                 .toList();
     }
 
+    /**
+     * 자신의 참가중 or 참가 예정인 경기 내역을 모두 조회한다.
+     */
+    public List<GameHistoryResponse> findMyParticipateGames(final String email){
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
+        return gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .map(gameHistory -> {
+                    Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
+                    if (game.isInProgress() || game.isNotYetStart()) {
+                        return GameHistoryResponse.toResponse(game, gameHistory);
+                    }
+                    return null;
+                })
+                .filter(Objects::nonNull)
+                .toList();
+    }
+
+    /**
+     * 경기 단일 조회 by gameID
+     */
     public GameResponse findById(final Long gameId){
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);

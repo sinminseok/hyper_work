@@ -5,6 +5,8 @@ import hyper.run.auth.service.JwtService;
 import hyper.run.auth.service.TokenCustomService;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.ErrorResponseCode;
+import hyper.run.exception.custom.AuthException;
 import hyper.run.utils.SuccessResponse;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -23,6 +25,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Optional;
+
+import static hyper.run.auth.constants.AuthConstants.FAIL_TO_TRANSFER_TOKEN;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -60,7 +64,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         try {
             tokenCustomService.processRefreshToken(refreshToken, response);
         } catch (Exception e) {
-            throw new IllegalArgumentException(e.getMessage());
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, FAIL_TO_TRANSFER_TOKEN);
         }
     }
 
@@ -75,7 +79,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                 .ifPresent(email -> userRepository.findByEmail(email)
                                         .ifPresent(this::saveAuthentication));
                     } catch (Exception e) {
-                        throw new IllegalArgumentException("유효하지 않는 토큰입니다.");
+                        throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "유효하지 않는 토큰입니다.");
                     }
                 });
 

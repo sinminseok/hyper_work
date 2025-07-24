@@ -17,6 +17,8 @@ public class GameApplyRequest {
                 .gameId(this.gameId)
                 .userId(userId)
                 .prize(0)
+                .updateCount(0)
+                .isDone(false)
                 .rank(0);
         if (this.averageBpm != null) {
             builder.targetBpm(this.averageBpm);

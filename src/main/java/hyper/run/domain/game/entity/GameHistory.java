@@ -1,7 +1,9 @@
 package hyper.run.domain.game.entity;
 
+import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import lombok.*;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
@@ -9,6 +11,7 @@ import org.springframework.data.mongodb.core.mapping.Field;
  * 사용자 자신의 게임 기록(결과)
  */
 @Document(collection = "game_history")
+@CompoundIndex(name = "game_user_idx", def = "{'game_id': 1, 'user_id': 1}")
 @Getter
 @Builder
 @AllArgsConstructor
@@ -62,10 +65,19 @@ public class GameHistory {
     @Setter
     private double currentPower;
 
+    @Field("current_speed")
+    @Setter
+    private double currentSpeed;
+
     @Field("current_vertical_oscillation")
     @Setter
     private double currentVerticalOscillation;
 
+    @Field("update_count")
+    private int updateCount;
+
+    @Field("is_done")
+    private boolean isDone;
 
     public double calculateCadenceScore(){
         return Math.abs(targetCadence - currentCadence);
@@ -73,5 +85,23 @@ public class GameHistory {
 
     public double calculateHeartBeatScore() {
         return Math.abs(targetBpm - currentBpm);
+    }
+
+    public void updateCurrentValue(GameHistoryUpdateRequest request) {
+        updateCount++; // 업데이트 횟수 증가
+
+        // 값 최신화
+        currentBpm = request.getCurrentBpm();
+        currentCadence = request.getCurrentCadence();
+
+        // 누적 합산 (예: 총 거리)
+        currentDistance += request.getCurrentDistance();
+        currentFlightTime += request.getCurrentFlightTime();
+
+        // 평균: (이전값 * (n - 1) + 새로운값) / n
+        currentGroundContactTime = ((currentGroundContactTime * (updateCount - 1)) + request.getCurrentGroundContactTime()) / updateCount;
+        currentPower = ((currentPower * (updateCount - 1)) + request.getCurrentPower()) / updateCount;
+        currentVerticalOscillation = ((currentVerticalOscillation * (updateCount - 1)) + request.getCurrentVerticalOscillation()) / updateCount;
+        currentSpeed = ((currentSpeed * (updateCount - 1)) + request.getCurrentSpeed()) / updateCount;
     }
 }
