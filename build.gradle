@@ -4,60 +4,63 @@ plugins {
 	id 'io.spring.dependency-management' version '1.1.7'
 }
 
-group = 'hyper'
-version = '0.0.1-SNAPSHOT'
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
-}
-
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-}
 
 repositories {
 	mavenCentral()
 }
 
-dependencies {
-	implementation 'org.springframework.boot:spring-boot-starter-websocket'
-	implementation group: 'com.auth0', name: 'java-jwt', version: '3.16.0'
-	implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
-	implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
-	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
-	implementation 'jakarta.servlet:jakarta.servlet-api:6.0.0'
-
-	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-	implementation 'org.springframework.boot:spring-boot-starter-security'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
-	implementation 'org.springframework.boot:spring-boot-starter-web'
-	implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
-	compileOnly 'org.projectlombok:lombok'
-	runtimeOnly 'com.mysql:mysql-connector-j'
-	annotationProcessor 'org.projectlombok:lombok'
-
-	implementation 'com.google.oauth-client:google-oauth-client:1.34.0'
-	implementation 'com.google.api-client:google-api-client:2.0.0'
-	implementation 'com.google.http-client:google-http-client-jackson2:1.40.1'
-
-	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
-	implementation 'org.springframework.boot:spring-boot-starter-validation'
-
-	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
-
-	implementation 'com.nimbusds:nimbus-jose-jwt:9.31'
-	testImplementation 'org.springframework.boot:spring-boot-starter-test'
-	testImplementation 'org.springframework.security:spring-security-test'
+allprojects {
+	repositories {
+		mavenCentral()
+		maven { url 'https://jitpack.io' }
+	}
 }
 
-tasks.withType(JavaExec) {
-	jvmArgs += ['-Dfile.encoding=UTF-8']
+
+subprojects {
+	group = 'comumu'
+	version = '0.0.1'
+	sourceCompatibility = '17'
+
+	apply plugin: 'java'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+
+	repositories {
+		mavenCentral()
+		google()
+	}
+
+	ext {
+		set('springCloudVersion', "2023.0.0")
+	}
+
+	dependencyManagement {
+
+		imports {
+			mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+		}
+	}
+
+	dependencies {
+		compileOnly 'org.projectlombok:lombok'
+		annotationProcessor 'org.projectlombok:lombok'
+	}
+
+	bootJar { enabled = false }
+	jar { enabled = true }
+
 }
 
-tasks.named('test') {
-	useJUnitPlatform()
+project(':run_admin') {
+	dependencies {
+		implementation project(':run_core')
+	}
+}
+
+
+project(':run_api') {
+	dependencies {
+		implementation project(':run_core')
+	}
 }
