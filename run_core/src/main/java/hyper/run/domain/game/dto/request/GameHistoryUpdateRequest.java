@@ -7,8 +7,6 @@ import lombok.Getter;
 @Builder
 public class GameHistoryUpdateRequest {
 
-//    private String id;
-
     private Long gameId;
 
     private Long userId;

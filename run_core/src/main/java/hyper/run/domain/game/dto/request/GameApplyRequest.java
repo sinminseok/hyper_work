@@ -1,5 +1,6 @@
 package hyper.run.domain.game.dto.request;
 
+import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameHistory;
 import lombok.Getter;
 
@@ -12,10 +13,11 @@ public class GameApplyRequest {
 
     private Integer targetCadence;
 
-    public GameHistory toGameHistory(final Long userId){
+    public GameHistory toGameHistory(final Long userId, GameDistance gameDistance){
         GameHistory.GameHistoryBuilder builder = GameHistory.builder()
                 .gameId(this.gameId)
                 .userId(userId)
+                .gameDistance(gameDistance)
                 .prize(0)
                 .updateCount(0)
                 .done(false)

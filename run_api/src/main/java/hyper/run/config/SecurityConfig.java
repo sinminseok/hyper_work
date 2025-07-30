@@ -45,6 +45,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sessionManagement -> sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers("/game/**").permitAll()
                         .requestMatchers(HttpMethod.GET, GET_AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.POST, POST_AUTH_WHITELIST).permitAll()
                         .requestMatchers(HttpMethod.PATCH, POST_AUTH_WHITELIST).permitAll()

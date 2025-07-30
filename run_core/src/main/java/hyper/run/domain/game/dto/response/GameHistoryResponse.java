@@ -23,6 +23,8 @@ public class GameHistoryResponse {
 
     private GameDistance gameDistance;
 
+    private LocalDateTime startAt;
+
     private LocalDateTime endAt;
 
     private int myRank;
@@ -43,6 +45,7 @@ public class GameHistoryResponse {
                 .myRank(gameHistory.getRank())
                 .myPrize(gameHistory.getPrize())
                 .connectedWatch(gameHistory.isConnectedWatch())
+                .startAt(game.getStartAt())
                 .build();
     }
 }

@@ -8,6 +8,8 @@ import lombok.Getter;
 @Builder
 public class UserProfileResponse {
 
+    private Long id;
+
     private String name;
 
     private String brith;
@@ -18,6 +20,7 @@ public class UserProfileResponse {
 
     public static UserProfileResponse toProfileResponse(User user){
         return UserProfileResponse.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .brith(user.getBrith())
                 .phoneNumber(user.getPhoneNumber())

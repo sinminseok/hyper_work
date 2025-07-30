@@ -67,10 +67,12 @@ public class Game {
     private String thirdUserName; // 3등 이름
 
 
+    //전체 참가 인원 증가
     public void increaseParticipatedCount(){
         this.participatedCount += 1;
     }
 
+    //전체 참가 인원 감소
     public void decreaseParticipatedCount(){
         this.participatedCount -= 1;
     }

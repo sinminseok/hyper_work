@@ -39,8 +39,8 @@ public class GameService {
     public void applyGame(final String userEmail, final GameApplyRequest request){
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(userEmail), NOT_EXIST_USER_EMAIL);
         user.validateCouponAmount();
-        gameHistoryRepository.save(request.toGameHistory(user.getId()));
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(request.getGameId()), NOT_EXIST_GAME_ID);
+        gameHistoryRepository.save(request.toGameHistory(user.getId(), game.getDistance()));
         game.increaseParticipatedCount();
         user.decreaseCoupon();
     }
@@ -73,6 +73,7 @@ public class GameService {
     /**
      * todo 성능 개선 필요
      * 예정된 경기를 조회한다. 이때 자신이 이미 신청한 경기와 신청하지 않은 경기를 구분한다.
+     * todo 경기 진행중인데, 참여하지 않는 경기는 보여주지 않아야된다.
      */
     public List<GameResponse> findGames(final String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));

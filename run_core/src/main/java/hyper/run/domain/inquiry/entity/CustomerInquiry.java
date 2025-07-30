@@ -20,25 +20,25 @@ public class CustomerInquiry {
     private Long id;
 
     @Column(name = "email", nullable = false)
-    private String email;
+    private String email; // 문의한 사용자 email
 
     @Column(name = "user_id", nullable = false)
-    private Long userId;
+    private Long userId; // 문의한 사용자 id (pk)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", updatable = false, nullable = false)
-    private InquiryType type;
+    private InquiryType type; // 문의 유형
 
     @Column(name = "refund_price", nullable = true)
-    private Integer refundPrice;
+    private Integer refundPrice; // 환불 가격 (문의 유형이 환불일 경우)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "refund_type", nullable = true)
-    private RefundType refundType;
+    private RefundType refundType; // 환불 이유 (문의 유형이 환불일 경우)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
-    private InquiryState state;
+    private InquiryState state; // 문의 상태
 
     @Column(name = "message", updatable = false, nullable = false)
     private String message;
