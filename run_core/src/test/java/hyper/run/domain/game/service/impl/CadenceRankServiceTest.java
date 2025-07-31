@@ -9,15 +9,11 @@ import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameService;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.graphql.tester.AutoConfigureHttpGraphQlTester;
 import org.springframework.boot.test.context.SpringBootTest;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
