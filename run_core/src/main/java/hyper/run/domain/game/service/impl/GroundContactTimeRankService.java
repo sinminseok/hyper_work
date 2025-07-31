@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
@@ -34,10 +35,21 @@ public class GroundContactTimeRankService implements GameRankService {
 
     @Override
     public void saveGameResult(Game game) {
-        List<GameHistory> gameHistories = fetchSortedHistories(game);
-        assignRanks(gameHistories);
+        List<GameHistory> gameHistories = fetchSortedDoneHistories(game);
+        setAllDone(gameHistories);
         distributePrizes(game, gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
+    }
+
+    private List<GameHistory> fetchSortedDoneHistories(Game game) {
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return histories.stream()
+                .sorted(Comparator.comparingInt(GameHistory::getRank))
+                .toList();
+    }
+
+    private void setAllDone(List<GameHistory> histories){
+        histories.forEach(gameHistory -> gameHistory.setDone(true));
     }
 
     private List<GameHistory> fetchSortedHistories(Game game) {

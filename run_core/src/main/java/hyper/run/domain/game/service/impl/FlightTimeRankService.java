@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
@@ -34,26 +35,33 @@ public class FlightTimeRankService implements GameRankService {
 
     @Override
     public void saveGameResult(Game game) {
-        List<GameHistory> gameHistories = fetchSortedHistories(game);
-        assignRanks(gameHistories);
+        List<GameHistory> gameHistories = fetchSortedDoneHistories(game);
+        setAllDone(gameHistories);
         distributePrizes(game, gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
     }
 
     private List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-
         histories.sort((g1, g2) -> {
-            // isDone이 true인 객체가 항상 앞에 오도록
             if (g1.isDone() && !g2.isDone()) return -1;
             if (!g1.isDone() && g2.isDone()) return 1;
-
-            // 둘 다 isDone이 같으면 (false인 경우만 해당), cadence score 기준 내림차순
             return Double.compare(g2.getCurrentFlightTime(), g1.getCurrentFlightTime());
         });
-
         return histories;
     }
+
+    private void setAllDone(List<GameHistory> histories){
+        histories.forEach(gameHistory -> gameHistory.setDone(true));
+    }
+
+    private List<GameHistory> fetchSortedDoneHistories(Game game) {
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return histories.stream()
+                .sorted(Comparator.comparingInt(GameHistory::getRank))
+                .toList();
+    }
+
 
 
     private void assignRanks(List<GameHistory> histories) {

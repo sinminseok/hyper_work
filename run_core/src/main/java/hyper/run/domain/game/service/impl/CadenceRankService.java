@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.domain.game.utils.GamePrizeCalculator.*;
@@ -27,6 +28,11 @@ public class CadenceRankService implements GameRankService {
     private final GameHistoryRepository gameHistoryRepository;
     private final UserRepository userRepository;
 
+    /**
+     * 진행중인 게임 순위(랭킹)계산 메서드
+     * (1) 아직 게임이 종료되지 않은 기록들을 정렬한다.(케이던스 기준)
+     * (2) 정렬된 기록들 중 차례대로 순위를 부여한다.
+     */
     @Override
     public void calculateRank(Game game) {
         List<GameHistory> gameHistories = fetchSortedHistories(game);
@@ -36,10 +42,21 @@ public class CadenceRankService implements GameRankService {
 
     @Override
     public void saveGameResult(Game game) {
-        List<GameHistory> gameHistories = fetchSortedHistories(game);
-        assignRanks(gameHistories);
+        List<GameHistory> gameHistories = fetchSortedDoneHistories(game);
+        setAllDone(gameHistories);
         distributePrizes(game, gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
+    }
+
+    private List<GameHistory> fetchSortedDoneHistories(Game game) {
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return histories.stream()
+                .sorted(Comparator.comparingInt(GameHistory::getRank))
+                .toList();
+    }
+
+    private void setAllDone(List<GameHistory> histories){
+        histories.forEach(gameHistory -> gameHistory.setDone(true));
     }
 
     private List<GameHistory> fetchSortedHistories(Game game) {
@@ -60,6 +77,7 @@ public class CadenceRankService implements GameRankService {
             }
         }
     }
+
 
     private void distributePrizes(Game game, List<GameHistory> histories) {
         for (int i = 0; i < Math.min(3, histories.size()); i++) {

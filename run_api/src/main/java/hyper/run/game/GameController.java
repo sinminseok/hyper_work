@@ -2,6 +2,7 @@ package hyper.run.game;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
+import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.utils.SuccessResponse;
@@ -21,6 +22,24 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 public class GameController {
 
     private final GameService gameService;
+
+    //todo 삭제
+    @PostMapping("/test/start")
+    public ResponseEntity<?> testStart(@RequestParam Long gameId){
+        gameService.testStart(gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 진행중인 경기에서 1등 정보를 조회하는 API
+     */
+    @GetMapping("/history/first-place")
+    public ResponseEntity<?> getFirstPlace(@RequestParam Long gameId){
+        GameInProgressWatchResponse gameInProgressWatchResponse = gameService.findFirstPlaceByGameId(gameId);
+        SuccessResponse response = new SuccessResponse(true, "1등 정보 조회 성공", gameInProgressWatchResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     /**
      * 경기 신청 API

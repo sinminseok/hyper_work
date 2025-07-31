@@ -2,12 +2,14 @@ package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
+import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
+import hyper.run.domain.game.service.scheduler.GameScheduler;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -29,6 +32,12 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
+    private final GameScheduler gameScheduler;
+
+    public void testStart(Long gameId){
+        Game game = gameRepository.findById(gameId).get();
+        gameScheduler.startGameByTest(game);
+    }
 
 
     /**
@@ -90,6 +99,7 @@ public class GameService {
     public List<GameHistoryResponse> findMyGameHistories(final String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .filter(gameHistory -> gameHistory.isDone())
                 .map(gameHistory -> {
                     Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
                     return GameHistoryResponse.toResponse(game, gameHistory);
@@ -130,6 +140,17 @@ public class GameService {
     public GameResponse findById(final Long gameId){
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
+    }
+
+    /**
+     * 1등 경기 정보 조회 메서드
+     */
+    public GameInProgressWatchResponse findFirstPlaceByGameId(final Long gameId){
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(gameId);
+        List<GameHistory> sortedHistories = histories.stream()
+                .sorted(Comparator.comparingInt(GameHistory::getRank))
+                .collect(Collectors.toList());
+        return GameInProgressWatchResponse.toResponse(sortedHistories.get(0));
     }
 
     private GameStatus determineGameStatus(Game game, Long userId) {

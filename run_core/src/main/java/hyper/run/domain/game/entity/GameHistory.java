@@ -103,16 +103,13 @@ public class GameHistory {
 
     public void updateCurrentValue(GameHistoryUpdateRequest request) {
         updateCount++; // 업데이트 횟수 증가
-
-        // 값 최신화
-        currentBpm = request.getCurrentBpm();
-        currentCadence = request.getCurrentCadence();
-
         // 누적 합산 (예: 총 거리)
-        currentDistance += request.getCurrentDistance();
+        currentDistance = request.getCurrentDistance();
         currentFlightTime += request.getCurrentFlightTime();
 
         // 평균: (이전값 * (n - 1) + 새로운값) / n
+        currentBpm = ((currentBpm * (updateCount - 1)) + request.getCurrentBpm()) / updateCount;
+        currentCadence = ((currentCadence * (updateCount - 1)) + request.getCurrentCadence()) / updateCount;
         currentGroundContactTime = ((currentGroundContactTime * (updateCount - 1)) + request.getCurrentGroundContactTime()) / updateCount;
         currentPower = ((currentPower * (updateCount - 1)) + request.getCurrentPower()) / updateCount;
         currentVerticalOscillation = ((currentVerticalOscillation * (updateCount - 1)) + request.getCurrentVerticalOscillation()) / updateCount;

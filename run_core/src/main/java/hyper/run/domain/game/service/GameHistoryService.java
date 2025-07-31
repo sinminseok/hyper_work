@@ -20,8 +20,8 @@ public class GameHistoryService {
     public GameInProgressWatchResponse updateGameHistory(final GameHistoryUpdateRequest request){
         GameHistory gameHistory = OptionalUtil.getOrElseThrow(repository.findByUserIdAndGameId(request.getUserId(), request.getGameId()), "게임 history 가 존재하지 않습니다.");
         gameHistory.updateCurrentValue(request);
-        //게임이 끝났는지 확인 (거리로만 확인)
         gameHistory.checkDoneGameByDistance();
+        repository.save(gameHistory);
         return GameInProgressWatchResponse.toResponse(gameHistory);
     }
 }

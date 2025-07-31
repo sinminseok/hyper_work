@@ -66,7 +66,6 @@ public class Game {
     @Setter
     private String thirdUserName; // 3등 이름
 
-
     //전체 참가 인원 증가
     public void increaseParticipatedCount(){
         this.participatedCount += 1;

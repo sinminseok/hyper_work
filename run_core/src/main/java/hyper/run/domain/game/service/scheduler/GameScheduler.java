@@ -25,12 +25,16 @@ public class GameScheduler {
     public void startGames() {
         LocalDateTime now = LocalDateTime.now();
         List<Game> games = gameRepository.findGamesByDateAndHour(now.toLocalDate(), now.getHour());
-
         for (Game game : games) {
             if (!runningTimers.containsKey(game.getId())) {
                 startGameRankLoop(game);
             }
         }
+    }
+
+    //todo 삭제
+    public void startGameByTest(Game game){
+        startGameRankLoop(game);
     }
 
     private void startGameRankLoop(Game game) {
@@ -51,7 +55,8 @@ public class GameScheduler {
             }
         };
 
-        timer.scheduleAtFixedRate(task, 0, 30 * 1000); // 30초마다 실행
+        //todo 30초로 변경
+        timer.scheduleAtFixedRate(task, 0, 10 * 1000); // 30초마다 실행
         runningTimers.put(game.getId(), timer);
     }
 }
