@@ -18,6 +18,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 
+import static hyper.run.domain.game.service.helper.GameHelper.createGame;
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
 
 /**
@@ -40,7 +41,6 @@ public class HeartBeatRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-
         histories.sort((g1, g2) -> {
             if (g1.isDone() && !g2.isDone()) return -1;
             if (!g1.isDone() && g2.isDone()) return 1;
@@ -51,8 +51,14 @@ public class HeartBeatRankService extends AbstractGameRankService {
     }
 
     @Override
-    public void generateGame(LocalDate date, double totalPrize) {
-
+    public void generateGame(LocalDate date) {
+        for (GameDistance distance : GameDistance.values()) {
+            for (int i = 5; i <= 23; i += distance.getTime()) {
+                if (i + distance.getTime() > 24) break;
+                Game game = createGame(GameType.HEARTBEAT, distance, date, i);
+                gameRepository.save(game);
+            }
+        }
     }
 
     @Override

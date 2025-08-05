@@ -15,6 +15,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Game {
 
+    private static final int PARTICIPATION_FEE = 1200;
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "game_id", updatable = false)
@@ -66,14 +68,26 @@ public class Game {
     @Setter
     private String thirdUserName; // 3등 이름
 
-    //전체 참가 인원 증가
-    public void increaseParticipatedCount(){
+    // 전체 참가 인원 증가
+    public void increaseParticipatedCount() {
         this.participatedCount += 1;
+        updatePrizeByParticipants();
     }
 
-    //전체 참가 인원 감소
-    public void decreaseParticipatedCount(){
-        this.participatedCount -= 1;
+    // 전체 참가 인원 감소
+    public void decreaseParticipatedCount() {
+        if (this.participatedCount > 0) {
+            this.participatedCount -= 1;
+            updatePrizeByParticipants();
+        }
+    }
+
+    // 참가 인원 수에 따라 상금 재계산
+    private void updatePrizeByParticipants() {
+        this.totalPrize = this.participatedCount * PARTICIPATION_FEE;
+        this.firstPlacePrize = Math.floor(totalPrize * 0.80);
+        this.secondPlacePrize = Math.floor(totalPrize * 0.15);
+        this.thirdPlacePrize = Math.floor(totalPrize * 0.05);
     }
 
     // 경기 진행 여부 확인

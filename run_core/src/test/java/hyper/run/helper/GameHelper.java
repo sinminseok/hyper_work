@@ -27,13 +27,13 @@ public class GameHelper {
                 .build();
     }
 
-    public static GameHistory generateCadenceGameHistory(String id, Long gameId, Long userId, int targetCadence, boolean isDone){
+    public static GameHistory generateCadenceGameHistory(String id, Long gameId, Long userId, int targetCadence, boolean isDone, int rank){
         return GameHistory.builder()
                 .id(id)
                 .gameId(gameId)
                 .userId(userId)
                 .gameDistance(GameDistance.FIVE_KM_COURSE)
-                .rank(0)
+                .rank(rank)
                 .prize(0)
                 .targetCadence(targetCadence)
                 .done(isDone)

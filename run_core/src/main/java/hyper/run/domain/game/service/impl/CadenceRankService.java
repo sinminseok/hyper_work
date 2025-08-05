@@ -30,7 +30,6 @@ public class CadenceRankService extends AbstractGameRankService {
         this.userRepository = userRepository;
     }
 
-
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
@@ -48,14 +47,13 @@ public class CadenceRankService extends AbstractGameRankService {
     }
 
     @Override
-    public void generateGame(LocalDate date, double totalPrize) {
+    public void generateGame(LocalDate date) {
         for (GameDistance distance : GameDistance.values()) {
             for (int i = 5; i <= 23; i += distance.getTime()) {
                 if (i + distance.getTime() > 24) break;
-                Game game = createGame(distance, date, i, totalPrize);
+                Game game = createGame(GameType.CADENCE, distance, date, i);
                 gameRepository.save(game);
             }
         }
     }
-
 }

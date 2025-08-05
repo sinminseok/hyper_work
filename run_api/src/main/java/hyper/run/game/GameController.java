@@ -129,4 +129,13 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 자신의 경기 미션을 도달했음을 알리는 API
+     */
+    @PostMapping("/quit")
+    public ResponseEntity<?> quitGame(){
+        SuccessResponse response = new SuccessResponse(true, "내 경기 종료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
 }

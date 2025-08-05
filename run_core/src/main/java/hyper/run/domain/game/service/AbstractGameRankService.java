@@ -78,5 +78,6 @@ public abstract class AbstractGameRankService implements GameRankService {
         }
     }
 
+    //각 경기별 순위(랭킹)를 산정하는 방식이 다르다(즉 정렬 방식이 다르다)
     protected abstract List<GameHistory> fetchSortedHistories(Game game);
 }

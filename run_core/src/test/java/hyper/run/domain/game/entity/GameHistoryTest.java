@@ -1,7 +1,6 @@
 package hyper.run.domain.game.entity;
 
 import hyper.run.domain.game.repository.GameHistoryRepository;
-import hyper.run.domain.game.repository.GameRepository;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ public class GameHistoryTest {
     @Test
     void 케이던스_계산_테스트(){
         //given
-        GameHistory gameHistory = gameHistoryRepository.save(generateCadenceGameHistory("1", 1L, 1L, 150, false));
+        GameHistory gameHistory = gameHistoryRepository.save(generateCadenceGameHistory("1", 1L, 1L, 150, false, 0));
 
         //when
         gameHistory.updateCurrentValue(generateCadenceGameHistoryUpdateRequest(1L, 1L, 150));

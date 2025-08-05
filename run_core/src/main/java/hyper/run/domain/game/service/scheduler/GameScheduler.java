@@ -55,8 +55,7 @@ public class GameScheduler {
             }
         };
 
-        //todo 30초로 변경
-        timer.scheduleAtFixedRate(task, 0, 10 * 1000); // 30초마다 실행
+        timer.scheduleAtFixedRate(task, 0, 30 * 1000); // 30초마다 실행
         runningTimers.put(game.getId(), timer);
     }
 }

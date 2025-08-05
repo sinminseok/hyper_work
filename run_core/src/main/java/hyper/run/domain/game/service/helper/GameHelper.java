@@ -10,19 +10,19 @@ import static hyper.run.domain.game.utils.GamePrizeCalculator.*;
 
 public class GameHelper {
 
-    public static Game createGame(GameDistance distance, LocalDate date, int startTime, double totalPrize) {
+    public static Game createGame(GameType gameType, GameDistance distance, LocalDate date, int startTime) {
         return Game.builder()
-                .name(GameType.CADENCE.getName() + "-" + distance.getName())
-                .type(GameType.CADENCE)
+                .name(gameType.getName() + "-" + distance.getName())
+                .type(gameType)
                 .distance(distance)
                 .gameDate(date)
                 .startAt(date.atTime(startTime, 0))
                 .endAt(date.atTime(startTime, 0).plusHours(distance.getTime()))
                 .participatedCount(0)
-                .totalPrize(totalPrize)
-                .firstPlacePrize(calculateFirstPlacePrize(totalPrize))
-                .secondPlacePrize(calculateSecondPlacePrize(totalPrize))
-                .thirdPlacePrize(calculateThirdPlacePrize(totalPrize))
+                .totalPrize(0)
+                .firstPlacePrize(calculateFirstPlacePrize(0))
+                .secondPlacePrize(calculateSecondPlacePrize(0))
+                .thirdPlacePrize(calculateThirdPlacePrize(0))
                 .build();
     }
 }
