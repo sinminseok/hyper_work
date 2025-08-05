@@ -1,0 +1,30 @@
+
+services:
+  api-server:
+    build: ./run_api
+    container_name: funy-run-api
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
+    env_file:
+      - .env
+    ports:
+      - "8080:8080"
+    restart: always
+    networks:
+      - basic
+    depends_on:
+      - redis
+
+  redis:
+    image: redis:7.2
+    container_name: redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - basic
+
+networks:
+  basic:
+    driver: bridge

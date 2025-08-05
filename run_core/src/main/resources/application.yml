@@ -30,7 +30,7 @@ spring:
         format_sql: false
 
 redis:
-  host: localhost
+  host: ${REDIS_HOST}
   port: 6379
 
 aligo:
