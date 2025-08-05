@@ -53,6 +53,13 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping("/phone-exists")
+    public ResponseEntity<?> checkDuplicatedPhone(@RequestParam String phoneNumber){
+        boolean result = userService.isExistPhoneNumber(phoneNumber);
+        SuccessResponse response = new SuccessResponse(true, "중복확인 결과", result);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /**
      * 사용자 아이디(이메일) 찾기 API
      */

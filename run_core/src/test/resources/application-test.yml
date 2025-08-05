@@ -8,14 +8,15 @@ spring:
       force: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_RDS_URL}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
+    url: ${DB_TEST_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
 
   data:
     mongodb:
       uri: ${MONGO_DB_URL}
-      database: ${MONGO_DB_NAME}
+      database: ${MONGO_TEST_DB_NAME}
       auto-index-creation: true
 
   jpa:

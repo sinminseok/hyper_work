@@ -25,12 +25,16 @@ public class GameScheduler {
     public void startGames() {
         LocalDateTime now = LocalDateTime.now();
         List<Game> games = gameRepository.findGamesByDateAndHour(now.toLocalDate(), now.getHour());
-
         for (Game game : games) {
             if (!runningTimers.containsKey(game.getId())) {
                 startGameRankLoop(game);
             }
         }
+    }
+
+    //todo 삭제
+    public void startGameByTest(Game game){
+        startGameRankLoop(game);
     }
 
     private void startGameRankLoop(Game game) {

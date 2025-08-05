@@ -44,6 +44,7 @@ public class GameHistoryResponse {
                 .endAt(game.getEndAt())
                 .myRank(gameHistory.getRank())
                 .myPrize(gameHistory.getPrize())
+                .participatedCount(game.getParticipatedCount())
                 .connectedWatch(gameHistory.isConnectedWatch())
                 .startAt(game.getStartAt())
                 .build();

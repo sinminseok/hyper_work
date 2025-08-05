@@ -93,6 +93,12 @@ public class GameHistory {
         }
     }
 
+    //남은거리가 짧을수록 높은 순위
+    public double calculateRemainDistance() {
+        // gameDistance.getDistance() 는 단위가 m
+        return gameDistance.getDistance() - currentDistance;
+    }
+
     public double calculateCadenceScore(){
         return Math.abs(targetCadence - currentCadence);
     }
@@ -103,19 +109,16 @@ public class GameHistory {
 
     public void updateCurrentValue(GameHistoryUpdateRequest request) {
         updateCount++; // 업데이트 횟수 증가
-
-        // 값 최신화
-        currentBpm = request.getCurrentBpm();
-        currentCadence = request.getCurrentCadence();
-
         // 누적 합산 (예: 총 거리)
-        currentDistance += request.getCurrentDistance();
-        currentFlightTime += request.getCurrentFlightTime();
+        currentDistance = request.getCurrentDistance();
 
-        // 평균: (이전값 * (n - 1) + 새로운값) / n
-        currentGroundContactTime = ((currentGroundContactTime * (updateCount - 1)) + request.getCurrentGroundContactTime()) / updateCount;
-        currentPower = ((currentPower * (updateCount - 1)) + request.getCurrentPower()) / updateCount;
-        currentVerticalOscillation = ((currentVerticalOscillation * (updateCount - 1)) + request.getCurrentVerticalOscillation()) / updateCount;
-        currentSpeed = ((currentSpeed * (updateCount - 1)) + request.getCurrentSpeed()) / updateCount;
+        //currentSpeed = ((currentSpeed * (updateCount - 1)) + request.getCurrentSpeed()) / updateCount; // 정해진 거리 빠르게 도착할 수록 승리
+
+        currentBpm = ((currentBpm * (updateCount - 1)) + request.getCurrentBpm()) / updateCount; // 목표 평균값에 가까울수록 우승
+        currentCadence = ((currentCadence * (updateCount - 1)) + request.getCurrentCadence()) / updateCount; // 목표 평균값에 가까울수록 우승
+        currentFlightTime += request.getCurrentFlightTime(); // 누적값이 커야 우승
+        currentPower = ((currentPower * (updateCount - 1)) + request.getCurrentPower()) / updateCount; // 평균값이 높아야 우승
+        currentGroundContactTime = ((currentGroundContactTime * (updateCount - 1)) + request.getCurrentGroundContactTime()) / updateCount; // 평균값이 낮아야 우승
+        currentVerticalOscillation = ((currentVerticalOscillation * (updateCount - 1)) + request.getCurrentVerticalOscillation()) / updateCount; // 평균값이 낮아야 우승
     }
 }
