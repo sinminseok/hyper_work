@@ -4,6 +4,7 @@ public enum ErrorResponseCode {
     NOT_VALID_TOKEN(4011),
     FAIL_SEND_TOKEN(4012),
     FAIL_LOGIN(4013),
+    JWT_VALIDATION(4014),
     NOT_FOUND(4041),
     INVALID_DATA(4042),
     NOT_MATCH_ID(4043),

@@ -1,6 +1,8 @@
 package hyper.run.domain.game.repository;
 
 import hyper.run.domain.game.entity.Game;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,4 +23,13 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "WHERE g.gameDate = :targetDate " +
             "AND FUNCTION('HOUR', g.startAt) = :targetHour")
     List<Game> findGamesByDateAndHour(@Param("targetDate") LocalDate targetDate, @Param("targetHour") int targetHour);
+
+    @Query("SELECT g FROM Game g WHERE " +
+            " (g.gameDate >= :startDate) AND " +
+            "(g.gameDate <= :endDate)")
+    Page<Game> findByDateRange(
+            @Param("startDate") LocalDate startDate,
+            @Param("endDate") LocalDate endDate,
+            Pageable pageable
+    );
 }

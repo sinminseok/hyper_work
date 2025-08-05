@@ -1,6 +1,7 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.response.AdminGameResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.entity.Game;
@@ -12,9 +13,12 @@ import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
@@ -144,6 +148,13 @@ public class GameService {
 
     private boolean isUserParticipated(Long gameId, Long userId) {
         return gameHistoryRepository.findByUserIdAndGameId(userId, gameId).isPresent();
+    }
+    /** 관리자
+     * 예정,진행,종료된 경기 모두 조회
+     */
+    public Page<AdminGameResponse> findAllGames(LocalDate startAt, LocalDate endAt, Pageable pageable){
+        Page<Game> games = gameRepository.findByDateRange(startAt, endAt, pageable);
+        return games.map(AdminGameResponse::gamesToAdminGamesDto);
     }
 
 }

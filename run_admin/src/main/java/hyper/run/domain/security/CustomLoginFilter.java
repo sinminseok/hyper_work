@@ -1,4 +1,5 @@
-package hyper.run.auth.filter;
+package hyper.run.domain.security;
+
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,10 +16,9 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
+public class CustomLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-public class CustomLoginAuthenticationFilter extends AbstractAuthenticationProcessingFilter {
-
-    private static final String DEFAULT_LOGIN_REQUEST_URL = "/v1/hyper.run.api/users/login";
+    private static final String DEFAULT_LOGIN_REQUEST_URL = "/v1/api/admin/login";
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
     private static final String USERNAME_KEY = "email";
@@ -27,7 +27,7 @@ public class CustomLoginAuthenticationFilter extends AbstractAuthenticationProce
 
     private final ObjectMapper objectMapper;
 
-    public CustomLoginAuthenticationFilter(ObjectMapper objectMapper) {
+    public CustomLoginFilter(ObjectMapper objectMapper) {
         super(DEFAULT_LOGIN_PATH_REQUEST_MATCHER);
         this.objectMapper = objectMapper;
     }
@@ -41,8 +41,7 @@ public class CustomLoginAuthenticationFilter extends AbstractAuthenticationProce
         Map<String, String> usernamePasswordMap = objectMapper.readValue(messageBody, Map.class);
         String email = usernamePasswordMap.get(USERNAME_KEY);
         String password = usernamePasswordMap.get(PASSWORD_KEY);
-        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);//principal 과 credentials 전달
+        UsernamePasswordAuthenticationToken authRequest = new UsernamePasswordAuthenticationToken(email, password);
         return this.getAuthenticationManager().authenticate(authRequest);
     }
-
 }

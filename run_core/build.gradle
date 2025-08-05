@@ -2,14 +2,7 @@ plugins {
     id 'java'
     id 'org.springframework.boot' version '3.5.3'
     id 'io.spring.dependency-management' version '1.1.7'
-}
-
-sourceSets {
-    main {
-        java {
-            srcDirs = ['src/main/java']
-        }
-    }
+    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 group = 'hyper'
@@ -38,14 +31,39 @@ dependencies {
     runtimeOnly 'com.mysql:mysql-connector-j'
     annotationProcessor 'org.projectlombok:lombok'
     implementation 'com.google.oauth-client:google-oauth-client:1.34.0'
-    implementation 'com.google.api-client:google-api-client:2.0.0'
+    implementation 'com.google.hyper.run.api-client:google-hyper.run.api-client:2.0.0'
     implementation 'com.google.http-client:google-http-client-jackson2:1.40.1'
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
+
+
+    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
+    annotationProcessor "jakarta.annotation:jakarta.annotation-hyper.run.api"
+    annotationProcessor "jakarta.persistence:jakarta.persistence-hyper.run.api"
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
 }
+def querydslDir = "$buildDir/generated/querydsl"
 
+querydsl {
+    jpa = true
+    querydslSourcesDir = querydslDir
+}
+
+sourceSets {
+    main.java.srcDir querydslDir
+}
+
+
+configurations {
+    querydsl.extendsFrom compileClasspath
+}
+
+compileQuerydsl {
+    options.annotationProcessorPath = configurations.querydsl
+}
 tasks.withType(JavaExec) {
     jvmArgs += ['-Dfile.encoding=UTF-8']
 }
