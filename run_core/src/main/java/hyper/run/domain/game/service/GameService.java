@@ -154,6 +154,7 @@ public class GameService {
 
     private GameStatus determineGameStatus(Game game, Long userId) {
         var isParticipated = isUserParticipated(game.getId(), userId);
+
         if (game.isInProgress() && isParticipated) {
             return GameStatus.IN_PROGRESS;
         }

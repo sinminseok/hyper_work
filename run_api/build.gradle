@@ -18,6 +18,7 @@ bootJar {
 
 dependencies {
     implementation project(':run_core')
+
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.16.0'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     testImplementation 'org.springframework.security:spring-security-test'
