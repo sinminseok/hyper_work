@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
   config:
     import: "optional:file:.env[.properties]"
   http:
@@ -20,7 +22,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create
+      ddl-auto: update
       database-platform: org.hibernate.dialect.MySQLDialect
       defer-datasource-initialization: true
     properties:
