@@ -37,7 +37,7 @@ public class UserRepositoryCustomImpl implements UserRepositoryCustom {
                 .where(builder)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
-                .orderBy(getOrderSpecifiers(pageable.getSort())) // ✨ 동적 정렬 적용
+                .orderBy(getOrderSpecifiers(pageable.getSort()))
                 .fetch();
 
         long total = queryFactory
