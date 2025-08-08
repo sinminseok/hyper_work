@@ -149,7 +149,7 @@ public class GameService {
     private boolean isUserParticipated(Long gameId, Long userId) {
         return gameHistoryRepository.findByUserIdAndGameId(userId, gameId).isPresent();
     }
-    /** 관리자
+    /** 관리자 페이지
      * 예정,진행,종료된 경기 모두 조회
      */
     public Page<AdminGameResponse> findAllGames(LocalDate startAt, LocalDate endAt, Pageable pageable){

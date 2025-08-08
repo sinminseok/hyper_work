@@ -29,6 +29,7 @@ public class AdminGameController {
     @GetMapping
     public ResponseEntity<?> getAllGames(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,
                                          @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate endDate,
+                                         @RequestParam(required = false) String keyword,
                                          @PageableDefault(size = 6, sort = "createdAt",direction = Sort.Direction.ASC) Pageable pageable){
         Page<AdminGameResponse> gamePage = gameService.findAllGames(startDate,endDate,pageable);
         SuccessResponse response = new SuccessResponse(true,"게임 조회 성공", gamePage);
