@@ -18,7 +18,7 @@ bootJar {
 
 dependencies {
     implementation project(':run_core')
-
+    implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation group: 'com.auth0', name: 'java-jwt', version: '3.16.0'
     implementation 'org.thymeleaf.extras:thymeleaf-extras-springsecurity6'
     testImplementation 'org.springframework.security:spring-security-test'
@@ -29,7 +29,6 @@ dependencies {
     implementation 'io.jsonwebtoken:jjwt-api:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-impl:0.11.2'
     implementation 'io.jsonwebtoken:jjwt-jackson:0.11.2'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }

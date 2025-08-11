@@ -1,4 +1,4 @@
-package hyper.run.domain.user.service;
+package hyper.run.domain.user.service.oauth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

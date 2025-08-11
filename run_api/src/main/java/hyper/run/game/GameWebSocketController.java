@@ -22,6 +22,7 @@ public class GameWebSocketController {
      */
     @MessageMapping(value = "/game/update")
     public void sendMessage(final GameHistoryUpdateRequest gameHistoryUpdateRequest) {
+        System.out.println("update!!");
         GameInProgressWatchResponse response = service.updateGameHistory(gameHistoryUpdateRequest);
         template.convertAndSend("/sub/game/my/" + gameHistoryUpdateRequest.getGameId() + "/" +gameHistoryUpdateRequest.getUserId(), response); //게임 결과 반영 (웹소켓으로 응답)
     }

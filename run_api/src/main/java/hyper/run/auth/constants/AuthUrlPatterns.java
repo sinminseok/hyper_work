@@ -15,6 +15,7 @@ public final class AuthUrlPatterns {
     public static final String[] POST_AUTH_WHITELIST = {
             V1_BASE_API_URL + "/google",
             V1_BASE_API_URL + "/auth/**",
+            V1_BASE_API_URL + "/oauth/**",
             V1_BASE_API_URL + "/apple",
             V1_BASE_API_URL + "/users",
             V1_BASE_API_URL + "/users/password",
