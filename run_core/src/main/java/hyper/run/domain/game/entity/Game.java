@@ -27,6 +27,10 @@ public class Game {
     private GameType type; // 경기 유형
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private GameStatus status;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
     private GameDistance distance; // 경기 거리
 
@@ -38,6 +42,12 @@ public class Game {
 
     @Column(name = "end_at")
     private LocalDateTime endAt; // 경기 종료 시간
+
+    @Column(name = "created_at")
+    private LocalDateTime createdAt; // 경기 생성 시간
+
+    @Column(name = "modified_at")
+    private LocalDateTime modifiedAt; // 경기 수정 시간
 
     @Column(name = "participated_count")
     private int participatedCount; // 총 참여 인원

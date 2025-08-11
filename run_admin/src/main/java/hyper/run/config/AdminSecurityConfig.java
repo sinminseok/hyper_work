@@ -44,7 +44,9 @@ public class AdminSecurityConfig {
             .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
+                    .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
                     .requestMatchers("/v1/api/admin/login").permitAll()
+                    .requestMatchers("v1/api/admin/games").permitAll()
                     .anyRequest().authenticated()
             );
         return http.build();

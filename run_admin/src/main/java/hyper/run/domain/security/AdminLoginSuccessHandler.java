@@ -38,6 +38,7 @@ public class AdminLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHand
 
         admin.setRefreshToken(refreshToken);
         log.info("로그인에 성공한 관리자 정보 : " + email);
+        log.info("accessToken : " + accessToken);
     }
     private String extractUsername(Authentication authentication){
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();

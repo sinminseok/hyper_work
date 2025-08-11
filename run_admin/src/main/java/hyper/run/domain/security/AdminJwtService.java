@@ -59,7 +59,7 @@ public class AdminJwtService {
     public String createAccessToken(final AccessTokenPayload payload){
         return Jwts.builder()
                 .setSubject(payload.email())
-                .claim("role",payload.role().name())
+                .claim("role",payload.role().getKey())
                 .setIssuer(issuer)
                 .setIssuedAt(payload.date())
                 .setExpiration(new Date(payload.date().getTime()+ accessKeyExpiration * 1000L))

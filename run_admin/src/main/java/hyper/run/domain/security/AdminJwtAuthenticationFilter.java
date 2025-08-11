@@ -72,7 +72,7 @@ public class AdminJwtAuthenticationFilter extends OncePerRequestFilter {
         String email = claims.getSubject();
         String role = claims.get("role",String.class);
         GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, List.of(grantedAuthority));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(email,null,List.of(grantedAuthority));
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

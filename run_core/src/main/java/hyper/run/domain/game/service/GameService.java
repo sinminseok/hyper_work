@@ -152,8 +152,18 @@ public class GameService {
     /** 관리자 페이지
      * 예정,진행,종료된 경기 모두 조회
      */
-    public Page<AdminGameResponse> findAllGames(LocalDate startAt, LocalDate endAt, Pageable pageable){
-        Page<Game> games = gameRepository.findByDateRange(startAt, endAt, pageable);
+    public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate,GameStatus status, String keyword,Pageable pageable){
+        // 1. LocalDate를 LocalDateTime으로 변환합니다. (시간 범위를 포함하기 위함)
+        // startDate가 null이면 null을, 아니면 그 날의 시작 시간(00:00:00)으로 변환
+        LocalDateTime createdAfter = (startDate != null) ? startDate.atStartOfDay() : null;
+
+        // endDate가 null이면 null을, 아니면 그 다음 날의 시작 시간(00:00:00)으로 변환
+        // (이렇게 해야 endDate 당일의 23:59:59까지 포함됩니다)
+        LocalDateTime createdBefore = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
+
+        // 2. 변환된 값으로 리포지토리를 호출합니다.
+        Page<Game> games = gameRepository.findGamesByCriteria(createdAfter, createdBefore, status,keyword,pageable);
+
         return games.map(AdminGameResponse::gamesToAdminGamesDto);
     }
 
