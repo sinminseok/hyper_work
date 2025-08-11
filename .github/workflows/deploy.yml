@@ -47,7 +47,10 @@ jobs:
           echo "RDS_USERNAME=${{ secrets.RDS_USERNAME }}" >> .env
           echo "REDIS_HOST=${{ secrets.REDIS_HOST }}" >> .env
           echo "REFRESH_KEY_EXPIRATION_SECONDS=${{ secrets.REFRESH_KEY_EXPIRATION_SECONDS }}" >> .env
+          echo "ANDROID_OAUTH_CLIENT_KEY=${{ secrets.ANDROID_OAUTH_CLIENT_KEY }}" >> .env
+          echo "IOS_OAUTH_CLIENT_KEY=${{ secrets.IOS_OAUTH_CLIENT_KEY }}" >> .env
           
+  
 
       - name: Upload .env to EC2
         uses: appleboy/scp-action@v0.1.4
