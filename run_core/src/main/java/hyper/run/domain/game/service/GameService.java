@@ -21,6 +21,7 @@ import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.*;
@@ -38,7 +39,6 @@ public class GameService {
         Game game = gameRepository.findById(gameId).get();
         gameScheduler.startGameByTest(game);
     }
-
 
     /**
      * 게임 참가 신청 메서드
@@ -80,15 +80,17 @@ public class GameService {
     }
 
     /**
-     * todo 성능 개선 필요
      * 예정된 경기를 조회한다. 이때 자신이 이미 신청한 경기와 신청하지 않은 경기를 구분한다.
      */
     public List<GameResponse> findGames(final String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
+        Set<Long> participatedGameIds = gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .map(GameHistory::getGameId)
+                .collect(Collectors.toSet());
         LocalDateTime now = LocalDateTime.now();
         return gameRepository.findUpcomingGames(now).stream()
                 .filter(game -> game.isInProgress() || game.isNotYetStart())
-                .map(game -> GameResponse.toResponse(game, determineGameStatus(game, user.getId())))
+                .map(game -> GameResponse.toResponse(game, determineGameStatus(game, participatedGameIds)))
                 .collect(Collectors.toList());
     }
 
@@ -152,19 +154,15 @@ public class GameService {
         return GameInProgressWatchResponse.toResponse(sortedHistories.get(0));
     }
 
-    private GameStatus determineGameStatus(Game game, Long userId) {
-        var isParticipated = isUserParticipated(game.getId(), userId);
-
-        if (game.isInProgress() && isParticipated) {
+    private GameStatus determineGameStatus(Game game, Set<Long> participatedGameIds) {
+        boolean userParticipated = participatedGameIds.contains(game.getId());
+        if (game.isInProgress() && userParticipated) {
             return GameStatus.IN_PROGRESS;
         }
-        return isParticipated
-                ? GameStatus.REGISTRATION_COMPLETE
-                : GameStatus.REGISTRATION_OPEN;
-    }
-
-    private boolean isUserParticipated(Long gameId, Long userId) {
-        return gameHistoryRepository.findByUserIdAndGameId(userId, gameId).isPresent();
+        if (userParticipated) {
+            return GameStatus.REGISTRATION_COMPLETE;
+        }
+        return GameStatus.REGISTRATION_OPEN;
     }
 
 }

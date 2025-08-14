@@ -60,6 +60,14 @@ public class User {
     @Column(name = "refreshToken", nullable = true)
     private String refreshToken;
 
+    @Setter
+    @Column(name = "watch_connected_key", nullable = true)
+    private String watchConnectedKey;
+
+    @Setter
+    @Column(name = "accessToken", nullable = true)
+    private String accessToken;
+
     public void increasePoint(double updatePoint){
         this.point += updatePoint;
     }

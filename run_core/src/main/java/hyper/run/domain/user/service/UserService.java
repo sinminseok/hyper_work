@@ -4,6 +4,7 @@ import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
+import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
@@ -107,6 +108,16 @@ public class UserService {
         user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
     }
 
+    public UserWatchConnectedResponse findUserWatchConnectedResponse(final String email){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        return UserWatchConnectedResponse.from(user);
+    }
+
+    public String checkWatchKey(final String watchKey) {
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByWatchConnectedKey(watchKey), NOT_EXIST_USER_EMAIL);
+        return user.getAccessToken();
+    }
+
     private void validateDuplicatedEmail(String email){
         if(isExistEmail(email)){
             throw new UserDuplicatedException("이미 가입된 이메일입니다.");
@@ -118,4 +129,6 @@ public class UserService {
             throw new UserDuplicatedException("이미 가입된 휴대폰 번호입니다.");
         }
     }
+
+
 }

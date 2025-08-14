@@ -17,7 +17,6 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class GameRankServiceConfig {
 
-    //GameRankService 를 이용한 구현체가 여러개 있으면 스프링이 자동으로 주입해줌
     private final List<GameRankService> gameRankServiceList;
 
     @Bean

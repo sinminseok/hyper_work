@@ -1,9 +1,11 @@
 package hyper.run.game;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
+import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -31,6 +33,7 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    //todo 삭제
     /**
      * 진행중인 경기에서 1등 정보를 조회하는 API
      */
@@ -128,14 +131,4 @@ public class GameController {
         SuccessResponse response = new SuccessResponse(true, "경기 단일 조회 성공", gameResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-    /**
-     * 자신의 경기 미션을 도달했음을 알리는 API
-     */
-    @PostMapping("/quit")
-    public ResponseEntity<?> quitGame(){
-        SuccessResponse response = new SuccessResponse(true, "내 경기 종료", null);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
 }

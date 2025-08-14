@@ -10,6 +10,7 @@ public final class AuthUrlPatterns {
             V1_BASE_API_URL + "/users/email-exists",
             V1_BASE_API_URL + "/users/phone-exists",
             V1_BASE_API_URL + "/users/id",
+            V1_BASE_API_URL + "/users/watch-connect-information/access-token"
     };
 
     public static final String[] POST_AUTH_WHITELIST = {

@@ -38,11 +38,12 @@ public class FlightTimeRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-        histories.sort((g1, g2) -> {
-            if (g1.isDone() && !g2.isDone()) return -1;
-            if (!g1.isDone() && g2.isDone()) return 1;
-            return Double.compare(g2.getCurrentFlightTime(), g1.getCurrentFlightTime());
-        });
+        histories.sort(
+                Comparator
+                        .comparing(GameHistory::isDone)
+                        .reversed()
+                        .thenComparing(Comparator.comparingDouble(GameHistory::getCurrentFlightTime).reversed())
+        );
         return histories;
     }
 

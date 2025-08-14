@@ -7,15 +7,14 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
-/**
- * 사용자 자신의 게임 기록(결과)
- */
-@Document(collection = "game_history")
-@CompoundIndex(name = "game_user_idx", def = "{'game_id': 1, 'user_id': 1}")
+
 @Getter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Document(collection = "game_history")
+@CompoundIndex(name = "game_user_idx", def = "{'game_id': 1, 'user_id': 1}")
+@CompoundIndex(name = "user_id_idx", def = "{'user_id': 1}")
 public class GameHistory {
 
     @Id
@@ -30,12 +29,12 @@ public class GameHistory {
     @Field("user_id")
     private Long userId;
 
-    @Field("rank")
     @Setter
+    @Field("rank")
     private int rank;
 
-    @Field("prize")
     @Setter
+    @Field("prize")
     private double prize;
 
     @Field("target_bpm")
@@ -44,81 +43,93 @@ public class GameHistory {
     @Field("target_cadence")
     private Integer targetCadence;
 
-    @Field("current_bpm")
     @Setter
+    @Field("current_bpm")
     private double currentBpm;
 
-    @Field("current_cadence")
     @Setter
+    @Field("current_cadence")
     private double currentCadence;
 
-    @Field("current_distance")
     @Setter
+    @Field("current_distance")
     private double currentDistance;
 
-    @Field("current_flight_time")
     @Setter
+    @Field("current_flight_time")
     private double currentFlightTime;
 
-    @Field("current_ground_contact_time")
     @Setter
+    @Field("current_ground_contact_time")
     private double currentGroundContactTime;
 
-    @Field("current_power")
     @Setter
+    @Field("current_power")
     private double currentPower;
 
-    @Field("current_speed")
     @Setter
+    @Field("current_speed")
     private double currentSpeed;
 
-    @Field("current_vertical_oscillation")
     @Setter
+    @Field("current_vertical_oscillation")
     private double currentVerticalOscillation;
 
     @Field("update_count")
     private int updateCount;
 
-    @Field("is_done")
     @Setter
+    @Field("is_done")
     private boolean done;
 
-    @Field("is_connected_watch")
     @Setter
+    @Field("is_connected_watch")
     private boolean connectedWatch;
 
-    public void checkDoneGameByDistance(){
-        if(currentDistance >= gameDistance.getDistance()){
-            this.done = true;
+    public void checkDoneByDistance() {
+        if (currentDistance >= gameDistance.getDistance()) {
+            markAsDone();
         }
     }
 
-    //남은거리가 짧을수록 높은 순위
-    public double calculateRemainDistance() {
-        // gameDistance.getDistance() 는 단위가 m
+    public void markAsDone() {
+        this.done = true;
+    }
+
+    public void connectWatch() {
+        this.connectedWatch = true;
+    }
+
+    public double getRemainingDistance() {
         return gameDistance.getDistance() - currentDistance;
     }
 
-    public double calculateCadenceScore(){
+    public double getCadenceScore() {
         return Math.abs(targetCadence - currentCadence);
     }
 
-    public double calculateHeartBeatScore() {
+    public double getHeartBeatScore() {
         return Math.abs(targetBpm - currentBpm);
     }
 
-    public void updateCurrentValue(GameHistoryUpdateRequest request) {
-        updateCount++; // 업데이트 횟수 증가
-        // 누적 합산 (예: 총 거리)
+    public void updateFrom(GameHistoryUpdateRequest request) {
+        updateCount++;
+        int previousCount = updateCount - 1;
         currentDistance = request.getCurrentDistance();
+        currentBpm = calculateAverage(currentBpm, request.getCurrentBpm(), previousCount);
+        currentCadence = calculateAverage(currentCadence, request.getCurrentCadence(), previousCount);
+        currentPower = calculateAverage(currentPower, request.getCurrentPower(), previousCount);
+        currentGroundContactTime = calculateAverage(currentGroundContactTime, request.getCurrentGroundContactTime(), previousCount);
+        currentVerticalOscillation = calculateAverage(currentVerticalOscillation, request.getCurrentVerticalOscillation(), previousCount);
 
-        //currentSpeed = ((currentSpeed * (updateCount - 1)) + request.getCurrentSpeed()) / updateCount; // 정해진 거리 빠르게 도착할 수록 승리
+        accumulateFlightTime(request.getCurrentFlightTime());
+    }
 
-        currentBpm = ((currentBpm * (updateCount - 1)) + request.getCurrentBpm()) / updateCount; // 목표 평균값에 가까울수록 우승
-        currentCadence = ((currentCadence * (updateCount - 1)) + request.getCurrentCadence()) / updateCount; // 목표 평균값에 가까울수록 우승
-        currentFlightTime += request.getCurrentFlightTime(); // 누적값이 커야 우승
-        currentPower = ((currentPower * (updateCount - 1)) + request.getCurrentPower()) / updateCount; // 평균값이 높아야 우승
-        currentGroundContactTime = ((currentGroundContactTime * (updateCount - 1)) + request.getCurrentGroundContactTime()) / updateCount; // 평균값이 낮아야 우승
-        currentVerticalOscillation = ((currentVerticalOscillation * (updateCount - 1)) + request.getCurrentVerticalOscillation()) / updateCount; // 평균값이 낮아야 우승
+    private double calculateAverage(double currentValue, double newValue, int previousCount) {
+        return ((currentValue * previousCount) + newValue) / updateCount;
+    }
+
+    private void accumulateFlightTime(double additionalTime) {
+        currentFlightTime += additionalTime;
     }
 }

@@ -41,14 +41,17 @@ public class HeartBeatRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-        histories.sort((g1, g2) -> {
-            if (g1.isDone() && !g2.isDone()) return -1;
-            if (!g1.isDone() && g2.isDone()) return 1;
-            return Double.compare(g1.calculateHeartBeatScore(), g2.calculateHeartBeatScore());
-        });
+
+        histories.sort(
+                Comparator
+                        .comparing(GameHistory::isDone)
+                        .reversed()
+                        .thenComparingDouble(GameHistory::getHeartBeatScore)
+        );
 
         return histories;
     }
+
 
     @Override
     public void generateGame(LocalDate date) {

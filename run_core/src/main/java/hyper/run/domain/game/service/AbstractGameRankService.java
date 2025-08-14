@@ -47,35 +47,49 @@ public abstract class AbstractGameRankService implements GameRankService {
     }
 
     private void assignRanks(List<GameHistory> histories) {
-        for (int i = 0; i < histories.size(); i++) {
-            GameHistory history = histories.get(i);
+        int rank = 1;
+        for (GameHistory history : histories) {
             if (!history.isDone()) {
-                history.setRank(i + 1);
+                history.setRank(rank++);
             }
         }
     }
 
     private void distributePrizes(Game game, List<GameHistory> histories) {
-        for (int i = 0; i < Math.min(3, histories.size()); i++) {
+        int limit = Math.min(3, histories.size());
+        for (int i = 0; i < limit; i++) {
             GameHistory history = histories.get(i);
-            User user = OptionalUtil.getOrElseThrow(userRepository.findById(history.getUserId()), hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID);
-
-            double prize = switch (i) {
-                case 0 -> game.getFirstPlacePrize();
-                case 1 -> game.getSecondPlacePrize();
-                case 2 -> game.getThirdPlacePrize();
-                default -> 0;
-            };
-
-            user.increasePoint(prize);
-            history.setPrize(prize);
-
-            switch (i) {
-                case 0 -> game.setFirstUserName(user.getName());
-                case 1 -> game.setSecondUserName(user.getName());
-                case 2 -> game.setThirdUserName(user.getName());
-            }
+            User user = OptionalUtil.getOrElseThrow(
+                    userRepository.findById(history.getUserId()),
+                    hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID
+            );
+            double prize = calculatePrizeForRank(game, i);
+            awardPrizeToUser(history, user, prize);
+            assignWinnerName(game, i, user);
         }
+    }
+
+
+    private double calculatePrizeForRank(Game game, int rank) {
+        return switch (rank) {
+            case 0 -> game.getFirstPlacePrize();
+            case 1 -> game.getSecondPlacePrize();
+            case 2 -> game.getThirdPlacePrize();
+            default -> 0;
+        };
+    }
+
+    private void assignWinnerName(Game game, int rank, User user) {
+        switch (rank) {
+            case 0 -> game.setFirstUserName(user.getName());
+            case 1 -> game.setSecondUserName(user.getName());
+            case 2 -> game.setThirdUserName(user.getName());
+        }
+    }
+
+    private void awardPrizeToUser(GameHistory history, User user, double prize) {
+        user.increasePoint(prize);
+        history.setPrize(prize);
     }
 
     //각 경기별 순위(랭킹)를 산정하는 방식이 다르다(즉 정렬 방식이 다르다)
