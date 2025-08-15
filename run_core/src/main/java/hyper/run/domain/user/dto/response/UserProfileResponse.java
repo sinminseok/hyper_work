@@ -18,6 +18,8 @@ public class UserProfileResponse {
 
     private String profileUrl;
 
+    private double point;
+
     public static UserProfileResponse toProfileResponse(User user){
         return UserProfileResponse.builder()
                 .id(user.getId())
@@ -25,6 +27,7 @@ public class UserProfileResponse {
                 .brith(user.getBrith())
                 .phoneNumber(user.getPhoneNumber())
                 .profileUrl(user.getProfileUrl())
+                .point(user.getPoint())
                 .build();
     }
 }

@@ -11,6 +11,7 @@ import hyper.run.domain.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.domain.game.service.helper.GameHelper.createGame;
@@ -33,11 +34,12 @@ public class CadenceRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
-        histories.sort((g1, g2) -> {
-            if (g1.isDone() && !g2.isDone()) return -1;
-            if (!g1.isDone() && g2.isDone()) return 1;
-            return Double.compare(g1.calculateCadenceScore(), g2.calculateCadenceScore());
-        });
+        histories.sort(
+                Comparator
+                        .comparing(GameHistory::isDone)
+                        .reversed()
+                        .thenComparingDouble(GameHistory::getCadenceScore)
+        );
         return histories;
     }
 

@@ -12,6 +12,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.transaction.annotation.Transactional;
 
+import static hyper.run.domain.user.utils.WatchKeyGenerator.generateRandomCode;
+
 
 @Slf4j
 @RequiredArgsConstructor
@@ -27,10 +29,13 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         String email = extractUsername(authentication);
         String accessToken = jwtService.createAccessToken(email);
         String refreshToken = jwtService.createRefreshToken();
-
         jwtService.sendAccessAndRefreshToken(response, accessToken, refreshToken);
         User user = userRepository.findByEmail(email).get();
         user.setRefreshToken(refreshToken);
+        if(user.getWatchConnectedKey() == null) {
+            user.setWatchConnectedKey(generateRandomCode());
+        }
+        user.setAccessToken(accessToken);
     }
 
     private String extractUsername(Authentication authentication) {

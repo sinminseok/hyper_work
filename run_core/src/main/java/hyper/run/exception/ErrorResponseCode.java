@@ -12,6 +12,7 @@ public enum ErrorResponseCode {
     FCM_PUSH(5005),
     GOOGLE_LOCATION(5006),
     POINT_INSUFFICIENT(5007),
+    COUPON_INSUFFICIENT(5008),
     OAUTH_INVALID(5009);
 
     private final int code;

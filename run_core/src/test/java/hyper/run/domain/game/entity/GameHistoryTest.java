@@ -20,9 +20,9 @@ public class GameHistoryTest {
         GameHistory gameHistory = gameHistoryRepository.save(generateCadenceGameHistory("1", 1L, 1L, 150, false, 0));
 
         //when
-        gameHistory.updateCurrentValue(generateCadenceGameHistoryUpdateRequest(1L, 1L, 150));
-        gameHistory.updateCurrentValue(generateCadenceGameHistoryUpdateRequest(1L, 1L, 300));
-        gameHistory.updateCurrentValue(generateCadenceGameHistoryUpdateRequest(1L, 1L, 900));
+        gameHistory.updateFrom(generateCadenceGameHistoryUpdateRequest(1L, 1L, 150));
+        gameHistory.updateFrom(generateCadenceGameHistoryUpdateRequest(1L, 1L, 300));
+        gameHistory.updateFrom(generateCadenceGameHistoryUpdateRequest(1L, 1L, 900));
 
         Assertions.assertThat(gameHistory.getCurrentCadence()).isEqualTo(450.0);
     }

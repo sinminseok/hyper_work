@@ -1,13 +1,17 @@
 package hyper.run.domain.game.entity;
 
-import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@Table(name = "game")
+@Table(
+        name = "game",
+        indexes = {
+                @Index(name = "idx_game_end_at", columnList = "end_at")
+        }
+)
 @Entity
 @Getter
 @Builder
@@ -15,6 +19,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Game {
 
+    private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;
 
     @Id
@@ -88,6 +93,11 @@ public class Game {
         this.firstPlacePrize = Math.floor(totalPrize * 0.80);
         this.secondPlacePrize = Math.floor(totalPrize * 0.15);
         this.thirdPlacePrize = Math.floor(totalPrize * 0.05);
+    }
+
+    //참여 인원이 3명 이하면 시작하지 않는다.
+    public boolean canNotStartGame(){
+        return GAME_START_STANDARD_PEOPLE_COUNT >= this.participatedCount;
     }
 
     // 경기 진행 여부 확인

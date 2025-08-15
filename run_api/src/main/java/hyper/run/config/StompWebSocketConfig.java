@@ -18,7 +18,6 @@ public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Value("${domain.websocket.subscribe}")
     private String sub; // /sub
 
-
     @Override
     public void registerStompEndpoints(final StompEndpointRegistry registry) {
         registry.addEndpoint(gameUrl)
