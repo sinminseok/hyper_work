@@ -4,10 +4,15 @@ import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.exception.custom.InsufficientCouponException;
+import hyper.run.exception.custom.NotEnoughRefundAmount;
+import hyper.run.exception.custom.UserDuplicatedException;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+
+import static hyper.run.exception.ErrorMessages.NOT_ENOUGH_COUPON_AMOUNT;
+import static hyper.run.exception.ErrorMessages.NOT_ENOUGH_TO_REFUND_AMOUNT;
 
 @Table(name = "user")
 @Entity
@@ -46,8 +51,8 @@ public class User {
     @Column(name = "coupon", nullable = false)
     private int coupon;
 
-    @Column(name = "point", nullable = false)
     @Setter
+    @Column(name = "point", nullable = false)
     private double point;
 
     @Column(name = "profile_url", nullable = true)
@@ -68,6 +73,22 @@ public class User {
     @Column(name = "accessToken", nullable = true)
     private String accessToken;
 
+    public void validateRefundPossible(final int couponCount){
+        if(this.coupon < couponCount){
+            throw new NotEnoughRefundAmount(NOT_ENOUGH_TO_REFUND_AMOUNT);
+        }
+    }
+
+    public void validateExchange(final double amount){
+        if(this.point < amount){
+            throw new NotEnoughRefundAmount(NOT_ENOUGH_TO_REFUND_AMOUNT);
+        }
+    }
+
+    public void decreasePoint(double amount){
+        this.point -= amount;
+    }
+
     public void increasePoint(double updatePoint){
         this.point += updatePoint;
     }
@@ -86,7 +107,7 @@ public class User {
 
     public void validateCouponAmount(){
         if(coupon < 1) {
-            throw new InsufficientCouponException("쿠폰 수량 부족");
+            throw new InsufficientCouponException(NOT_ENOUGH_COUPON_AMOUNT);
         }
     }
 
