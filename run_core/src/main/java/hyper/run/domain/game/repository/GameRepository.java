@@ -25,16 +25,4 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "AND FUNCTION('HOUR', g.startAt) = :targetHour")
     List<Game> findGamesByDateAndHour(@Param("targetDate") LocalDate targetDate, @Param("targetHour") int targetHour);
 
-    @Query("SELECT g FROM Game g WHERE " +
-            "(:createdAfter IS NULL OR g.createdAt >= :createdAfter) AND " +
-            "(:createdBefore IS NULL OR g.createdAt < :createdBefore) AND " +
-            "(:status IS NULL OR g.status = :status) AND " +
-            "(:keyword IS NULL OR g.name LIKE %:keyword%)")
-    Page<Game> findGamesByCriteria(
-            @Param("createdAfter") LocalDateTime createdAfter,
-            @Param("createdBefore") LocalDateTime createdBefore,
-            @Param("status") GameStatus status,
-            @Param("keyword") String keyword,
-            Pageable pageable
-    );
 }

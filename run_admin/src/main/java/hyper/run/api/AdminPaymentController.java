@@ -1,0 +1,35 @@
+package hyper.run.api;
+
+import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
+import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
+import hyper.run.domain.payment.entity.Payment;
+import hyper.run.domain.payment.service.PaymentService;
+import hyper.run.utils.SuccessResponse;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+@RequiredArgsConstructor
+@RestController
+@RequestMapping("/v1/api/admin/payments")
+public class AdminPaymentController {
+
+    private final PaymentService paymentService;
+
+    @GetMapping
+    public ResponseEntity<?> getPayments(@ModelAttribute PaymentSearchRequest searchRequest,
+                                        @PageableDefault(size = 6) Pageable pageable){
+        Page<AdminPaymentResponse> payments = paymentService.searchPayments(searchRequest,pageable);
+        SuccessResponse response = new SuccessResponse(true,"조건별 결제 조회 성공",payments);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+}

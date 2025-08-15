@@ -27,8 +27,8 @@ public class AdminUserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> delete(@RequestBody String email){
+    @DeleteMapping("/delete/{email}")
+    public ResponseEntity<?> delete(@PathVariable String email){
         userService.deleteUser(email);
         SuccessResponse response = new SuccessResponse(true, "회원 삭제 완료", null);
         return new ResponseEntity<>(response, HttpStatus.OK);

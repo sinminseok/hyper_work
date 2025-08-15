@@ -41,6 +41,7 @@ public class Payment {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
+
     public void updateState(PaymentState updateState){
         this.state = updateState;
     }

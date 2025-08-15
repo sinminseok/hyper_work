@@ -18,14 +18,13 @@ import org.springframework.util.StringUtils;
 
 import java.util.List;
 
-import static hyper.run.domain.user.entity.QUser.user;
 
 @Repository
 @RequiredArgsConstructor
 public class UserRepositoryCustomImpl implements UserRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
+    private final QUser user = QUser.user;
 
     // 카테고리 별 커스텀 조회
     @Override

@@ -9,6 +9,7 @@ import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
+import hyper.run.domain.game.repository.admin.GameRepositoryCustomImpl;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
@@ -33,6 +34,7 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
+    private final GameRepositoryCustomImpl gameRepositoryCustom;
 
 
     /**
@@ -162,7 +164,7 @@ public class GameService {
         LocalDateTime createdBefore = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
 
         // 2. 변환된 값으로 리포지토리를 호출합니다.
-        Page<Game> games = gameRepository.findGamesByCriteria(createdAfter, createdBefore, status,keyword,pageable);
+        Page<Game> games = gameRepositoryCustom.findGamesByCriteria(createdAfter, createdBefore, status,keyword,pageable);
 
         return games.map(AdminGameResponse::gamesToAdminGamesDto);
     }

@@ -1,14 +1,19 @@
 package hyper.run.domain.payment.service;
 
 import hyper.run.domain.payment.dto.request.PaymentRequest;
+import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
+import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
 import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
+import hyper.run.domain.payment.repository.impl.PaymentCustomRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -22,6 +27,7 @@ public class PaymentService {
 
     private final PaymentRepository repository;
     private final UserRepository userRepository;
+    private final PaymentCustomRepository paymentCustomRepository;
 
     /**
      * 결제 메서드
@@ -44,5 +50,10 @@ public class PaymentService {
                 .collect(Collectors.toList());
     }
 
-
+    /**
+     * 결제 목록 필터링을 통해 모두 조회
+     */
+    public Page<AdminPaymentResponse> searchPayments(final PaymentSearchRequest searchRequest, Pageable pageable){
+        return paymentCustomRepository.searchPayments(searchRequest,pageable);
+    }
 }

@@ -9,6 +9,7 @@ import hyper.run.domain.service.AdminUserDetailsService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.ProviderManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -44,9 +45,10 @@ public class AdminSecurityConfig {
             .addFilterAfter(jwtAuthenticationFilter, BasicAuthenticationFilter.class)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(authorize -> authorize
-                    .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
+                    //  OPTIONS 요청은 인증 없이 항상 최우선으로 허용
+                    .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                     .requestMatchers("/v1/api/admin/login").permitAll()
-                    .requestMatchers("v1/api/admin/games").permitAll()
+                    .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
                     .anyRequest().authenticated()
             );
         return http.build();
