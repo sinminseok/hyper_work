@@ -8,10 +8,9 @@ import java.time.LocalDate;
 public interface GameRankService {
     void calculateRank(Game game);
 
-    void generateGame(LocalDate date, double totalPrize);
+    void generateGame(LocalDate date);
 
     void saveGameResult(Game game);
 
     GameType getGameType();
-
 }

@@ -8,12 +8,15 @@ public final class AuthUrlPatterns {
     public static final String[] GET_AUTH_WHITELIST = {
             V1_BASE_API_URL + "/users",
             V1_BASE_API_URL + "/users/email-exists",
+            V1_BASE_API_URL + "/users/phone-exists",
             V1_BASE_API_URL + "/users/id",
+            V1_BASE_API_URL + "/users/watch-connect-information/access-token"
     };
 
     public static final String[] POST_AUTH_WHITELIST = {
             V1_BASE_API_URL + "/google",
             V1_BASE_API_URL + "/auth/**",
+            V1_BASE_API_URL + "/oauth/**",
             V1_BASE_API_URL + "/apple",
             V1_BASE_API_URL + "/users",
             V1_BASE_API_URL + "/users/password",

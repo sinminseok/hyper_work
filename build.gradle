@@ -34,7 +34,6 @@ subprojects {
 	ext {
 		set('springCloudVersion', "2023.0.0")
 	}
-
 	dependencyManagement {
 
 		imports {

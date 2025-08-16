@@ -24,8 +24,7 @@ public class AuthController {
     public ResponseEntity<?> sendCode(@RequestParam String phoneNumber) {
         String code = AuthCodeUtil.generate6DigitCode();
         authCodeService.saveAuthCode(phoneNumber, code);
-        System.out.println("code === " + code);
-        //smsService.sendSms(phoneNumber, "[HYPER.RUN] 인증번호는 " + code + " 입니다.");
+        smsService.sendSms(phoneNumber, code);
         SuccessResponse response = new SuccessResponse(true, "인증번호 전송 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

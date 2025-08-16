@@ -1,4 +1,6 @@
 spring:
+  jackson:
+    time-zone: Asia/Seoul
   config:
     import: "optional:file:.env[.properties]"
   http:
@@ -8,10 +10,9 @@ spring:
       force: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
+    url: ${DB_RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
 
   data:
     mongodb:
@@ -29,14 +30,15 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
-  redis:
-    host: localhost
-    port: 6379
+
+redis:
+  host: ${REDIS_HOST}
+  port: 6379
 
 aligo:
-  user-id: your_aligo_id
-  api-key: your_aligo_api_key
-  sender: 01012345678   # 발신자 번호 (사전 등록된 번호여야 함)
+  user-id: funyrun
+  api-key: f09xfl65p6qd89d88mew0byjjm4rnekk
+  sender: 1844-1080   # 발신자 번호 (사전 등록된 번호여야 함)
 
 jwt:
   secretKey: ${JWT_KEY}
@@ -59,6 +61,8 @@ domain:
     game: /game
     publish: /pub
     subscribe: /sub
+
+
 
 server:
   tomcat:

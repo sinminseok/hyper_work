@@ -3,13 +3,15 @@ package hyper.run.domain.game.service;
 import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.response.AdminGameResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
+import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
-import hyper.run.domain.game.repository.admin.GameRepositoryCustomImpl;
+import hyper.run.domain.game.repository.admin.GameRepositoryCustom;
+import hyper.run.domain.game.service.scheduler.GameScheduler;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
@@ -21,8 +23,10 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.*;
@@ -34,8 +38,13 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final GameRepositoryCustomImpl gameRepositoryCustom;
+    private final GameScheduler gameScheduler;
+    private final GameRepositoryCustom gameRepositoryCustom;
 
+    public void testStart(Long gameId){
+        Game game = gameRepository.findById(gameId).get();
+        gameScheduler.startGameByTest(game);
+    }
 
     /**
      * 게임 참가 신청 메서드
@@ -77,16 +86,17 @@ public class GameService {
     }
 
     /**
-     * todo 성능 개선 필요
      * 예정된 경기를 조회한다. 이때 자신이 이미 신청한 경기와 신청하지 않은 경기를 구분한다.
-     * todo 경기 진행중인데, 참여하지 않는 경기는 보여주지 않아야된다.
      */
     public List<GameResponse> findGames(final String userEmail) {
         User user = userRepository.findByEmail(userEmail).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
+        Set<Long> participatedGameIds = gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .map(GameHistory::getGameId)
+                .collect(Collectors.toSet());
         LocalDateTime now = LocalDateTime.now();
         return gameRepository.findUpcomingGames(now).stream()
                 .filter(game -> game.isInProgress() || game.isNotYetStart())
-                .map(game -> GameResponse.toResponse(game, determineGameStatus(game, user.getId())))
+                .map(game -> GameResponse.toResponse(game, determineGameStatus(game, participatedGameIds)))
                 .collect(Collectors.toList());
     }
 
@@ -96,6 +106,7 @@ public class GameService {
     public List<GameHistoryResponse> findMyGameHistories(final String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
+                .filter(gameHistory -> gameHistory.isDone())
                 .map(gameHistory -> {
                     Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
                     return GameHistoryResponse.toResponse(game, gameHistory);
@@ -138,23 +149,31 @@ public class GameService {
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
     }
 
-    private GameStatus determineGameStatus(Game game, Long userId) {
-        var isParticipated = isUserParticipated(game.getId(), userId);
-        if (game.isInProgress() && isParticipated) {
-            return GameStatus.IN_PROGRESS;
-        }
-        return isParticipated
-                ? GameStatus.REGISTRATION_COMPLETE
-                : GameStatus.REGISTRATION_OPEN;
+    /**
+     * 1등 경기 정보 조회 메서드
+     */
+    public GameInProgressWatchResponse findFirstPlaceByGameId(final Long gameId){
+        List<GameHistory> histories = gameHistoryRepository.findAllByGameId(gameId);
+        List<GameHistory> sortedHistories = histories.stream()
+                .sorted(Comparator.comparingInt(GameHistory::getRank))
+                .collect(Collectors.toList());
+        return GameInProgressWatchResponse.toResponse(sortedHistories.get(0));
     }
 
-    private boolean isUserParticipated(Long gameId, Long userId) {
-        return gameHistoryRepository.findByUserIdAndGameId(userId, gameId).isPresent();
+    private GameStatus determineGameStatus(Game game, Set<Long> participatedGameIds) {
+        boolean userParticipated = participatedGameIds.contains(game.getId());
+        if (game.isInProgress() && userParticipated) {
+            return GameStatus.IN_PROGRESS;
+        }
+        if (userParticipated) {
+            return GameStatus.REGISTRATION_COMPLETE;
+        }
+        return GameStatus.REGISTRATION_OPEN;
     }
     /** 관리자 페이지
      * 예정,진행,종료된 경기 모두 조회
      */
-    public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate,GameStatus status, String keyword,Pageable pageable){
+    public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate, GameStatus status, String keyword, Pageable pageable){
         // 1. LocalDate를 LocalDateTime으로 변환합니다. (시간 범위를 포함하기 위함)
         // startDate가 null이면 null을, 아니면 그 날의 시작 시간(00:00:00)으로 변환
         LocalDateTime createdAfter = (startDate != null) ? startDate.atStartOfDay() : null;

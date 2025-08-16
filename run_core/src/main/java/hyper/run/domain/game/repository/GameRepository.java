@@ -22,4 +22,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
             "AND FUNCTION('HOUR', g.startAt) = :targetHour")
     List<Game> findGamesByDateAndHour(@Param("targetDate") LocalDate targetDate, @Param("targetHour") int targetHour);
 
+    @Query("SELECT g FROM Game g WHERE g.endAt < :targetDateTime")
+    List<Game> findGamesEndedBefore(@Param("targetDateTime") LocalDateTime targetDateTime);
+
+
+
 }

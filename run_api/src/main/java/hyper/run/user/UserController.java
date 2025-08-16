@@ -3,6 +3,7 @@ package hyper.run.user;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
+import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -49,6 +50,16 @@ public class UserController {
     @GetMapping("/email-exists")
     public ResponseEntity<?> checkDuplicatedEmail(@RequestParam String email){
         boolean result = userService.isExistEmail(email);
+        SuccessResponse response = new SuccessResponse(true, "중복확인 결과", result);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 휴대폰 중복 API
+     */
+    @GetMapping("/phone-exists")
+    public ResponseEntity<?> checkDuplicatedPhone(@RequestParam String phoneNumber){
+        boolean result = userService.isExistPhoneNumber(phoneNumber);
         SuccessResponse response = new SuccessResponse(true, "중복확인 결과", result);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -115,6 +126,21 @@ public class UserController {
         String email = getLoginEmailBySecurityContext();
         userService.deleteUser(email);
         SuccessResponse response = new SuccessResponse(true, "회원 탈퇴 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/watch-connect-information")
+    public ResponseEntity<?> findWatchConnectedInformation(){
+        String email = getLoginEmailBySecurityContext();
+        UserWatchConnectedResponse userWatchConnectedResponse = userService.findUserWatchConnectedResponse(email);
+        SuccessResponse response = new SuccessResponse(true, "워치 연결 Key 조회 성공", userWatchConnectedResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @GetMapping("/watch-connect-information/access-token")
+    ResponseEntity<?> checkWatchKey(@RequestParam String watchKey){
+        String accessToken = userService.checkWatchKey(watchKey);
+        SuccessResponse response = new SuccessResponse(true, "accessToken 조회 성공", accessToken);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

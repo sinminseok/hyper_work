@@ -14,6 +14,8 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findByPhoneNumber(String phoneNumber);
 
+    Optional<User> findByWatchConnectedKey(String watchConnectedKey);
+
     Optional<User> findByRefreshToken(String refreshToken);
 
 }

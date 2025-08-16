@@ -5,8 +5,10 @@ import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserAdminResponse;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
+import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -24,10 +26,13 @@ import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 @RequiredArgsConstructor
 public class UserService {
 
+    private static final String NONE = "NONE";
     private final UserRepository userRepository;
 
     @Transactional
     public void save(final UserSignupRequest userSignupRequest, final String encodePassword) {
+        validateDuplicatedEmail(userSignupRequest.getEmail());
+        validateDuplicatedPhoneNumber(userSignupRequest.getPhoneNumber());
         User user = userSignupRequest.toEntity(encodePassword);
         userRepository.save(user);
     }
@@ -41,6 +46,11 @@ public class UserService {
     public boolean isExistEmail(final String email){
         Optional<User> byEmail = userRepository.findByEmail(email);
         return byEmail.isPresent();
+    }
+
+    public boolean isExistPhoneNumber(final String phoneNumber){
+        Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(phoneNumber);
+        return byPhoneNumber.isPresent();
     }
 
     @Transactional
@@ -58,7 +68,7 @@ public class UserService {
         if(byPhoneNumber.isPresent()){
             return byPhoneNumber.get().getEmail();
         }
-        return "NONE";
+        return NONE;
     }
 
     /**
@@ -100,10 +110,33 @@ public class UserService {
         user.setName(userUpdateRequest.getName());
         user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
     }
+
+    public UserWatchConnectedResponse findUserWatchConnectedResponse(final String email){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        return UserWatchConnectedResponse.from(user);
+    }
+
+    public String checkWatchKey(final String watchKey) {
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByWatchConnectedKey(watchKey), NOT_EXIST_USER_EMAIL);
+        return user.getAccessToken();
+    }
+
+    private void validateDuplicatedEmail(String email){
+        if(isExistEmail(email)){
+            throw new UserDuplicatedException("이미 가입된 이메일입니다.");
+        }
+    }
+
+    private void validateDuplicatedPhoneNumber(String number){
+        if(isExistPhoneNumber(number)){
+            throw new UserDuplicatedException("이미 가입된 휴대폰 번호입니다.");
+        }
+    }
+
     /**
      * 관리자 페이지에서 사용자 조회
      */
-    public Page<UserAdminResponse> searchUsers(final String searchCategory,final String keyword,final Pageable pageable){
+    public Page<UserAdminResponse> searchUsers(final String searchCategory, final String keyword, final Pageable pageable){
         Page<User> userPage = userRepository.searchUsers(searchCategory,keyword,pageable);
         return userPage.map(UserAdminResponse::userToAdminUserDto);
     }
