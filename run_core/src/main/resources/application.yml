@@ -22,7 +22,7 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: update
+      ddl-auto: create
       database-platform: org.hibernate.dialect.MySQLDialect
       defer-datasource-initialization: true
     properties:
@@ -32,7 +32,7 @@ spring:
         format_sql: false
 
 redis:
-  host: ${REDIS_HOST}
+  host: redis
   port: 6379
 
 aligo:

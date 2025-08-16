@@ -19,6 +19,9 @@ public class CustomerInquiry {
     @Column(name = "customer_inquiry_id", updatable = false)
     private Long id;
 
+    @Column(name = "payment_id",nullable = true)
+    private Long paymentId;
+
     @Column(name = "email", nullable = false)
     private String email; // 문의한 사용자 email
 

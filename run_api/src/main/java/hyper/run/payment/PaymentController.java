@@ -16,7 +16,7 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/api/payments")
+@RequestMapping("/v1/hyper.run.api/payments")
 public class PaymentController {
 
     private final PaymentService paymentService;

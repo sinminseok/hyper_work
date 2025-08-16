@@ -1,6 +1,7 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.response.AdminGameResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
@@ -9,14 +10,18 @@ import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
+import hyper.run.domain.game.repository.admin.GameRepositoryCustom;
 import hyper.run.domain.game.service.scheduler.GameScheduler;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +39,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
     private final GameScheduler gameScheduler;
+    private final GameRepositoryCustom gameRepositoryCustom;
 
     public void testStart(Long gameId){
         Game game = gameRepository.findById(gameId).get();
@@ -163,6 +169,23 @@ public class GameService {
             return GameStatus.REGISTRATION_COMPLETE;
         }
         return GameStatus.REGISTRATION_OPEN;
+    }
+    /** 관리자 페이지
+     * 예정,진행,종료된 경기 모두 조회
+     */
+    public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate, GameStatus status, String keyword, Pageable pageable){
+        // 1. LocalDate를 LocalDateTime으로 변환합니다. (시간 범위를 포함하기 위함)
+        // startDate가 null이면 null을, 아니면 그 날의 시작 시간(00:00:00)으로 변환
+        LocalDateTime createdAfter = (startDate != null) ? startDate.atStartOfDay() : null;
+
+        // endDate가 null이면 null을, 아니면 그 다음 날의 시작 시간(00:00:00)으로 변환
+        // (이렇게 해야 endDate 당일의 23:59:59까지 포함됩니다)
+        LocalDateTime createdBefore = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
+
+        // 2. 변환된 값으로 리포지토리를 호출합니다.
+        Page<Game> games = gameRepositoryCustom.findGamesByCriteria(createdAfter, createdBefore, status,keyword,pageable);
+
+        return games.map(AdminGameResponse::gamesToAdminGamesDto);
     }
 
 }

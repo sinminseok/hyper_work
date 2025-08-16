@@ -25,4 +25,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.endAt < :targetDateTime")
     List<Game> findGamesEndedBefore(@Param("targetDateTime") LocalDateTime targetDateTime);
 
+
+
 }

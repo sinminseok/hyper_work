@@ -15,7 +15,7 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/api/inquiries")
+@RequestMapping("/v1/hyper.run.api/inquiries")
 public class CustomerInquiryController {
 
     private final CustomerInquiryService customerInquiryService;

@@ -46,6 +46,7 @@ public class User {
     private String brith;
 
     @Column(name = "login_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Column(name = "coupon", nullable = false)
