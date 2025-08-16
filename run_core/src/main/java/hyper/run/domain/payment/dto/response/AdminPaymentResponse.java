@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 @Builder
 public class AdminPaymentResponse {
 
-    private Long id;
+    private Long paymentId;
     private LocalDateTime paymentAt;
     private String paymentMethod;
     private int price;
@@ -26,7 +26,7 @@ public class AdminPaymentResponse {
 
     public static AdminPaymentResponse paymentToAdminPayment(Payment payment){
         return AdminPaymentResponse.builder()
-                .id(payment.getId())
+                .paymentId(payment.getId())
                 .paymentAt(payment.getPaymentAt())
                 .paymentMethod(payment.getPaymentMethod())
                 .price(payment.getPrice())

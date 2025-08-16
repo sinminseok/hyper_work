@@ -4,6 +4,7 @@ import hyper.run.domain.payment.dto.request.PaymentRequest;
 import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
 import hyper.run.domain.payment.dto.response.PaymentResponse;
+import hyper.run.domain.payment.dto.response.RefundPaymentResponse;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
@@ -55,5 +56,13 @@ public class PaymentService {
      */
     public Page<AdminPaymentResponse> searchPayments(final PaymentSearchRequest searchRequest, Pageable pageable){
         return paymentCustomRepository.searchPayments(searchRequest,pageable);
+    }
+
+    /**
+     * 환불 조회시 사용자 정보까지 조회
+     */
+    public RefundPaymentResponse getRefundPayment(final Long paymentId){
+        Payment payment = repository.getReferenceById(paymentId);
+        return RefundPaymentResponse.paymentToRefundDto(payment);
     }
 }

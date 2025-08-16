@@ -24,7 +24,7 @@ public class Payment {
     private int price;
 
     @Column(name = "coupon_amount", nullable = true)
-    private int couponAmount;
+    private Integer couponAmount;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
