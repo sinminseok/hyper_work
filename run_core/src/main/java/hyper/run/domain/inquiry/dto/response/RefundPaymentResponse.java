@@ -1,7 +1,8 @@
-package hyper.run.domain.payment.dto.response;
+package hyper.run.domain.inquiry.dto.response;
 
+import hyper.run.domain.inquiry.entity.CustomerInquiry;
+import hyper.run.domain.inquiry.entity.RefundType;
 import hyper.run.domain.payment.entity.Payment;
-import hyper.run.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -19,16 +20,20 @@ public class RefundPaymentResponse {
     private String email;
     private String paymentMethod;
     private LocalDateTime paymentAt;
-    private int price;
+    private Integer price;
+    private RefundType refundType;
+    private String message;
 
-    public static RefundPaymentResponse paymentToRefundDto(Payment payment){
+    public static RefundPaymentResponse paymentToRefundDto(Payment payment, CustomerInquiry inquiry){
         return RefundPaymentResponse.builder()
                 .userName(payment.getUser().getName())
                 .phoneNumber(payment.getUser().getPhoneNumber())
                 .email(payment.getUser().getEmail())
                 .paymentMethod(payment.getPaymentMethod())
                 .paymentAt(payment.getPaymentAt())
-                .price(payment.getPrice())
+                .price(inquiry.getRefundPrice())
+                .refundType(inquiry.getRefundType())
+                .message(inquiry.getMessage())
                 .build();
     }
 }

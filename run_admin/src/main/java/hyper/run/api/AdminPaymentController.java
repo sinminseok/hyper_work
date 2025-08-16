@@ -2,8 +2,7 @@ package hyper.run.api;
 
 import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
-import hyper.run.domain.payment.dto.response.RefundPaymentResponse;
-import hyper.run.domain.payment.entity.Payment;
+import hyper.run.domain.inquiry.dto.response.RefundPaymentResponse;
 import hyper.run.domain.payment.service.PaymentService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -12,7 +11,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
 
 @RequiredArgsConstructor

@@ -26,7 +26,7 @@ public class InquiryRequest {
                 .email(this.email)
                 .userId(userId)
                 .type(InquiryType.REFUND)
-                .state(InquiryState.WAITIN)
+                .state(InquiryState.WAITING)
                 .refundPrice(this.refundPrice)
                 .refundType(this.refundType)
                 .message(this.message)
@@ -37,7 +37,7 @@ public class InquiryRequest {
         return CustomerInquiry.builder()
                 .email(this.email)
                 .userId(userId)
-                .state(InquiryState.WAITIN)
+                .state(InquiryState.WAITING)
                 .type(this.type)
                 .message(this.message)
                 .build();

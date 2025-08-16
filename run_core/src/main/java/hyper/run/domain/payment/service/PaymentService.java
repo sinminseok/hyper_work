@@ -1,10 +1,12 @@
 package hyper.run.domain.payment.service;
 
+import hyper.run.domain.inquiry.entity.CustomerInquiry;
+import hyper.run.domain.inquiry.repository.CustomerInquiryRepository;
 import hyper.run.domain.payment.dto.request.PaymentRequest;
 import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
 import hyper.run.domain.payment.dto.response.PaymentResponse;
-import hyper.run.domain.payment.dto.response.RefundPaymentResponse;
+import hyper.run.domain.inquiry.dto.response.RefundPaymentResponse;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
@@ -17,6 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -29,6 +32,7 @@ public class PaymentService {
     private final PaymentRepository repository;
     private final UserRepository userRepository;
     private final PaymentCustomRepository paymentCustomRepository;
+    private final CustomerInquiryRepository customerInquiryRepository;
 
     /**
      * 결제 메서드
@@ -63,6 +67,7 @@ public class PaymentService {
      */
     public RefundPaymentResponse getRefundPayment(final Long paymentId){
         Payment payment = repository.getReferenceById(paymentId);
-        return RefundPaymentResponse.paymentToRefundDto(payment);
+        CustomerInquiry inquiry = OptionalUtil.getOrElseThrow(customerInquiryRepository.findByPaymentId(paymentId),"존재하지 않는 문의 사항입니다.");
+        return RefundPaymentResponse.paymentToRefundDto(payment,inquiry);
     }
 }
