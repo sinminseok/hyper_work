@@ -8,7 +8,7 @@ const filterState = {
     status: 'FINISHED',
     page: 0,
     size: 6,
-    sort: 'createdAt,desc',
+    sort: 'createdAt,asc',
     keyword: '',
     startDate: oneWeekAgoStr,
     endDate: todayStr,
@@ -69,7 +69,7 @@ function renderTable(pageData) {
     const tableBody = document.getElementById('data-table-body');
     if (!tableBody)
         return;
-    const { content: games, totalElements, number: currentPage, size: pageSize } = pageData;
+    const { content: games, number: currentPage, size: pageSize } = pageData;
     if (games.length === 0) {
         tableBody.innerHTML = '<tr><td colspan="4">데이터가 없습니다.</td></tr>';
         return;
@@ -86,20 +86,14 @@ function renderTable(pageData) {
     `;
     }).join('');
 }
-/**
- * 전체 데이터 개수를 받아와 '총 n건' 텍스트를 업데이트합니다.
- * @param total - 전체 데이터 개수
- */
+// 전체 데이터 수
 function updateTotalCount(total) {
     const countElement = document.getElementById('total-count');
     if (countElement) {
         countElement.textContent = `총 ${total}건`;
     }
 }
-/**
- * 페이지네이션 데이터를 받아와 페이지 번호 버튼들을 동적으로 생성합니다.
- * @param pageData - 서버에서 받아온 페이지네이션 정보 객체
- */
+// 페이지 번호 동적 생성
 function renderPagination(pageData) {
     const { totalPages, number: currentPage } = pageData;
     const container = document.getElementById('pagination-container');
@@ -137,6 +131,59 @@ function renderPagination(pageData) {
     nextBtn.dataset.page = (currentPage + 1).toString();
     container.appendChild(nextBtn);
 }
+/** 탭 버튼 클릭을 처리하는 함수 */
+function handleTabClick(event) {
+    const clickedButton = event.currentTarget;
+    const allTabButtons = document.querySelectorAll('.tab-btn');
+    const newStatus = clickedButton.dataset.status;
+    if (newStatus && newStatus !== filterState.status) {
+        filterState.status = newStatus;
+        filterState.page = 0;
+        fetchGames();
+        // 시각적 활성 상태 변경
+        allTabButtons.forEach(btn => btn.classList.remove('active'));
+        clickedButton.classList.add('active');
+    }
+}
+function handleSortChange(event) {
+    const selectElement = event.target;
+    filterState.sort = selectElement.value;
+    fetchGames();
+}
+/** 검색 실행을 처리하는 함수 */
+function handleSearch() {
+    const searchInput = document.getElementById('searchInput');
+    filterState.keyword = searchInput.value;
+    filterState.page = 0; // 검색 시 항상 첫 페이지로
+    fetchGames();
+}
+/** 페이지네이션 클릭을 처리하는 함수 */
+function handlePaginationClick(event) {
+    event.preventDefault();
+    const target = event.target;
+    // 'A' 태그이고, 비활성화 상태가 아닐 때만 작동
+    if (target.tagName === 'A' && !target.classList.contains('disabled')) {
+        const page = target.dataset.page;
+        if (page) {
+            filterState.page = parseInt(page, 10);
+            fetchGames();
+        }
+    }
+}
+/** 날짜 범위 변경을 처리하는 함수 (flatpickr용) */
+function handleDateChange(selectedDates) {
+    if (selectedDates.length === 2) {
+        filterState.startDate = selectedDates[0].toISOString().split('T')[0];
+        filterState.endDate = selectedDates[1].toISOString().split('T')[0];
+        filterState.page = 0;
+        fetchGames();
+    }
+}
+/** 날짜 선택기 UI의 텍스트를 업데이트하는 함수 (flatpickr용) */
+function updateDateInput(selectedDates, dateStr, instance) {
+    // flatpickr의 input 요소에 선택된 날짜 문자열을 표시합니다.
+    instance.input.value = dateStr;
+}
 document.addEventListener('DOMContentLoaded', () => {
     // --- HTML 요소 선택 ---
     const tabButtons = document.querySelectorAll('.tab-btn');
@@ -144,32 +191,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const searchInput = document.getElementById('searchInput');
     const searchButton = document.getElementById('searchButton');
     const paginationContainer = document.getElementById('pagination-container');
-    // --- 이벤트 리스너 설정 ---
     // 1. 탭 버튼 클릭 이벤트
     tabButtons.forEach(button => {
-        button.addEventListener('click', () => {
-            // 클릭된 버튼의 status 불러와서 filterState 업데이트
-            const newStatus = button.dataset.status;
-            if (newStatus && newStatus !== filterState.status) {
-                filterState.status = newStatus;
-                filterState.page = 0;
-                fetchGames();
-                tabButtons.forEach(btn => btn.classList.remove('active'));
-                button.classList.add('active');
-            }
-        });
+        button.addEventListener('click', handleTabClick);
     });
     // 2. 정렬 방식 변경 이벤트
-    sortSelect?.addEventListener('change', (e) => {
-        filterState.sort = e.target.value;
-        fetchGames();
-    });
-    // 3. 검색 기능 (버튼 클릭 또는 엔터)
-    const handleSearch = () => {
-        filterState.keyword = searchInput.value;
-        filterState.page = 0; // 검색 시 1페이지로 초기화
-        fetchGames();
-    };
+    sortSelect?.addEventListener('change', handleSortChange);
+    // 3. 검색 기능 
     searchButton?.addEventListener('click', handleSearch);
     searchInput?.addEventListener('keydown', (e) => {
         if (e.key === 'Enter') {
@@ -177,40 +205,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
     // 4. 페이지네이션 클릭 이벤트
-    paginationContainer?.addEventListener('click', (e) => {
-        e.preventDefault();
-        const target = e.target;
-        if (target.tagName === 'A' && !target.classList.contains('disabled')) {
-            const page = target.dataset.page;
-            if (page) {
-                filterState.page = parseInt(page, 10);
-                fetchGames();
-            }
-        }
-    });
-    // 5. 날짜 선택기 (Flatpickr) 설정 - 수정됨
-    const formatApiDate = (date) => {
-        return date.toISOString().split('T')[0];
-    };
+    paginationContainer?.addEventListener('click', handlePaginationClick);
+    // 5. 날짜 선택기 (Flatpickr) 설정
     flatpickr("#date-range-container", {
         wrap: true,
         mode: "range",
         dateFormat: "Y. m. d",
         defaultDate: [filterState.startDate, filterState.endDate],
         locale: "ko",
-        // onChange 함수의 파라미터에 명시적으로 타입을 지정
-        onChange: (selectedDates, dateStr, instance) => {
-            instance.input.value = dateStr;
-            if (selectedDates.length === 2) {
-                filterState.startDate = selectedDates[0].toISOString().split('T')[0];
-                filterState.endDate = selectedDates[1].toISOString().split('T')[0];
-                filterState.page = 0;
-                fetchGames();
-            }
-        },
-        onReady: (selectedDates, dateStr, instance) => {
-            instance.input.value = dateStr;
-        }
+        onChange: handleDateChange,
+        onReady: updateDateInput, // UI 준비 시에도 input 업데이트
     });
     // 페이지가 처음 열릴 때 데이터 로드
     fetchGames();
