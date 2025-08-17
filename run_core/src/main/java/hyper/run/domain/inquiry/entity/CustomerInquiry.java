@@ -1,10 +1,11 @@
 package hyper.run.domain.inquiry.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
+import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Table(name = "customer_inquiry")
 @Entity
@@ -12,21 +13,23 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerInquiry {
+public class CustomerInquiry extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "customer_inquiry_id", updatable = false)
     private Long id;
 
-    @Column(name = "email", nullable = false)
-    private String email; // 문의한 사용자 email
+    @Setter
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // 문의한 사용자 id (pk)
+    @Column(name = "email", nullable = false)
+    private String email;
 
     @Column(name = "payment_id", nullable = true)
-    private Long paymentId; // 문의한 사용자 id (pk)
+    private Long paymentId; // 문의한 결제 id
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", updatable = false, nullable = false)
@@ -51,4 +54,11 @@ public class CustomerInquiry {
 
     @Column(name = "message", updatable = false, nullable = false)
     private String message;
+
+    @Column(name = "title",nullable = false)
+    private String title; // 문의명
+
+    @Column(name = "answer",nullable = true)
+    private String answer; // 답변 내용
+
 }

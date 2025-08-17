@@ -1,6 +1,6 @@
 package hyper.run.domain.payment.entity;
 
-import hyper.run.domain.game.entity.Game;
+import hyper.run.domain.common.BaseTimeEntity;
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payment {
+public class Payment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

@@ -31,17 +31,17 @@ public class CustomerInquiryService {
             saveRefundInquiry(user, request);
             return;
         }
-        saveCommonInquiry(user.getId(), request);
+        saveCommonInquiry(user, request);
     }
 
     private void saveRefundInquiry(User user, InquiryRequest request) {
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findById(request.getPaymentId()), NOT_EXIST_PAYMENT_ID);
         payment.updateState(PaymentState.REFUND_REQUESTED);
         user.decreaseCouponByAmount(payment.getCouponAmount());
-        repository.save(request.toRefundInquiry(user.getId()));
+        repository.save(request.toRefundInquiry(user));
     }
 
-    private void saveCommonInquiry(Long userId, InquiryRequest request) {
-        repository.save(request.toCommonInquiry(userId));
+    private void saveCommonInquiry(User user, InquiryRequest request) {
+        repository.save(request.toCommonInquiry(user));
     }
 }

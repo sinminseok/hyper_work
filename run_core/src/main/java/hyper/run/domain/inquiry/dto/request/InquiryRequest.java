@@ -4,6 +4,7 @@ import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.inquiry.entity.InquiryState;
 import hyper.run.domain.inquiry.entity.InquiryType;
 import hyper.run.domain.inquiry.entity.RefundType;
+import hyper.run.domain.user.entity.User;
 import lombok.Getter;
 
 @Getter
@@ -25,13 +26,16 @@ public class InquiryRequest {
 
     private String bankName;
 
-    public CustomerInquiry toRefundInquiry(final Long userId){
+    private String title;
+
+    public CustomerInquiry toRefundInquiry( final User user){
         return CustomerInquiry.builder()
                 .email(this.email)
-                .userId(userId)
+                .user(user)
+                .title(this.title)
                 .paymentId(paymentId)
                 .type(InquiryType.REFUND)
-                .state(InquiryState.WAITIN)
+                .state(InquiryState.WAITING)
                 .refundPrice(this.refundPrice)
                 .refundType(this.refundType)
                 .accountNumber(this.accountNumber)
@@ -40,11 +44,12 @@ public class InquiryRequest {
                 .build();
     }
 
-    public CustomerInquiry toCommonInquiry(final Long userId){
+    public CustomerInquiry toCommonInquiry( final User user){
         return CustomerInquiry.builder()
+                .user(user)
                 .email(this.email)
-                .userId(userId)
-                .state(InquiryState.WAITIN)
+                .title(this.title)
+                .state(InquiryState.WAITING)
                 .type(this.type)
                 .message(this.message)
                 .build();
