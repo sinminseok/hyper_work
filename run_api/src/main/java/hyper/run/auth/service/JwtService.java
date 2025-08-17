@@ -109,7 +109,7 @@ public class JwtService {
         }
     }
 
-    public void isTokenValid(String token){
+    public void isTokenValid(String token) {
         try {
             JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
         } catch (Exception e) {

@@ -44,7 +44,7 @@ public class PaymentController {
      * 환불 가능한 결제 내역 조회 API
      */
     @GetMapping("/refunds")
-    public ResponseEntity<?> applyInquiry( ) {
+    public ResponseEntity<?> applyInquiry() {
         String email = getLoginEmailBySecurityContext();
         List<PaymentResponse> possibleRefundPayment = paymentService.findPossibleRefundPayment(email);
         SuccessResponse response = new SuccessResponse(true, "환불 가능한 결제 내역 조회 성공", possibleRefundPayment);

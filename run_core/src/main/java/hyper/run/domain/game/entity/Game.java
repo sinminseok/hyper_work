@@ -1,5 +1,6 @@
 package hyper.run.domain.game.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game {
+public class Game extends BaseTimeEntity {
 
     private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;
