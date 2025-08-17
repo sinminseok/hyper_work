@@ -21,14 +21,21 @@ public class InquiryRequest {
 
     private String message;
 
+    private String accountNumber;
+
+    private String bankName;
+
     public CustomerInquiry toRefundInquiry(final Long userId){
         return CustomerInquiry.builder()
                 .email(this.email)
                 .userId(userId)
+                .paymentId(paymentId)
                 .type(InquiryType.REFUND)
                 .state(InquiryState.WAITIN)
                 .refundPrice(this.refundPrice)
                 .refundType(this.refundType)
+                .accountNumber(this.accountNumber)
+                .bankName(this.bankName)
                 .message(this.message)
                 .build();
     }

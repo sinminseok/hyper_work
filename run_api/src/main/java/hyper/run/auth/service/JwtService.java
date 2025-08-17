@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Optional;
+import java.util.UUID;
 
 import static hyper.run.auth.constants.AuthConstants.*;
 
@@ -48,19 +49,17 @@ public class JwtService {
     private final UserRepository userRepository;
 
     public String createAccessToken(String email) {
-        Date now = new Date();
         return JWT.create()
                 .withSubject(ACCESS_TOKEN_SUBJECT)
-                //.withExpiresAt(new Date(now.getTime() + accessTokenExpirationPeriod))
                 .withClaim(EMAIL_CLAIM, email)
+                .withClaim("uuid", UUID.randomUUID().toString()) // <- 매번 다른 값 추가
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
     public String createRefreshToken() {
-        Date now = new Date();
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
-                //.withExpiresAt(new Date(now.getTime() + refreshTokenExpirationPeriod))
+                .withClaim("uuid", UUID.randomUUID().toString()) // <- 매번 다른 값
                 .sign(Algorithm.HMAC512(secretKey));
     }
 

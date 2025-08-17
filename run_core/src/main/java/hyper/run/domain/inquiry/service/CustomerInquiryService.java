@@ -6,6 +6,7 @@ import hyper.run.domain.inquiry.repository.CustomerInquiryRepository;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
+import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
@@ -25,18 +26,19 @@ public class CustomerInquiryService {
 
     @Transactional
     public void applyInquiry(final String email, final InquiryRequest request) {
-        Long userId = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL).getId();
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         if (request.getType() == InquiryType.REFUND && request.getPaymentId() != null) {
-            saveRefundInquiry(userId, request);
-        } else {
-            saveCommonInquiry(userId, request);
+            saveRefundInquiry(user, request);
+            return;
         }
+        saveCommonInquiry(user.getId(), request);
     }
 
-    private void saveRefundInquiry(Long userId, InquiryRequest request) {
+    private void saveRefundInquiry(User user, InquiryRequest request) {
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findById(request.getPaymentId()), NOT_EXIST_PAYMENT_ID);
         payment.updateState(PaymentState.REFUND_REQUESTED);
-        repository.save(request.toRefundInquiry(userId));
+        user.decreaseCouponByAmount(payment.getCouponAmount());
+        repository.save(request.toRefundInquiry(user.getId()));
     }
 
     private void saveCommonInquiry(Long userId, InquiryRequest request) {

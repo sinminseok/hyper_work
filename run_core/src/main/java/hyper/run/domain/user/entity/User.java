@@ -97,6 +97,10 @@ public class User {
         this.coupon -= 1;
     }
 
+    public void decreaseCouponByAmount(int amount){
+        this.coupon -= amount;
+    }
+
     public void increaseCoupon(){
         this.coupon += 1;
     }

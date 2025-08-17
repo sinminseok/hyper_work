@@ -38,7 +38,6 @@ public class SpeedRankService extends AbstractGameRankService {
         this.gameRepository = gameRepository;
     }
 
-
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
         histories.sort(
