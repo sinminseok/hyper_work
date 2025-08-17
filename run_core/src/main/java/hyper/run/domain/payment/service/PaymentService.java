@@ -11,6 +11,7 @@ import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -31,6 +32,17 @@ public class PaymentService {
         Payment payment = request.toEntity(user);
         user.addPayment(payment);
         repository.save(payment); // Payment 저장
+    }
+
+    /**
+     * 자신의 모든 결제 내역을 조회하는 메서드
+     */
+    public List<PaymentResponse> findAllByEmail(final String email){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        return user.getPayments().stream()
+                .sorted(Comparator.comparing(Payment::getPaymentAt).reversed())
+                .map(PaymentResponse::toResponse)
+                .collect(Collectors.toList());
     }
 
     /**

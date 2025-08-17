@@ -6,15 +6,12 @@ import hyper.run.domain.exchange_transaction.dto.response.ExchangeTransactionRes
 import hyper.run.domain.exchange_transaction.entity.ExchangeStatus;
 import hyper.run.domain.exchange_transaction.entity.ExchangeTransaction;
 import hyper.run.domain.exchange_transaction.repository.ExchangeTransactionRepository;
-import hyper.run.domain.payment.entity.Payment;
-import hyper.run.domain.payment.repository.PaymentRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.w3c.dom.stylesheets.LinkStyle;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,7 +23,6 @@ import static hyper.run.exception.ErrorMessages.*;
 public class ExchangeTransactionService {
 
     private final UserRepository userRepository;
-    private final PaymentRepository paymentRepository;
     private final ExchangeTransactionRepository exchangeTransactionRepository;
 
     /**
@@ -41,6 +37,9 @@ public class ExchangeTransactionService {
         exchangeTransactionRepository.save(exchangeTransaction);
     }
 
+    /**
+     * 자신의 환전 내역 조회
+     */
     public List<ExchangeTransactionResponse> findMyExchangeHistories(final String email) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         List<ExchangeTransaction> byUserId = exchangeTransactionRepository.findByUserId(user.getId());
@@ -48,6 +47,7 @@ public class ExchangeTransactionService {
                 .map(ExchangeTransactionResponse::from)
                 .collect(Collectors.toList());
     }
+
     /**
      * 환전 완료 메서드
      */

@@ -25,6 +25,9 @@ public class CustomerInquiry {
     @Column(name = "user_id", nullable = false)
     private Long userId; // 문의한 사용자 id (pk)
 
+    @Column(name = "payment_id", nullable = true)
+    private Long paymentId; // 문의한 사용자 id (pk)
+
     @Enumerated(EnumType.STRING)
     @Column(name = "type", updatable = false, nullable = false)
     private InquiryType type; // 문의 유형
@@ -39,6 +42,12 @@ public class CustomerInquiry {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private InquiryState state; // 문의 상태
+
+    @Column(name = "account_number", nullable = true)
+    private String accountNumber; // 환불 받을 계좌 번호
+
+    @Column(name = "bank_name", nullable = true)
+    private String bankName; // 환불 받을 은행 이름
 
     @Column(name = "message", updatable = false, nullable = false)
     private String message;
