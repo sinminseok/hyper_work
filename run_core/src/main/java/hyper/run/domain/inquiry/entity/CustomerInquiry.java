@@ -1,10 +1,10 @@
 package hyper.run.domain.inquiry.entity;
 
+import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
+
+import java.time.LocalDate;
 
 @Table(name = "customer_inquiry")
 @Entity
@@ -22,11 +22,9 @@ public class CustomerInquiry {
     @Column(name = "payment_id",nullable = true)
     private Long paymentId;
 
-    @Column(name = "email", nullable = false)
-    private String email; // 문의한 사용자 email
-
-    @Column(name = "user_id", nullable = false)
-    private Long userId; // 문의한 사용자 id (pk)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", updatable = false, nullable = false)
@@ -43,6 +41,15 @@ public class CustomerInquiry {
     @Column(name = "state", nullable = false)
     private InquiryState state; // 문의 상태
 
+    @Column(name = "title",nullable = false)
+    private String title; // 문의명
+
     @Column(name = "message", updatable = false, nullable = false)
-    private String message;
+    private String message; // 문의내용
+
+    @Column(name = "answer",nullable = true)
+    private String answer; // 답변 내용
+
+    @Column(name = "inquired_at",nullable = false)
+    private LocalDate inquiredAt; // 문의일
 }

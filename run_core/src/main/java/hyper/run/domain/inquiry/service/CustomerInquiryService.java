@@ -42,4 +42,6 @@ public class CustomerInquiryService {
     private void saveCommonInquiry(Long userId, InquiryRequest request) {
         repository.save(request.toCommonInquiry(userId));
     }
+
+    public
 }
