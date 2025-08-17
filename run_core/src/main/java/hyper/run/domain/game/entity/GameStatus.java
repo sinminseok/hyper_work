@@ -1,6 +1,7 @@
 package hyper.run.domain.game.entity;
 
 public enum GameStatus {
+    //todo AdminStatus enum 클래스 분리, 원래 enum 값들 복구
     SCHEDULED,          // 예정된 경기
     PROGRESS,           // 진행중인 경기
     IN_PROGRESS,        // 사용자의 경기 진행중

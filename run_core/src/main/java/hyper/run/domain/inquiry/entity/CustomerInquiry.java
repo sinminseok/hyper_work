@@ -37,6 +37,7 @@ public class CustomerInquiry {
     @Column(name = "refund_type", nullable = true)
     private RefundType refundType; // 환불 이유 (문의 유형이 환불일 경우)
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private InquiryState state; // 문의 상태
@@ -47,6 +48,7 @@ public class CustomerInquiry {
     @Column(name = "message", updatable = false, nullable = false)
     private String message; // 문의내용
 
+    @Setter
     @Column(name = "answer",nullable = true)
     private String answer; // 답변 내용
 

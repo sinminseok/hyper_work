@@ -32,14 +32,15 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
     public Page<CustomerInquiryResponse> searchInquiry(InquirySearchRequest inquiryRequest, Pageable pageable) {
         List<CustomerInquiryResponse> content = queryFactory
                 .select(Projections.constructor(CustomerInquiryResponse.class,
-                        inquiry.inquired_at,
+                        inquiry.inquiredAt,
                         inquiry.state,
                         inquiry.type,
                         user.name,
                         user.email,
                         user.phoneNumber,
                         inquiry.title,
-                        inquiry.message
+                        inquiry.message,
+                        inquiry.answer
                         ))
                 .from(inquiry)
                 .leftJoin(inquiry.user,user)
