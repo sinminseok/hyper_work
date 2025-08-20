@@ -35,9 +35,7 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
 
         BooleanBuilder whereClause = createWhereConditions(createdAfter, createdBefore, status, keyword);
 
-
         List<Game> content = fetchContent(whereClause, pageable);
-
 
         Long total = fetchTotalCount(whereClause);
 
@@ -64,8 +62,6 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
      */
     private BooleanBuilder createWhereConditions(LocalDateTime createdAfter, LocalDateTime createdBefore, AdminGameStatus adminGameStatus, String keyword) {
         BooleanBuilder builder = new BooleanBuilder();
-
-        // 각 조건 메서드가 null을 반환하더라도 BooleanBuilder의 .and()는 안전하게 이를 무시합니다.
         builder.and(createdAtGoe(createdAfter));
         builder.and(createdAtLt(createdBefore));
         builder.and(statusEq(adminGameStatus));
@@ -97,14 +93,14 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
 
     private BooleanExpression createdAtGoe(LocalDateTime createdAfter) {
         if (createdAfter != null) {
-            return game.createdAt.goe(createdAfter);
+            return game.createDateTime.goe(createdAfter);
         }
         return null;
     }
 
     private BooleanExpression createdAtLt(LocalDateTime createdBefore) {
         if (createdBefore != null) {
-            return game.createdAt.goe(createdBefore);
+            return game.createDateTime.lt(createdBefore.plusDays(1));
         }
         return null;
     }

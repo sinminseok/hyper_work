@@ -1,5 +1,6 @@
 package hyper.run.domain.payment.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
@@ -13,7 +14,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Payment {
+public class Payment extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,9 +34,6 @@ public class Payment {
 
     @Column(name = "payment_method", nullable = true)
     private String paymentMethod;
-
-    @Column(name = "payment_at", nullable = false)
-    private LocalDateTime paymentAt;
 
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)

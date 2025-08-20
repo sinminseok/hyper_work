@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,7 +17,7 @@ import java.time.LocalDate;
 @Builder
 public class CustomerInquiryResponse {
     private Long id;
-    private LocalDate inquiredAt;
+    private LocalDateTime createDateTime;
     private InquiryState state;
     private InquiryType type;
     private String name;

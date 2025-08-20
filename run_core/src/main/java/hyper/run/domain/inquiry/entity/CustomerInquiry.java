@@ -1,5 +1,6 @@
 package hyper.run.domain.inquiry.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -12,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerInquiry {
+public class CustomerInquiry extends BaseTimeEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -55,6 +56,4 @@ public class CustomerInquiry {
     @Column(name = "answer",nullable = true)
     private String answer; // 답변 내용
 
-    @Column(name = "inquired_at",nullable = false)
-    private LocalDate inquiredAt; // 문의일
 }

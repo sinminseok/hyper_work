@@ -1,5 +1,6 @@
 package hyper.run.domain.game.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -17,9 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game {
-
-    //todo baseTimeEntity 상속
+public class Game extends BaseTimeEntity {
 
     private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;
@@ -55,12 +54,6 @@ public class Game {
 
     @Column(name = "end_at")
     private LocalDateTime endAt; // 경기 종료 시간
-
-    @Column(name = "created_at")
-    private LocalDateTime createdAt; // 경기 생성 시간
-
-    @Column(name = "modified_at")
-    private LocalDateTime modifiedAt; // 경기 수정 시간
 
     @Column(name = "participated_count")
     private int participatedCount; // 총 참여 인원

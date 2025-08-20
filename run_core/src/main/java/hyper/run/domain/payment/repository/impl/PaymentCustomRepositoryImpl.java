@@ -57,7 +57,7 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository{
         return queryFactory
                 .select(Projections.constructor(AdminPaymentResponse.class,
                         payment.id,
-                        payment.paymentAt,
+                        payment.createDateTime,
                         payment.paymentMethod,
                         payment.price,
                         user.name,
@@ -126,8 +126,7 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository{
     }
     private BooleanExpression dateRange(LocalDate startDate, LocalDate endDate) {
         if (startDate != null && endDate != null) {
-            // LocalDate를 LocalDateTime으로 변환하여 시간까지 포함한 범위 검색
-            return payment.paymentAt.between(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
+            return payment.createDateTime.between(startDate.atStartOfDay(), endDate.atTime(23, 59, 59));
         }
         return null;
     }

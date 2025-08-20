@@ -1,5 +1,6 @@
 package hyper.run.domain.user.entity;
 
+import hyper.run.domain.common.BaseTimeEntity;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.inquiry.entity.CustomerInquiry;
@@ -21,7 +22,7 @@ import static hyper.run.exception.ErrorMessages.NOT_ENOUGH_TO_REFUND_AMOUNT;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
+public class User extends BaseTimeEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false)

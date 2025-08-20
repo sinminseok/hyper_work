@@ -14,6 +14,7 @@ import hyper.run.domain.payment.repository.impl.PaymentCustomRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -74,14 +75,14 @@ public class PaymentService {
     /**
      * 환불 요청 시 승인 및 취소
      */
+    @Transactional
     public void confirmRefund(final Long paymentId){
-        Payment payment = repository.getReferenceById(paymentId);
+        Payment payment = OptionalUtil.getOrElseThrow(repository.findById(paymentId),"존재하지 않는 결제건입니다.");
         payment.setState(PaymentState.REFUND_COMPLETED);
-        repository.save(payment);
     }
+    @Transactional
     public void rejectRefund(final Long paymentId){
-        Payment payment = repository.getReferenceById(paymentId);
+        Payment payment = OptionalUtil.getOrElseThrow(repository.findById(paymentId),"존재하지 않는 결제건입니다.");
         payment.setState(PaymentState.REFUND_REJECTED);
-        repository.save(payment);
     }
 }

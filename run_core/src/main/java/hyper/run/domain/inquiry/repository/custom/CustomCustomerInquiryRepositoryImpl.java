@@ -38,16 +38,13 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
 
     @Override
     public Page<CustomerInquiryResponse> searchInquiry(InquirySearchRequest inquiryRequest, Pageable pageable) {
-        // 1. WHERE 절 조건을 한 번만 생성하여 재사용합니다.
+
         BooleanBuilder whereClause = createWhereClause(inquiryRequest);
 
-        // 2. 조건에 맞는 데이터 목록(콘텐츠)을 조회합니다.
         List<CustomerInquiryResponse> content = fetchContent(whereClause, pageable);
 
-        // 3. 조건에 맞는 전체 데이터 개수를 조회합니다.
         Long total = fetchTotalCount(whereClause);
 
-        // 4. Page 객체로 조합하여 반환합니다.
         return new PageImpl<>(content, pageable, total);
     }
 
@@ -58,7 +55,7 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
         return queryFactory
                 .select(Projections.constructor(CustomerInquiryResponse.class,
                         inquiry.id,
-                        inquiry.inquiredAt,
+                        inquiry.createDateTime,
                         inquiry.state,
                         inquiry.type,
                         user.name,
@@ -120,14 +117,13 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
                     specifiers.add(new OrderSpecifier(direction,inquiry.user.phoneNumber));
                 }
                 else {
-                    // 그 외 다른 속성들은 기존 방식대로 Payment 엔티티에서 찾음
                     specifiers.add(new OrderSpecifier(direction, pathBuilder.get(property)));
                 }
             }
         }
         // 기본 정렬 (만약 아무 정렬 조건도 없다면)
         if (specifiers.isEmpty()) {
-            specifiers.add(new OrderSpecifier(Order.DESC, inquiry.inquiredAt));
+            specifiers.add(new OrderSpecifier(Order.DESC, inquiry.createDateTime));
         }
 
         return specifiers.toArray(new OrderSpecifier[0]);
@@ -135,7 +131,7 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
 
     private BooleanExpression dateRange(LocalDate startDate,LocalDate endDate){
         if(startDate != null && endDate !=null){
-            return inquiry.inquiredAt.between(startDate,endDate);
+            return inquiry.createDateTime.between(startDate,endDate);
         }
         return null;
     }

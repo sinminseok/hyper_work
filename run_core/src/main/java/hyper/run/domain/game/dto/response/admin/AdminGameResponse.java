@@ -17,16 +17,16 @@ import java.time.LocalDateTime;
 public class AdminGameResponse {
     private Long id;
     private String name;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private LocalDateTime createDateTime;
+    private LocalDateTime modifiedDateTime;
     private AdminGameStatus adminGameStatus;
 
     public static AdminGameResponse dtoFromGame(Game game) {
         return AdminGameResponse.builder()
                 .id(game.getId())
                 .name(game.getName())
-                .createdAt(game.getCreatedAt())
-                .modifiedAt(game.getModifiedAt())
+                .createDateTime(game.getCreateDateTime())
+                .modifiedDateTime(game.getModifiedDateTime())
                 .adminGameStatus(game.getAdminGameStatus())
                 .build();
     }

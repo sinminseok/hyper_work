@@ -69,10 +69,10 @@ public class CustomerInquiryService {
     /**
      * 문의사항 답변
      */
+    @Transactional
     public void answerInquiry(Long inquiryId,String answer){
         CustomerInquiry customerInquiry = OptionalUtil.getOrElseThrow(repository.findById(inquiryId),"존재하지 않는 문의사항입니다.");
         customerInquiry.setState(InquiryState.SUCCESS);
         customerInquiry.setAnswer(answer);
-        repository.save(customerInquiry);
     }
 }
