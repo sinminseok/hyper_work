@@ -20,7 +20,7 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 
 @RequiredArgsConstructor
 @RestController
-@RequestMapping("/v1/hyper.run.api/games")
+@RequestMapping("/v1/api/games")
 public class GameController {
 
     private final GameService gameService;

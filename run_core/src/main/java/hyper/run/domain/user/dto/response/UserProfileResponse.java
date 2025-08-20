@@ -12,7 +12,7 @@ public class UserProfileResponse {
 
     private String name;
 
-    private String brith;
+    private String birth;
 
     private String phoneNumber;
 
@@ -24,7 +24,7 @@ public class UserProfileResponse {
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
-                .brith(user.getBrith())
+                .birth(user.getBirth())
                 .phoneNumber(user.getPhoneNumber())
                 .profileUrl(user.getProfileUrl())
                 .point(user.getPoint())

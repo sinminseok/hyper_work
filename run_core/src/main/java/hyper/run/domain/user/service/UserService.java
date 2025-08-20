@@ -106,7 +106,7 @@ public class UserService {
     @Transactional
     public void updateProfile(String email, UserUpdateRequest userUpdateRequest) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        user.setBrith(userUpdateRequest.getBrith());
+        user.setBirth(userUpdateRequest.getBirth());
         user.setName(userUpdateRequest.getName());
         user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
     }

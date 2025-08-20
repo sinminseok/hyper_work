@@ -25,10 +25,10 @@ public class DataInitializer implements CommandLineRunner {
 
         String adminEmail = "admin@naver.com";
 
-        RefreshTokenPayload refreshTokenPayload = new RefreshTokenPayload(adminEmail,new Date());
+        RefreshTokenPayload refreshTokenPayload = new RefreshTokenPayload(adminEmail, new Date());
         String refreshToken = jwtService.createRefreshToken(refreshTokenPayload);
 
-        if(!adminUserRepository.findByEmail(adminEmail).isPresent()){
+        if (!adminUserRepository.findByEmail(adminEmail).isPresent()) {
             AdminUser adminUser = AdminUser.builder()
                     .email(adminEmail)
                     .password(passwordEncoder.encode("admin1234"))

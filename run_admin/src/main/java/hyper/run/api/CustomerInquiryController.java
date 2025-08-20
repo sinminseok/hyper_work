@@ -28,7 +28,14 @@ public class CustomerInquiryController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @PostMapping("/answer")
+    @DeleteMapping("/{inquiryId}")
+    public ResponseEntity<?> deleteInquiry(@PathVariable Long inquiryId){
+        inquiryService.deleteInquiry(inquiryId);
+        SuccessResponse response = new SuccessResponse(true,"조건별 문의사항 삭제 성공",null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/answer/{inquiryId}")
     public ResponseEntity<?> answerInquiry(@PathVariable Long inquiryId,@RequestParam String answer){
         inquiryService.answerInquiry(inquiryId,answer);
         SuccessResponse response = new SuccessResponse(true,"답변 작성 성공",null);

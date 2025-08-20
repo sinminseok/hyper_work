@@ -70,4 +70,18 @@ public class PaymentService {
         CustomerInquiry inquiry = OptionalUtil.getOrElseThrow(customerInquiryRepository.findByPaymentId(paymentId),"존재하지 않는 문의 사항입니다.");
         return RefundPaymentResponse.paymentToRefundDto(payment,inquiry);
     }
+
+    /**
+     * 환불 요청 시 승인 및 취소
+     */
+    public void confirmRefund(final Long paymentId){
+        Payment payment = repository.getReferenceById(paymentId);
+        payment.setState(PaymentState.REFUND_COMPLETED);
+        repository.save(payment);
+    }
+    public void rejectRefund(final Long paymentId){
+        Payment payment = repository.getReferenceById(paymentId);
+        payment.setState(PaymentState.REFUND_REJECTED);
+        repository.save(payment);
+    }
 }

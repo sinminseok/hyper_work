@@ -61,6 +61,11 @@ public class CustomerInquiryService {
         return customerInquiryRepository.searchInquiry(request,pageable);
     }
 
+    public void deleteInquiry(Long inquiryId){
+        CustomerInquiry inquiry = OptionalUtil.getOrElseThrow(repository.findById(inquiryId),"존재하지 않는 문의사항입니다.");
+        repository.delete(inquiry);
+    }
+
     /**
      * 문의사항 답변
      */

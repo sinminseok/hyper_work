@@ -24,7 +24,7 @@ public class UserAdminResponse {
                 .email(user.getEmail())
                 .name(user.getName())
                 .phoneNumber(user.getPhoneNumber())
-                .birth(user.getBrith())
+                .birth(user.getBirth())
                 .build();
     }
 }

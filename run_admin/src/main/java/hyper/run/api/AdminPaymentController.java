@@ -28,11 +28,24 @@ public class AdminPaymentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/refund/{paymentId}")
+    @GetMapping("/refunds/{paymentId}")
     public ResponseEntity<?> getRefundPayment(@PathVariable Long paymentId){
         RefundPaymentResponse payment = paymentService.getRefundPayment(paymentId);
         SuccessResponse response = new SuccessResponse(true,"환불요청 조회 성공",payment);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }
+    // 환불 요청 승인 api
+    @PostMapping("/refunds/{paymentId}/confirm")
+    public ResponseEntity<?> confirmRefund(@PathVariable Long paymentId){
+        paymentService.confirmRefund(paymentId);
+        SuccessResponse response = new SuccessResponse(true,"환불 승인 성공",null);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 
+    @PostMapping("/refunds/{paymentId}/reject")
+    public ResponseEntity<?> rejectRefund(@PathVariable Long paymentId){
+        paymentService.rejectRefund(paymentId);
+        SuccessResponse response = new SuccessResponse(true,"환불 거절 성공",null);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
 }

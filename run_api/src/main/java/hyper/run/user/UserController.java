@@ -16,7 +16,7 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/v1/hyper.run.api/users")
+@RequestMapping("/v1/api/users")
 public class UserController {
 
     private final UserService userService;

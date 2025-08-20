@@ -2,6 +2,7 @@ package hyper.run.domain.user.entity;
 
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
+import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.exception.custom.InsufficientCouponException;
 import hyper.run.exception.custom.NotEnoughRefundAmount;
@@ -42,8 +43,8 @@ public class User {
     private String phoneNumber;
 
     @Setter
-    @Column(name = "brith", nullable = false)
-    private String brith;
+    @Column(name = "birth", nullable = false)
+    private String birth;
 
     @Column(name = "login_type", nullable = false)
     @Enumerated(EnumType.STRING)
@@ -61,6 +62,9 @@ public class User {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerInquiry> customerInquiries;
 
     @Setter
     @Column(name = "refreshToken", nullable = true)

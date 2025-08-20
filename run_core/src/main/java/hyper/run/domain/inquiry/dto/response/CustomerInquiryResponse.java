@@ -15,10 +15,11 @@ import java.time.LocalDate;
 @Getter
 @Builder
 public class CustomerInquiryResponse {
+    private Long id;
     private LocalDate inquiredAt;
     private InquiryState state;
     private InquiryType type;
-    private String userName;
+    private String name;
     private String email;
     private String phoneNumber;
     private String title;

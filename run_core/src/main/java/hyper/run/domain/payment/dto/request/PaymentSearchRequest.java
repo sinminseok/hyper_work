@@ -8,11 +8,12 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
+@Setter
 public class PaymentSearchRequest {
     private LocalDate startDate;
     private LocalDate endDate;
-    private Integer minPrice;
-    private Integer maxPrice;
+    private Integer minAmount;
+    private Integer maxAmount;
     private PaymentState state;
     private String keyword;
 }

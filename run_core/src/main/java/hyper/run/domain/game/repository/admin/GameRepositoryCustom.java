@@ -1,5 +1,6 @@
 package hyper.run.domain.game.repository.admin;
 
+import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameStatus;
 import org.springframework.data.domain.Page;
@@ -11,7 +12,7 @@ public interface GameRepositoryCustom {
     Page<Game> findGamesByCriteria(
             LocalDateTime createdAfter,
             LocalDateTime createdBefore,
-            GameStatus status,
+            AdminGameStatus status,
             String keyword,
             Pageable pageable
     );

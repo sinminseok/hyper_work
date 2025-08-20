@@ -19,6 +19,8 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Game {
 
+    //todo baseTimeEntity 상속
+
     private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;
 
@@ -36,6 +38,10 @@ public class Game {
     @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private GameStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "admin_status")
+    private AdminGameStatus adminGameStatus;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
@@ -120,5 +126,10 @@ public class Game {
     public boolean isNotYetStart() {
         LocalDateTime now = LocalDateTime.now();
         return now.isBefore(startAt);
+    }
+
+    // 경기 상태 업데이트
+    public void updateAdminGameStatus(AdminGameStatus newStatus){
+        this.adminGameStatus = newStatus;
     }
 }

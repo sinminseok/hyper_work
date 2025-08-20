@@ -2,10 +2,7 @@ package hyper.run.domain.inquiry.dto.request;
 
 import hyper.run.domain.inquiry.entity.InquiryState;
 import hyper.run.domain.inquiry.entity.InquiryType;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDate;
 
@@ -13,6 +10,7 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Getter
 @Builder
+@Setter
 public class InquirySearchRequest {
     private LocalDate startDate;
     private LocalDate endDate;

@@ -3,7 +3,7 @@ package hyper.run.auth.constants;
 
 public final class AuthUrlPatterns {
 
-    private static final String V1_BASE_API_URL = "/v1/hyper.run.api";
+    private static final String V1_BASE_API_URL = "/v1/api";
 
     public static final String[] GET_AUTH_WHITELIST = {
             V1_BASE_API_URL + "/users",
@@ -25,7 +25,7 @@ public final class AuthUrlPatterns {
 
     public static final String[] NOT_AUTH_URL = {
             "/swagger-ui/**",
-            "/v3/hyper.run.api-docs/**",
+            "/v3/api-docs/**",
             "/swagger-ui.html",
             "/paypal/success",
             "/paypal/cancel",

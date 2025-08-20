@@ -21,8 +21,8 @@ public class AdminPaymentResponse {
     private LocalDateTime paymentAt;
     private String paymentMethod;
     private int price;
-    private String userName;
-    private PaymentState paymentState;
+    private String name;
+    private PaymentState state;
 
     public static AdminPaymentResponse paymentToAdminPayment(Payment payment){
         return AdminPaymentResponse.builder()
@@ -30,8 +30,8 @@ public class AdminPaymentResponse {
                 .paymentAt(payment.getPaymentAt())
                 .paymentMethod(payment.getPaymentMethod())
                 .price(payment.getPrice())
-                .userName(payment.getUser().getName())
-                .paymentState(payment.getState())
+                .name(payment.getUser().getName())
+                .state(payment.getState())
                 .build();
     }
 

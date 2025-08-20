@@ -26,6 +26,7 @@ public class Payment {
     @Column(name = "coupon_amount", nullable = true)
     private Integer couponAmount;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private PaymentState state;
@@ -42,7 +43,7 @@ public class Payment {
     private User user;
 
 
-    public void updateState(PaymentState updateState){
+    public void updateState(PaymentState updateState) {
         this.state = updateState;
     }
 }

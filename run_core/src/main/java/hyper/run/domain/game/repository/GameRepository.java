@@ -1,5 +1,6 @@
 package hyper.run.domain.game.repository;
 
+import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -25,6 +26,8 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.endAt < :targetDateTime")
     List<Game> findGamesEndedBefore(@Param("targetDateTime") LocalDateTime targetDateTime);
 
+    List<Game> findAllByAdminGameStatusAndStartAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
 
+    List<Game> findAllByAdminGameStatusAndEndAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
 
 }
