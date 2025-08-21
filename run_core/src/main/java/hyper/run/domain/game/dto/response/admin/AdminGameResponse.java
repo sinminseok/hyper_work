@@ -27,7 +27,20 @@ public class AdminGameResponse {
                 .name(game.getName())
                 .createDateTime(game.getCreateDateTime())
                 .modifiedDateTime(game.getModifiedDateTime())
-                .adminGameStatus(game.getAdminGameStatus())
+                .adminGameStatus(determineStatus(game))
                 .build();
+    }
+
+    private static AdminGameStatus determineStatus(Game game) {
+        LocalDateTime now = LocalDateTime.now();
+
+        if (game.getAdminGameStatus() == AdminGameStatus.SCHEDULED && game.getStartAt().isBefore(now)) {
+            return AdminGameStatus.PROGRESS;
+        }
+        if (game.getAdminGameStatus() == AdminGameStatus.PROGRESS && game.getEndAt().isBefore(now)) {
+            return AdminGameStatus.FINISHED;
+        }
+
+        return game.getAdminGameStatus();
     }
 }
