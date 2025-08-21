@@ -1,10 +1,13 @@
 package hyper.run.user;
 
+import com.nimbusds.jose.JOSEException;
 import hyper.run.auth.dto.LoginResponse;
 import hyper.run.auth.service.JwtService;
+import hyper.run.domain.user.dto.request.AppleLoginRequest;
 import hyper.run.domain.user.dto.request.GoogleLoginRequest;
 import hyper.run.domain.user.dto.request.KakaoLoginRequest;
 import hyper.run.domain.user.dto.request.NaverLoginRequest;
+import hyper.run.domain.user.service.oauth.AppleAuthService;
 import hyper.run.domain.user.service.oauth.GoogleAuthService;
 import hyper.run.domain.user.service.oauth.KakaoAuthService;
 import hyper.run.domain.user.service.UserService;
@@ -20,6 +23,7 @@ import org.springframework.http.ResponseEntity;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
+import java.text.ParseException;
 
 
 @RestController
@@ -31,6 +35,7 @@ public class Oauth2Controller {
     private final KakaoAuthService kakaoAuthService;
     private final NaverAuthService naverAuthService;
     private final GoogleAuthService googleAuthService;
+    private final AppleAuthService appleAuthService;
     private final UserService userService;
 
     @PostMapping("/google")
@@ -58,6 +63,17 @@ public class Oauth2Controller {
     @PostMapping("/naver")
     public ResponseEntity<?> naverLogin(@RequestBody NaverLoginRequest request) {
         String email = naverAuthService.getNaverEmail(request.getAccessToken());
+        if (!userService.isExistEmail(email)) {
+            SuccessResponse successResponse = new SuccessResponse(false, "가입이 필요합니다.", email);
+            return new ResponseEntity<>(successResponse, HttpStatus.OK);
+        }
+        SuccessResponse successResponse = new SuccessResponse(true, "네이버 로그인 성공", createLoginResponse(email));
+        return new ResponseEntity<>(successResponse, HttpStatus.OK);
+    }
+
+    @PostMapping("/apple")
+    public ResponseEntity<?> appleLogin(@RequestBody AppleLoginRequest request) throws ParseException, IOException, JOSEException {
+        String email = appleAuthService.getAppleEmail(request.getIdentityToken());
         if (!userService.isExistEmail(email)) {
             SuccessResponse successResponse = new SuccessResponse(false, "가입이 필요합니다.", email);
             return new ResponseEntity<>(successResponse, HttpStatus.OK);

@@ -25,7 +25,7 @@ public class CadenceRankService extends AbstractGameRankService {
 
 
     public CadenceRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository) {
-        super(gameHistoryRepository, userRepository);
+        super(gameHistoryRepository, userRepository, gameRepository);
         this.gameRepository = gameRepository;
         this.gameHistoryRepository = gameHistoryRepository;
         this.userRepository = userRepository;

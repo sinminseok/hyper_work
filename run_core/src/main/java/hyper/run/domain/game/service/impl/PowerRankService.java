@@ -29,7 +29,7 @@ public class PowerRankService extends AbstractGameRankService {
     private final GameHistoryRepository gameHistoryRepository;
 
     public PowerRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository, UserRepository userRepository1, GameHistoryRepository gameHistoryRepository1) {
-        super(gameHistoryRepository, userRepository);
+        super(gameHistoryRepository, userRepository, gameRepository);
         this.gameRepository = gameRepository;
         this.userRepository = userRepository1;
         this.gameHistoryRepository = gameHistoryRepository1;
