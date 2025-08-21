@@ -3,6 +3,7 @@ package hyper.run.api;
 import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
 import hyper.run.domain.inquiry.dto.response.RefundPaymentResponse;
+import hyper.run.domain.payment.service.AdminPaymentService;
 import hyper.run.domain.payment.service.PaymentService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/api/admin/payments")
 public class AdminPaymentController {
 
-    private final PaymentService paymentService;
+    private final AdminPaymentService paymentService;
 
     @GetMapping
     public ResponseEntity<?> getPayments(@ModelAttribute PaymentSearchRequest searchRequest,

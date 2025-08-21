@@ -22,7 +22,6 @@ public class PaymentRequest {
                 .couponAmount(this.couponAmount)
                 .state(PaymentState.PAYMENT_COMPLETED)
                 .paymentMethod(this.paymentMethod)
-                .paymentAt(LocalDateTime.now())
                 .user(user)
                 .build();
     }

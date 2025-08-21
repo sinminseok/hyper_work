@@ -26,6 +26,7 @@ public class CustomerInquiry extends BaseTimeEntity {
     @Column(name = "email",nullable = false)
     private String email;
 
+    @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -45,6 +46,12 @@ public class CustomerInquiry extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private InquiryState state; // 문의 상태
+
+    @Column(name = "account_number", nullable = true)
+    private String accountNumber; // 환불 받을 계좌 번호
+
+    @Column(name = "bank_name", nullable = true)
+    private String bankName; // 환불 받을 은행 이름
 
     @Column(name = "title",nullable = false)
     private String title; // 문의명

@@ -2,6 +2,7 @@ package hyper.run.api;
 
 import hyper.run.domain.exchange_transaction.dto.response.AdminExchangeTransactionResponse;
 import hyper.run.domain.exchange_transaction.entity.ExchangeStatus;
+import hyper.run.domain.exchange_transaction.service.AdminExchangeTransactionService;
 import hyper.run.domain.exchange_transaction.service.ExchangeTransactionService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -21,7 +22,7 @@ import java.time.LocalDate;
 @RequiredArgsConstructor
 public class AdminExchangeTransactionController {
 
-    private final ExchangeTransactionService exchangeTransactionService;
+    private final AdminExchangeTransactionService exchangeTransactionService;
 
     @GetMapping
     public ResponseEntity<?> getExchanges(@RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

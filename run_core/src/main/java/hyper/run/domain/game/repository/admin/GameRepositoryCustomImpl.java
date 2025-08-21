@@ -85,7 +85,7 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
 
         // 기본 정렬: 만약 정렬 조건이 없다면 최신순으로 정렬
         if (orderSpecifiers.isEmpty()) {
-            orderSpecifiers.add(new OrderSpecifier(Order.DESC, game.createdAt));
+            orderSpecifiers.add(new OrderSpecifier(Order.DESC, game.createDateTime));
         }
 
         return orderSpecifiers.toArray(new OrderSpecifier[0]);

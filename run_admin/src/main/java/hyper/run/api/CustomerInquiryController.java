@@ -3,6 +3,7 @@ package hyper.run.api;
 import hyper.run.domain.inquiry.dto.request.InquirySearchRequest;
 import hyper.run.domain.inquiry.dto.response.CustomerInquiryResponse;
 import hyper.run.domain.inquiry.repository.custom.CustomCustomerInquiryRepository;
+import hyper.run.domain.inquiry.service.AdminCustomerInquiryService;
 import hyper.run.domain.inquiry.service.CustomerInquiryService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class CustomerInquiryController {
 
-    private final CustomerInquiryService inquiryService;
+    private final AdminCustomerInquiryService inquiryService;
 
     @GetMapping
     public ResponseEntity<?> searchInquiry(@ModelAttribute InquirySearchRequest request,

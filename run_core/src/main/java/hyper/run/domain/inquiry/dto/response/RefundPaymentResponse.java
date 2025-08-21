@@ -19,7 +19,7 @@ public class RefundPaymentResponse {
     private String phoneNumber;
     private String email;
     private String paymentMethod;
-    private LocalDateTime paymentAt;
+    private LocalDateTime createDateTime;
     private Integer price;
     private RefundType refundType;
     private String message;
@@ -30,7 +30,7 @@ public class RefundPaymentResponse {
                 .phoneNumber(payment.getUser().getPhoneNumber())
                 .email(payment.getUser().getEmail())
                 .paymentMethod(payment.getPaymentMethod())
-                .paymentAt(payment.getPaymentAt())
+                .createDateTime(payment.getCreateDateTime())
                 .price(inquiry.getRefundPrice())
                 .refundType(inquiry.getRefundType())
                 .message(inquiry.getMessage())

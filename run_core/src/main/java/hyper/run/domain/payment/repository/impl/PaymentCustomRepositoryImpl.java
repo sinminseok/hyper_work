@@ -119,7 +119,7 @@ public class PaymentCustomRepositoryImpl implements PaymentCustomRepository{
 
         // 기본 정렬 (만약 아무 정렬 조건도 없다면)
         if (specifiers.isEmpty()) {
-            specifiers.add(new OrderSpecifier(Order.DESC, payment.paymentAt));
+            specifiers.add(new OrderSpecifier(Order.DESC, payment.createDateTime));
         }
 
         return specifiers.toArray(new OrderSpecifier[0]);

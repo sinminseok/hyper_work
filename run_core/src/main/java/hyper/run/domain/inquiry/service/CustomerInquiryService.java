@@ -54,25 +54,4 @@ public class CustomerInquiryService {
         repository.save(request.toCommonInquiry(user));
     }
 
-    /** 관리자
-     * 문의사항 필터 조회
-     */
-    public Page<CustomerInquiryResponse> searchInquiry(InquirySearchRequest request, Pageable pageable){
-        return customerInquiryRepository.searchInquiry(request,pageable);
-    }
-
-    public void deleteInquiry(Long inquiryId){
-        CustomerInquiry inquiry = OptionalUtil.getOrElseThrow(repository.findById(inquiryId),"존재하지 않는 문의사항입니다.");
-        repository.delete(inquiry);
-    }
-
-    /**
-     * 문의사항 답변
-     */
-    @Transactional
-    public void answerInquiry(Long inquiryId,String answer){
-        CustomerInquiry customerInquiry = OptionalUtil.getOrElseThrow(repository.findById(inquiryId),"존재하지 않는 문의사항입니다.");
-        customerInquiry.setState(InquiryState.SUCCESS);
-        customerInquiry.setAnswer(answer);
-    }
 }

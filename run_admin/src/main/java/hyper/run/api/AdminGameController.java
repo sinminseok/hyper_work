@@ -3,6 +3,7 @@ package hyper.run.api;
 import hyper.run.domain.game.dto.response.admin.AdminGameResponse;
 import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.GameStatus;
+import hyper.run.domain.game.service.AdminGameService;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -25,7 +26,7 @@ import java.time.LocalDate;
 @RequestMapping("/v1/api/admin/games")
 public class AdminGameController {
 
-    private final GameService gameService;
+    private final AdminGameService gameService;
 
     @GetMapping
     public ResponseEntity<?> getAllGames(

@@ -12,7 +12,6 @@ import hyper.run.domain.inquiry.dto.response.CustomerInquiryResponse;
 import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.inquiry.entity.InquiryState;
 import hyper.run.domain.inquiry.entity.InquiryType;
-import hyper.run.domain.payment.entity.Payment;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -23,7 +22,8 @@ import hyper.run.domain.user.entity.QUser;
 import hyper.run.domain.inquiry.entity.QCustomerInquiry;
 import org.springframework.util.StringUtils;
 
-import java.time.LocalDate;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -129,7 +129,7 @@ public class CustomCustomerInquiryRepositoryImpl implements CustomCustomerInquir
         return specifiers.toArray(new OrderSpecifier[0]);
     }
 
-    private BooleanExpression dateRange(LocalDate startDate,LocalDate endDate){
+    private BooleanExpression dateRange(LocalDateTime startDate, LocalDateTime endDate){
         if(startDate != null && endDate !=null){
             return inquiry.createDateTime.between(startDate,endDate);
         }

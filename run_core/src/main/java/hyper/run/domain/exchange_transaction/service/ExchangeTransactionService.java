@@ -34,7 +34,6 @@ import static hyper.run.exception.ErrorMessages.*;
 public class ExchangeTransactionService {
 
     private final UserRepository userRepository;
-    private final PaymentRepository paymentRepository;
     private final ExchangeTransactionRepository exchangeTransactionRepository;
     private final CustomExchangeTransactionRepository customExchangeTransactionRepository;
 
@@ -59,32 +58,4 @@ public class ExchangeTransactionService {
     }
 
 
-    /** _____관리자_____
-     * 환전 조회 메서드
-     */
-    public Page<AdminExchangeTransactionResponse> findExchanges(LocalDate startDate, LocalDate endDate, String keyword, ExchangeStatus exchangeStatus, Pageable pageable){
-            return customExchangeTransactionRepository.findExchanges(startDate,endDate,keyword, exchangeStatus, pageable);
-    }
-
-
-    /**
-     * 환전 완료 메서드
-     */
-    @Transactional
-    public void complete(final Long exchangeId) {
-        ExchangeTransaction exchangeTransaction = OptionalUtil.getOrElseThrow(exchangeTransactionRepository.findById(exchangeId), NOT_EXIST_EXCHANGE_ID);
-        exchangeTransaction.setExchangeStatus(ExchangeStatus.COMPLETED);
-    }
-
-    /**
-     * 환전 취소 메서드
-     */
-    @Transactional
-    public void cancel(final Long exchangeId) {
-        ExchangeTransaction exchangeTransaction = OptionalUtil.getOrElseThrow(exchangeTransactionRepository.findById(exchangeId), NOT_EXIST_EXCHANGE_ID);
-        User user = OptionalUtil.getOrElseThrow(userRepository.findById(exchangeTransaction.getUserId()),"존재하지 않는 사용자입니다.");
-        double requestedPoint = exchangeTransaction.getAmount();
-        user.increasePoint(requestedPoint);
-        exchangeTransaction.setExchangeStatus(ExchangeStatus.CANCELLED);
-    }
 }
