@@ -28,11 +28,11 @@ public class FlightTimeRankService extends AbstractGameRankService {
     private final GameHistoryRepository gameHistoryRepository;
     private final UserRepository userRepository;
 
-    public FlightTimeRankService(GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameRepository gameRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository);
+    public FlightTimeRankService(GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameRepository gameRepository) {
+        super(gameHistoryRepository, userRepository, gameRepository);
         this.gameRepository = gameRepository;
-        this.gameHistoryRepository = gameHistoryRepository1;
-        this.userRepository = userRepository1;
+        this.gameHistoryRepository = gameHistoryRepository;
+        this.userRepository = userRepository;
     }
 
     @Override

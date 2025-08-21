@@ -29,7 +29,7 @@ public class GroundContactTimeRankService extends AbstractGameRankService {
     private final UserRepository userRepository;
 
     public GroundContactTimeRankService(GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameRepository gameRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository);
+        super(gameHistoryRepository, userRepository, gameRepository);
         this.gameRepository = gameRepository;
         this.gameHistoryRepository = gameHistoryRepository1;
         this.userRepository = userRepository1;

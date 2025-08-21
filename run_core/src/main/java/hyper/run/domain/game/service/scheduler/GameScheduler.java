@@ -46,7 +46,7 @@ public class GameScheduler {
     public void startGameRankLoop(Game game) {
         Timer timer = new Timer(true);
         TimerTask task = createGameRankTask(game, timer);
-        timer.scheduleAtFixedRate(task, 0, 15_000); // 15초마다 실행
+        timer.scheduleAtFixedRate(task, 0, 15_000); // 15초마다 순위 갱신
     }
 
     private TimerTask createGameRankTask(Game game, Timer timer) {
