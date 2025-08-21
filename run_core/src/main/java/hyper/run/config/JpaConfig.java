@@ -2,6 +2,6 @@ package hyper.run.config;
 
 import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 
-@EnableJpaRepositories(basePackages = "hyper.run.domain")
+@EnableJpaRepositories(basePackages = "hyper.run.hyper.run.domain")
 public class JpaConfig {
 }
