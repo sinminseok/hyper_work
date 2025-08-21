@@ -21,6 +21,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import javax.swing.text.html.Option;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -71,6 +72,18 @@ public class PaymentService {
         CustomerInquiry inquiry = OptionalUtil.getOrElseThrow(customerInquiryRepository.findByPaymentId(paymentId),"존재하지 않는 문의 사항입니다.");
         return RefundPaymentResponse.paymentToRefundDto(payment,inquiry);
     }
+
+    /**
+     * 자신의 모든 결제 내역을 조회하는 메서드
+     */
+    public List<PaymentResponse> findAllByEmail(final String email){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        return user.getPayments().stream()
+                .sorted(Comparator.comparing(Payment::getCreateDateTime).reversed())
+                .map(PaymentResponse::toResponse)
+                .collect(Collectors.toList());
+    }
+
 
     /**
      * 환불 요청 시 승인 및 취소

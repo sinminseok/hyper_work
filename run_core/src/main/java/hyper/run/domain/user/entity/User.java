@@ -11,6 +11,7 @@ import hyper.run.exception.custom.UserDuplicatedException;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static hyper.run.exception.ErrorMessages.NOT_ENOUGH_COUPON_AMOUNT;
@@ -79,6 +80,9 @@ public class User extends BaseTimeEntity {
     @Column(name = "accessToken", nullable = true)
     private String accessToken;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerInquiry> inquiries = new ArrayList<>();
+
     public void validateRefundPossible(final int couponCount){
         if(this.coupon < couponCount){
             throw new NotEnoughRefundAmount(NOT_ENOUGH_TO_REFUND_AMOUNT);
@@ -103,6 +107,10 @@ public class User extends BaseTimeEntity {
         this.coupon -= 1;
     }
 
+    public void decreaseCouponByAmount(int amount){
+        this.coupon -= amount;
+    }
+
     public void increaseCoupon(){
         this.coupon += 1;
     }
@@ -123,5 +131,10 @@ public class User extends BaseTimeEntity {
     }
     public void updatePassword(final String encodePassword){
         this.password = encodePassword;
+    }
+
+    public void addInquiry(CustomerInquiry inquiry) {
+        this.inquiries.add(inquiry);
+        inquiry.setUser(this); // 양방향 관계 유지
     }
 }

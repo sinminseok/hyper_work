@@ -112,6 +112,9 @@ public class GameHistory {
         return Math.abs(targetBpm - currentBpm);
     }
 
+    /**
+     * getCurrentDistance() 거리 데이터를 수집할때, 워치에서, 현재 이동 거리를 시작을 감지해 측정한다.
+     */
     public void updateFrom(GameHistoryUpdateRequest request) {
         updateCount++;
         int previousCount = updateCount - 1;
@@ -121,7 +124,6 @@ public class GameHistory {
         currentPower = calculateAverage(currentPower, request.getCurrentPower(), previousCount);
         currentGroundContactTime = calculateAverage(currentGroundContactTime, request.getCurrentGroundContactTime(), previousCount);
         currentVerticalOscillation = calculateAverage(currentVerticalOscillation, request.getCurrentVerticalOscillation(), previousCount);
-
         accumulateFlightTime(request.getCurrentFlightTime());
     }
 

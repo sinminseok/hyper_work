@@ -25,7 +25,7 @@ public class Payment extends BaseTimeEntity {
     private int price;
 
     @Column(name = "coupon_amount", nullable = true)
-    private Integer couponAmount;
+    private int couponAmount;
 
     @Setter
     @Enumerated(EnumType.STRING)

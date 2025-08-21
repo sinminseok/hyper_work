@@ -32,11 +32,19 @@ public class PaymentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @GetMapping
+    public ResponseEntity<?> findAll() {
+        String email = getLoginEmailBySecurityContext();
+        List<PaymentResponse> allByEmail = paymentService.findAllByEmail(email);
+        SuccessResponse response = new SuccessResponse(true, "내 결제 내역 조회", allByEmail);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /**
      * 환불 가능한 결제 내역 조회 API
      */
     @GetMapping("/refunds")
-    public ResponseEntity<?> applyInquiry( ) {
+    public ResponseEntity<?> applyInquiry() {
         String email = getLoginEmailBySecurityContext();
         List<PaymentResponse> possibleRefundPayment = paymentService.findPossibleRefundPayment(email);
         SuccessResponse response = new SuccessResponse(true, "환불 가능한 결제 내역 조회 성공", possibleRefundPayment);
