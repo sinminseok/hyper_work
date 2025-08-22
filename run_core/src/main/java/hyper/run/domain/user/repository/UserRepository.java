@@ -3,6 +3,8 @@ package hyper.run.domain.user.repository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.admin.UserRepositoryCustom;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
@@ -15,6 +17,7 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
     Optional<User> findByPhoneNumber(String phoneNumber);
 
     Optional<User> findByWatchConnectedKey(String watchConnectedKey);
+
 
     Optional<User> findByRefreshToken(String refreshToken);
 

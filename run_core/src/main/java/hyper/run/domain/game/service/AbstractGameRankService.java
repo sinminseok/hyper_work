@@ -3,21 +3,29 @@ package hyper.run.domain.game.service;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.repository.GameHistoryRepository;
+import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Comparator;
 import java.util.List;
+
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_GAME_ID;
 
 public abstract class AbstractGameRankService implements GameRankService {
 
     protected final GameHistoryRepository gameHistoryRepository;
     protected final UserRepository userRepository;
+    protected final GameRepository gameRepository;
 
-    protected AbstractGameRankService(GameHistoryRepository gameHistoryRepository, UserRepository userRepository) {
+    protected AbstractGameRankService(GameHistoryRepository gameHistoryRepository,
+                                      UserRepository userRepository,
+                                      GameRepository gameRepository) {
         this.gameHistoryRepository = gameHistoryRepository;
         this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     @Override
@@ -28,10 +36,12 @@ public abstract class AbstractGameRankService implements GameRankService {
     }
 
     @Override
+    @Transactional
     public void saveGameResult(Game game) {
-        List<GameHistory> gameHistories = fetchSortedDoneHistories(game);
+        Game managedGame = OptionalUtil.getOrElseThrow(gameRepository.findById(game.getId()), NOT_EXIST_GAME_ID);
+        List<GameHistory> gameHistories = fetchSortedDoneHistories(managedGame);
         setAllDone(gameHistories);
-        distributePrizes(game, gameHistories);
+        distributePrizes(managedGame, gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
     }
 
@@ -51,11 +61,13 @@ public abstract class AbstractGameRankService implements GameRankService {
         for (GameHistory history : histories) {
             if (!history.isDone()) {
                 history.setRank(rank++);
+            } else {
+                rank++;
             }
         }
     }
 
-    private void distributePrizes(Game game, List<GameHistory> histories) {
+    private void distributePrizes(Game managedGame, List<GameHistory> histories) {
         int limit = Math.min(3, histories.size());
         for (int i = 0; i < limit; i++) {
             GameHistory history = histories.get(i);
@@ -63,12 +75,11 @@ public abstract class AbstractGameRankService implements GameRankService {
                     userRepository.findById(history.getUserId()),
                     hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID
             );
-            double prize = calculatePrizeForRank(game, i);
+            double prize = calculatePrizeForRank(managedGame, i);
             awardPrizeToUser(history, user, prize);
-            assignWinnerName(game, i, user);
+            assignWinnerName(managedGame, i, user);
         }
     }
-
 
     private double calculatePrizeForRank(Game game, int rank) {
         return switch (rank) {
@@ -92,6 +103,6 @@ public abstract class AbstractGameRankService implements GameRankService {
         history.setPrize(prize);
     }
 
-    //각 경기별 순위(랭킹)를 산정하는 방식이 다르다(즉 정렬 방식이 다르다)
+    // 각 경기별 순위 산정 방식 다름 → 정렬 방식 추상화
     protected abstract List<GameHistory> fetchSortedHistories(Game game);
 }

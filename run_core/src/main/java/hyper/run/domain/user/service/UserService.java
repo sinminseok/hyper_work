@@ -10,6 +10,8 @@ import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.OptionalUtil;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +30,8 @@ public class UserService {
 
     private static final String NONE = "NONE";
     private final UserRepository userRepository;
+    @PersistenceContext
+    private EntityManager em;
 
     @Transactional
     public void save(final UserSignupRequest userSignupRequest, final String encodePassword) {
@@ -120,6 +124,7 @@ public class UserService {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByWatchConnectedKey(watchKey), NOT_EXIST_USER_EMAIL);
         return user.getAccessToken();
     }
+
 
     private void validateDuplicatedEmail(String email){
         if(isExistEmail(email)){

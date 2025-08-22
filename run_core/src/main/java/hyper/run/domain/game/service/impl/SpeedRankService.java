@@ -7,11 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
-import hyper.run.domain.game.service.GameRankService;
-import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
-import hyper.run.utils.OptionalUtil;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.domain.game.service.helper.GameHelper.createGame;
-import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
 
 /**
  * 가장 멀리 달린 순서대로 순위를 정하는 게임
@@ -32,7 +27,7 @@ public class SpeedRankService extends AbstractGameRankService {
     private final UserRepository userRepository;
 
     public SpeedRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository);
+        super(gameHistoryRepository, userRepository, gameRepository);
         this.gameHistoryRepository = gameHistoryRepository1;
         this.userRepository = userRepository1;
         this.gameRepository = gameRepository;
