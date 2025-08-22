@@ -14,9 +14,14 @@ spring:
       force: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_RDS_URL}
-    username: ${RDS_USERNAME}
-    password: ${RDS_PASSWORD}
+    #url: ${DB_RDS_URL}
+#    username: ${RDS_USERNAME}
+#    password: ${RDS_PASSWORD}
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  application:
+    name: hyper_run
 
   data:
     mongodb:
@@ -34,9 +39,17 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
+logging:
+  level:
+    root: INFO
+    org.hibernate.SQL: DEBUG
+    org.hibernate.type.descriptor.sql: TRACE
+    org.springframework.orm.jpa: DEBUG
+    org.springframework.transaction: debug
+    org.springframework.security: DEBUG
 
 redis:
-  host: ${REDIS_HOST}
+  host: redis
   port: 6379
 
 aligo:

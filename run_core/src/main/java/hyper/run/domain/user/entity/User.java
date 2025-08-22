@@ -45,10 +45,11 @@ public class User extends BaseTimeEntity {
     private String phoneNumber;
 
     @Setter
-    @Column(name = "brith", nullable = false)
-    private String brith;
+    @Column(name = "birth", nullable = false)
+    private String birth;
 
     @Column(name = "login_type", nullable = false)
+    @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
     @Column(name = "coupon", nullable = false)
@@ -63,6 +64,9 @@ public class User extends BaseTimeEntity {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Payment> payments;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<CustomerInquiry> customerInquiries;
 
     @Setter
     @Column(name = "refreshToken", nullable = true)

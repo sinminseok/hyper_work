@@ -11,7 +11,7 @@ public class UserHelper {
                 .email("testEmail"+id)
                 .password("password")
                 .phoneNumber("0101234123"+id)
-                .brith("001031")
+                .birth("001031")
                 .loginType(LoginType.EMAIL)
                 .coupon(100)
                 .point(0)

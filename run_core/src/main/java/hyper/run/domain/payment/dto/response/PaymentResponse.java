@@ -21,12 +21,12 @@ public class PaymentResponse {
 
     private String paymentMethod;
 
-    private LocalDateTime paymentAt;
+    private LocalDateTime createDateTime;
 
     public static PaymentResponse toResponse(Payment payment){
         return PaymentResponse.builder()
                 .id(payment.getId())
-                .paymentAt(payment.getPaymentAt())
+                .createDateTime(payment.getCreateDateTime())
                 .couponAmount(payment.getCouponAmount())
                 .price(payment.getPrice())
                 .state(payment.getState())

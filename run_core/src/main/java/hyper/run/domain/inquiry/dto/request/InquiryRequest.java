@@ -9,7 +9,6 @@ import lombok.Getter;
 
 @Getter
 public class InquiryRequest {
-
     private String email;
 
     private InquiryType type;
@@ -28,12 +27,12 @@ public class InquiryRequest {
 
     private String title;
 
-    public CustomerInquiry toRefundInquiry( final User user){
+    public CustomerInquiry toRefundInquiry(final User user){
         return CustomerInquiry.builder()
                 .email(this.email)
                 .user(user)
                 .title(this.title)
-                .paymentId(paymentId)
+                .paymentId(this.paymentId)
                 .type(InquiryType.REFUND)
                 .state(InquiryState.WAITING)
                 .refundPrice(this.refundPrice)
@@ -44,11 +43,10 @@ public class InquiryRequest {
                 .build();
     }
 
-    public CustomerInquiry toCommonInquiry( final User user){
+    public CustomerInquiry toCommonInquiry(final User user){
         return CustomerInquiry.builder()
                 .user(user)
                 .email(this.email)
-                .title(this.title)
                 .state(InquiryState.WAITING)
                 .type(this.type)
                 .message(this.message)

@@ -3,6 +3,7 @@ package hyper.run.domain.user.service;
 import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
+import hyper.run.domain.user.dto.response.UserAdminResponse;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.entity.User;
@@ -12,6 +13,8 @@ import hyper.run.utils.OptionalUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -107,7 +110,7 @@ public class UserService {
     @Transactional
     public void updateProfile(String email, UserUpdateRequest userUpdateRequest) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        user.setBrith(userUpdateRequest.getBrith());
+        user.setBirth(userUpdateRequest.getBirth());
         user.setName(userUpdateRequest.getName());
         user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
     }
@@ -135,5 +138,11 @@ public class UserService {
         }
     }
 
-
+    /**
+     * 관리자 페이지에서 사용자 조회
+     */
+    public Page<UserAdminResponse> searchUsers(final String searchCategory, final String keyword, final Pageable pageable){
+        Page<User> userPage = userRepository.searchUsers(searchCategory,keyword,pageable);
+        return userPage.map(UserAdminResponse::userToAdminUserDto);
+    }
 }

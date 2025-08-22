@@ -8,5 +8,5 @@ public class UserUpdateRequest {
 
     private String phoneNumber;
 
-    private String brith;
+    private String birth;
 }

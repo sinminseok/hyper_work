@@ -20,16 +20,16 @@ public class CustomerInquiry extends BaseTimeEntity {
     @Column(name = "customer_inquiry_id", updatable = false)
     private Long id;
 
+    @Column(name = "payment_id",nullable = true)
+    private Long paymentId;
+
+    @Column(name = "email",nullable = false)
+    private String email;
+
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
-
-    @Column(name = "email", nullable = false)
-    private String email;
-
-    @Column(name = "payment_id", nullable = true)
-    private Long paymentId; // 문의한 결제 id
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type", updatable = false, nullable = false)
@@ -42,6 +42,7 @@ public class CustomerInquiry extends BaseTimeEntity {
     @Column(name = "refund_type", nullable = true)
     private RefundType refundType; // 환불 이유 (문의 유형이 환불일 경우)
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private InquiryState state; // 문의 상태
@@ -52,12 +53,13 @@ public class CustomerInquiry extends BaseTimeEntity {
     @Column(name = "bank_name", nullable = true)
     private String bankName; // 환불 받을 은행 이름
 
-    @Column(name = "message", updatable = false, nullable = false)
-    private String message;
-
     @Column(name = "title",nullable = false)
     private String title; // 문의명
 
+    @Column(name = "message", updatable = false, nullable = false)
+    private String message; // 문의내용
+
+    @Setter
     @Column(name = "answer",nullable = true)
     private String answer; // 답변 내용
 

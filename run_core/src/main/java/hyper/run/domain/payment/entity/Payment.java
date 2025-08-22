@@ -1,6 +1,7 @@
 package hyper.run.domain.payment.entity;
 
 import hyper.run.domain.common.BaseTimeEntity;
+import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.user.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,7 @@ public class Payment extends BaseTimeEntity {
     @Column(name = "coupon_amount", nullable = true)
     private int couponAmount;
 
+    @Setter
     @Enumerated(EnumType.STRING)
     @Column(name = "state", nullable = false)
     private PaymentState state;
@@ -33,15 +35,13 @@ public class Payment extends BaseTimeEntity {
     @Column(name = "payment_method", nullable = true)
     private String paymentMethod;
 
-    @Column(name = "payment_at", nullable = false)
-    private LocalDateTime paymentAt;
-
     @Setter
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    public void updateState(PaymentState updateState){
+
+    public void updateState(PaymentState updateState) {
         this.state = updateState;
     }
 }

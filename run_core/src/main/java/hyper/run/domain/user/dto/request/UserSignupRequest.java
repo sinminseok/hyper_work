@@ -16,7 +16,7 @@ public class UserSignupRequest {
 
     private String password;
 
-    private String  brith;
+    private String birth;
 
     private String phoneNumber;
 
@@ -25,7 +25,7 @@ public class UserSignupRequest {
     public User toEntity(final String encodePassword){
         return User.builder()
                 .name(this.name)
-                .brith(this.brith)
+                .birth(this.birth)
                 .email(this.email)
                 .coupon(0)
                 .point(0)

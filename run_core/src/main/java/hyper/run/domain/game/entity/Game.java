@@ -35,6 +35,14 @@ public class Game extends BaseTimeEntity {
     private GameType type; // 경기 유형
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private GameStatus status;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "admin_status")
+    private AdminGameStatus adminGameStatus;
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
     private GameDistance distance; // 경기 거리
 
@@ -111,5 +119,10 @@ public class Game extends BaseTimeEntity {
     public boolean isNotYetStart() {
         LocalDateTime now = LocalDateTime.now();
         return now.isBefore(startAt);
+    }
+
+    // 경기 상태 업데이트
+    public void updateAdminGameStatus(AdminGameStatus newStatus){
+        this.adminGameStatus = newStatus;
     }
 }

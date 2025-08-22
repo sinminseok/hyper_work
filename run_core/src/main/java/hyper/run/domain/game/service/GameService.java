@@ -1,22 +1,28 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.response.admin.AdminGameResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
+import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
+import hyper.run.domain.game.repository.admin.GameRepositoryCustom;
 import hyper.run.domain.game.service.scheduler.GameScheduler;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Comparator;
 import java.util.List;
@@ -34,6 +40,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
     private final GameScheduler gameScheduler;
+
 
     public void testStart(Long gameId){
         Game game = gameRepository.findById(gameId).get();
@@ -164,5 +171,6 @@ public class GameService {
         }
         return GameStatus.REGISTRATION_OPEN;
     }
+
 
 }
