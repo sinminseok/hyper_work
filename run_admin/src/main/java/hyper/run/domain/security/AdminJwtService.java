@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseCookie;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.security.Keys;
+
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.Optional;
@@ -37,11 +38,6 @@ public class AdminJwtService {
     @Value("${jwt.refresh.expiration}")
     private long refreshKeyExpiration; // 14일
 
-    @Value("${jwt.access.header}")
-    private String accessHeader;
-
-    @Value("${jwt.refresh.header}")
-    private String refreshHeader;
 
     public AdminJwtService(@Value("${jwt.secret-key}") String secretKey) {
         this.secretKey = Keys.hmacShaKeyFor(Decoders.BASE64.decode(secretKey));
@@ -56,23 +52,24 @@ public class AdminJwtService {
                 .getBody();
     }
 
-    public String createAccessToken(final AccessTokenPayload payload){
+    public String createAccessToken(final AccessTokenPayload payload) {
         return Jwts.builder()
                 .setSubject(payload.email())
-                .claim("role",payload.role().getKey())
+                .claim("role", payload.role().getKey())
                 .setIssuer(issuer)
                 .setIssuedAt(payload.date())
-                .setExpiration(new Date(payload.date().getTime()+ accessKeyExpiration * 1000L))
-                .signWith(SignatureAlgorithm.HS512,secretKey)
+                .setExpiration(new Date(payload.date().getTime() + accessKeyExpiration * 1000L))
+                .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
-    public String createRefreshToken(final RefreshTokenPayload payload){
+
+    public String createRefreshToken(final RefreshTokenPayload payload) {
         return Jwts.builder()
                 .setSubject(payload.email())
                 .setIssuer(issuer)
                 .setIssuedAt(payload.date())
                 .setExpiration(new Date(payload.date().getTime() + refreshKeyExpiration + 1000L))
-                .signWith(SignatureAlgorithm.HS512,secretKey)
+                .signWith(SignatureAlgorithm.HS512, secretKey)
                 .compact();
     }
 
@@ -82,11 +79,5 @@ public class AdminJwtService {
                 .filter(accessToken -> accessToken.startsWith("Bearer "))
                 .map(accessToken -> accessToken.replace("Bearer ", ""));
     }
-    public void sendAccessAndRefreshToken(HttpServletResponse response,String accessToken,String refreshToken){
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setHeader(accessHeader,accessToken);
-        response.setHeader(refreshHeader,refreshToken);
-    }
 
-    }
+}

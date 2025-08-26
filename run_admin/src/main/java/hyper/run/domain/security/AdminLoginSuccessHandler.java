@@ -1,9 +1,12 @@
 package hyper.run.domain.security;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import hyper.run.domain.dto.response.AccessTokenPayload;
+import hyper.run.domain.dto.response.LoginResponse;
 import hyper.run.domain.dto.response.RefreshTokenPayload;
 import hyper.run.domain.entity.AdminUser;
 import hyper.run.domain.repository.AdminUserRepository;
+import hyper.run.domain.service.AdminLoginService;
 import hyper.run.domain.user.entity.Role;
 import hyper.run.utils.OptionalUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,33 +18,43 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
 import org.springframework.stereotype.Component;
 
+import java.io.IOException;
 import java.util.Date;
+import java.util.Map;
 
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class AdminLoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
 
-    private final AdminJwtService jwtService;
-    private final AdminUserRepository adminUserRepository;
+    private final AdminLoginService adminLoginService;
+    private final ObjectMapper objectMapper;
 
     @Override
     @Transactional
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response,
-                                        Authentication authentication) {
+                                        Authentication authentication) throws IOException {
         String email = extractUsername(authentication);
-        AdminUser admin = OptionalUtil.getOrElseThrow(adminUserRepository.findByEmail(email),"존재하지 않는 관리자입니다.");
+        LoginResponse loginResponse = adminLoginService.login(email);
+        sendLoginSuccessResponse(response, loginResponse);
 
-        String accessToken = jwtService.createAccessToken(new AccessTokenPayload(email, Role.ADMIN,new Date()));
-        String refreshToken = jwtService.createRefreshToken(new RefreshTokenPayload(email,new Date()));
-        jwtService.sendAccessAndRefreshToken(response,accessToken,refreshToken);
-
-        admin.setRefreshToken(refreshToken);
         log.info("로그인에 성공한 관리자 정보 : " + email);
-        log.info("accessToken : " + accessToken);
     }
-    private String extractUsername(Authentication authentication){
+
+    private void sendLoginSuccessResponse(HttpServletResponse response, LoginResponse loginResponse) throws IOException {
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+
+        response.addHeader("Set-Cookie", loginResponse.getRefreshTokenCookie().toString());
+
+        objectMapper.writeValue(response.getWriter(),
+                Map.of("role", loginResponse.getRole(), "accessToken", loginResponse.getAccessToken()));
+    }
+
+    private String extractUsername(Authentication authentication) {
         CustomUserDetails userDetails = (CustomUserDetails) authentication.getPrincipal();
         return userDetails.getUsername();
     }
+
 }

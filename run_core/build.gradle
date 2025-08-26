@@ -3,7 +3,6 @@ plugins {
     id 'org.springframework.boot' version '3.5.3'
     id "com.google.protobuf" version "0.9.4"
     id 'io.spring.dependency-management' version '1.1.7'
-    id "com.ewerk.gradle.plugins.querydsl" version "1.0.10"
 }
 
 sourceSets {
@@ -63,31 +62,34 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    implementation 'com.querydsl:querydsl-jpa:5.1.0:jakarta'
-    annotationProcessor "com.querydsl:querydsl-apt:5.1.0:jakarta"
+
     annotationProcessor "jakarta.annotation:jakarta.annotation-api"
     annotationProcessor "jakarta.persistence:jakarta.persistence-api"
+    implementation 'jakarta.persistence:jakarta.persistence-api:3.1.0'
+    //querydsl
+    implementation 'com.querydsl:querydsl-jpa:5.0.0:jakarta'
+    annotationProcessor "com.querydsl:querydsl-apt:5.0.0:jakarta"
+
 }
 
-def querydslDir = "$buildDir/generated/querydsl"
+// [3] Querydsl 설정부
+def generated = 'src/main/generated'
 
-querydsl {
-    jpa = true
-    querydslSourcesDir = querydslDir
+// [4] querydsl QClass 파일 생성 위치를 지정
+tasks.withType(JavaCompile) {
+    options.getGeneratedSourceOutputDirectory().set(file(generated))
 }
 
+// [5] java source set 에 querydsl QClass 위치 추가
 sourceSets {
-    main.java.srcDir querydslDir
+    main.java.srcDirs += [ generated ]
+}
+
+clean {
+    delete file(generated)
 }
 
 
-configurations {
-    querydsl.extendsFrom compileClasspath
-}
-
-compileQuerydsl {
-    options.annotationProcessorPath = configurations.querydsl
-}
 tasks.withType(JavaExec) {
     jvmArgs += ['-Dfile.encoding=UTF-8']
 }
