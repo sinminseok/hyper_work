@@ -9,13 +9,13 @@ import org.springframework.web.socket.config.annotation.*;
 @Configuration
 public class StompWebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
-    @Value("${hyper.run.domain.websocket.game}")
+    @Value("${domain.websocket.game}")
     private String gameUrl; // /game
 
-    @Value("${hyper.run.domain.websocket.publish}")
+    @Value("${domain.websocket.publish}")
     private String pub; // /pub
 
-    @Value("${hyper.run.domain.websocket.subscribe}")
+    @Value("${domain.websocket.subscribe}")
     private String sub; // /sub
 
     @Override

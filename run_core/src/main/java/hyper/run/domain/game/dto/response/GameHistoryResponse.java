@@ -35,6 +35,8 @@ public class GameHistoryResponse {
 
     private boolean connectedWatch;
 
+    private boolean isDone;
+
     public static GameHistoryResponse toResponse(Game game , GameHistory gameHistory){
         return GameHistoryResponse.builder()
                 .gameDate(game.getGameDate())
@@ -43,6 +45,7 @@ public class GameHistoryResponse {
                 .gameDistance(game.getDistance())
                 .endAt(game.getEndAt())
                 .myRank(gameHistory.getRank())
+                .isDone(gameHistory.isDone())
                 .myPrize(gameHistory.getPrize())
                 .participatedCount(game.getParticipatedCount())
                 .connectedWatch(gameHistory.isConnectedWatch())

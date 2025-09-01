@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
 
@@ -51,6 +52,14 @@ public class UserController {
     public ResponseEntity<?> checkDuplicatedEmail(@RequestParam String email){
         boolean result = userService.isExistEmail(email);
         SuccessResponse response = new SuccessResponse(true, "중복확인 결과", result);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PatchMapping("/profile-url")
+    public ResponseEntity<?> updateUserImage(@RequestPart(value = "image", required = false) final MultipartFile image) {
+        String email = getLoginEmailBySecurityContext();
+        userService.updateImage(email, image);
+        SuccessResponse response = new SuccessResponse(true, "프로필 이미지 수정", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

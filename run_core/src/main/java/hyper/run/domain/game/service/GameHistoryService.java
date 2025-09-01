@@ -1,6 +1,7 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
+import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
@@ -63,8 +64,6 @@ public class GameHistoryService {
         refundCoupons(histories);
         repository.deleteAll(histories);
     }
-
-    // ===================== Private Helper Methods =====================
 
     private GameHistory getGameHistory(GameHistoryUpdateRequest request) {
         return OptionalUtil.getOrElseThrow(
