@@ -14,12 +14,12 @@ spring:
       force: true
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    #url: ${DB_RDS_URL}
-#    username: ${RDS_USERNAME}
-#    password: ${RDS_PASSWORD}
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: ${DB_RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+#    url: ${DB_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
   application:
     name: hyper_run
 
