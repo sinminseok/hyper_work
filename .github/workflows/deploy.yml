@@ -8,7 +8,6 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -18,6 +17,13 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
+
+      - name: Build run_admin jar
+        run: ./gradlew :run_admin:bootJar
+
+      - name: Build run_api Docker image
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/run_admin:latest ./run_api
 
       - name: Build run_api jar
         run: ./gradlew :run_api:bootJar
@@ -31,6 +37,9 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Push run_admin image
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/run_admin:latest
 
       - name: Push run_api image
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/run_api:latest

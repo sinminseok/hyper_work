@@ -1,11 +1,12 @@
 
 spring:
+  application:
+    name: hyper_run
   servlet:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
   server:
-    port: 8080
     address: 0.0.0.0
   jackson:
     time-zone: Asia/Seoul
