@@ -4,12 +4,29 @@ services:
     build: ./run_api
     container_name: funy-run-api
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: default
       JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
     env_file:
       - .env
     ports:
       - "8080:8080"
+    restart: always
+    networks:
+      - basic
+    depends_on:
+      - redis
+
+  admin-server:
+    build: ./run_admin
+    container_name: funy-run-admin
+    environment:
+      SPRING_PROFILES_ACTIVE: admin
+      SERVER_PORT: 8081
+      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
+    env_file:
+      - .env
+    ports:
+      - "8081:8081"
     restart: always
     networks:
       - basic

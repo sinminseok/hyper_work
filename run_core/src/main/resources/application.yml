@@ -1,7 +1,12 @@
 
 spring:
+  application:
+    name: hyper_run
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
   server:
-    port: 8080
     address: 0.0.0.0
   jackson:
     time-zone: Asia/Seoul
@@ -17,11 +22,7 @@ spring:
     url: ${DB_RDS_URL}
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
-#    url: ${DB_URL}
-#    username: ${DB_USERNAME}
-#    password: ${DB_PASSWORD}
-  application:
-    name: hyper_run
+
 
   data:
     mongodb:
@@ -39,23 +40,15 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
-logging:
-  level:
-    root: INFO
-    org.hibernate.SQL: DEBUG
-    org.hibernate.type.descriptor.sql: TRACE
-    org.springframework.orm.jpa: DEBUG
-    org.springframework.transaction: debug
-    org.springframework.security: DEBUG
 
 redis:
-  host: redis
+  host: ${REDIS_HOST}
   port: 6379
 
 aligo:
   user-id: funyrun
-  api-key: f09xfl65p6qd89d88mew0byjjm4rnekk
-  sender: 1844-1080   # 발신자 번호 (사전 등록된 번호여야 함)
+  api-key: ${ALIGO_KEY}
+  sender: ${ALIGO_SENDER}
 
 jwt:
   secretKey: ${JWT_KEY}
@@ -80,7 +73,6 @@ domain:
     subscribe: /sub
 
 
-
 server:
   tomcat:
     threads:
@@ -93,3 +85,14 @@ server:
     keep-alive-timeout: 30000
     max-http-header-size: 8192
     max-keep-alive-requests: 100
+
+cloud:
+  aws:
+    s3:
+      bucket:
+        name: hyper-run-image
+    credentials:
+      access-key: ${AWS_S3_ACCESS_KEY}
+      secret-key: ${AWS_S3_SECRET_KEY}
+    region:
+      static: ap-northeast-2

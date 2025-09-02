@@ -9,6 +9,7 @@ import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
+import hyper.run.utils.FileService;
 import hyper.run.utils.OptionalUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
@@ -17,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,11 +29,10 @@ import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-
     private static final String NONE = "NONE";
+
     private final UserRepository userRepository;
-    @PersistenceContext
-    private EntityManager em;
+    private final FileService fileService;
 
     @Transactional
     public void save(final UserSignupRequest userSignupRequest, final String encodePassword) {
@@ -39,6 +40,16 @@ public class UserService {
         validateDuplicatedPhoneNumber(userSignupRequest.getPhoneNumber());
         User user = userSignupRequest.toEntity(encodePassword);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateImage(String email, MultipartFile image){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        if (user.isExistProfile()) {
+            fileService.deleteFile(user.getProfileUrl());
+        }
+
+        user.setProfileUrl(uploadProfileImage(image));
     }
 
     @Transactional
@@ -144,5 +155,12 @@ public class UserService {
     public Page<UserAdminResponse> searchUsers(final String searchCategory, final String keyword, final Pageable pageable){
         Page<User> userPage = userRepository.searchUsers(searchCategory,keyword,pageable);
         return userPage.map(UserAdminResponse::userToAdminUserDto);
+    }
+
+
+    private String uploadProfileImage(final MultipartFile image) {
+        String url = fileService.toUrls(image);
+        fileService.fileUpload(image, url);
+        return url;
     }
 }

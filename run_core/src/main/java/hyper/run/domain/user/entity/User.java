@@ -59,6 +59,7 @@ public class User extends BaseTimeEntity {
     @Column(name = "point", nullable = false)
     private double point;
 
+    @Setter
     @Column(name = "profile_url", nullable = true)
     private String profileUrl;
 
@@ -115,6 +116,10 @@ public class User extends BaseTimeEntity {
         this.coupon += 1;
     }
 
+    public void increaseCouponByAmount(final int amount){
+        this.coupon += amount;
+    }
+
     public void chargeCoupon(final int amount){
         this.coupon += amount;
     }
@@ -136,5 +141,9 @@ public class User extends BaseTimeEntity {
     public void addInquiry(CustomerInquiry inquiry) {
         this.inquiries.add(inquiry);
         inquiry.setUser(this); // 양방향 관계 유지
+    }
+
+    public boolean isExistProfile() {
+        return profileUrl != null;
     }
 }

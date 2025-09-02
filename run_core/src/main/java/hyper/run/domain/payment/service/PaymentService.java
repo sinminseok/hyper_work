@@ -33,6 +33,7 @@ public class PaymentService {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         user.addPayment(payment);
+        user.increaseCouponByAmount(request.getCouponAmount());
         repository.save(payment); // Payment 저장
     }
 
