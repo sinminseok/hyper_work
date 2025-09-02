@@ -23,7 +23,7 @@ jobs:
         run: ./gradlew :run_api:bootJar
 
       - name: Build run_admin jar
-          run: ./gradlew :run_admin:bootJar
+        run: ./gradlew :run_admin:bootJar
 
       - name: Build run_api Docker image
         run: |
@@ -43,7 +43,7 @@ jobs:
         run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/run_api:latest
 
       - name: Push run_admin image
-          run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/run_admin:latest
+        run: docker push ${{ secrets.DOCKERHUB_USERNAME }}/run_admin:latest
 
       - name: Create .env file from secrets
         run: |
