@@ -76,7 +76,7 @@ public class CustomExchangeTransactionRepositoryImpl implements CustomExchangeTr
     }
 
     /**
-     * 전체 데이터 개수를 조회합니다.
+     * 전체 데이터 개수를 조회
      */
     private Long fetchTotalCount(BooleanBuilder whereClause) {
         Long count = queryFactory

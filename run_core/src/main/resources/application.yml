@@ -23,6 +23,7 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
+
   data:
     mongodb:
       uri: ${MONGO_DB_URL}

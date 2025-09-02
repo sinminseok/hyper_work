@@ -57,8 +57,8 @@ public class AdminSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(adminUserDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
+        authenticationProvider.setUserDetailsService(adminUserDetailsService); // 사용자 정보 가져와서
+        authenticationProvider.setPasswordEncoder(passwordEncoder); // provider 안에서 암호화된 비밀변호 db 와 비교
         return new ProviderManager(authenticationProvider);
     }
 
