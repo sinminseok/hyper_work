@@ -28,6 +28,7 @@ public class AdminGameController {
 
     private final AdminGameService gameService;
 
+
     @GetMapping
     public ResponseEntity<?> getAllGames(
                                           @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate startDate,

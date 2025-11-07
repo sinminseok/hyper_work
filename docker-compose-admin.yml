@@ -1,0 +1,16 @@
+services:
+
+ admin-server:
+  image: brian506/run_admin
+  container_name: funny-run-admin-api
+  env_file:
+    - .env
+  ports:
+    - "8081:8080"
+  restart: always
+  networks:
+    - basic
+
+networks:
+  basic:
+    driver: bridge
