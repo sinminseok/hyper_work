@@ -1,6 +1,7 @@
 package hyper.run.api;
 
 import hyper.run.domain.user.dto.response.UserAdminResponse;
+import hyper.run.domain.user.service.AdminUserService;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -16,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/v1/api/admin/users")
 public class AdminUserController {
 
-    private final UserService userService;
+    private final AdminUserService userService;
 
     @GetMapping
     public ResponseEntity<?> searchUsers(@RequestParam(required = false) String searchCategory,
