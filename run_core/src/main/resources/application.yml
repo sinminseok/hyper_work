@@ -96,3 +96,4 @@ cloud:
       secret-key: ${AWS_S3_SECRET_KEY}
     region:
       static: ap-northeast-2
+    enabled: true
