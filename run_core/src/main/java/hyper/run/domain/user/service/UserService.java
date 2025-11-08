@@ -151,14 +151,6 @@ public class UserService {
         }
     }
 
-    /**
-     * 관리자 페이지에서 사용자 조회
-     */
-    public Page<UserAdminResponse> searchUsers(final String searchCategory, final String keyword, final Pageable pageable){
-        Page<User> userPage = userRepository.searchUsers(searchCategory,keyword,pageable);
-        return userPage.map(UserAdminResponse::userToAdminUserDto);
-    }
-
 
     private String uploadProfileImage(final MultipartFile image) {
         String url = fileService.toUrls(image);
