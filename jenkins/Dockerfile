@@ -2,6 +2,8 @@
 FROM jenkins/jenkins:lts-jdk17
 USER root
 
+ARG DOCKER_GID=999
+
 RUN apt-get update && \
     apt-get install -y ca-certificates curl gnupg lsb-release && \
     mkdir -p /etc/apt/keyrings && \
@@ -15,7 +17,9 @@ RUN apt-get update && \
     rm -rf /var/lib/apt/lists/*
 
 
-RUN groupadd -for -g 999 docker && usermod -aG docker jenkins
+RUN apt-get update && apt-get install -y adduser && \
+    addgroup --gid $DOCKER_GID docker && \
+    usermod -aG docker jenkins
 
 
 USER jenkins
