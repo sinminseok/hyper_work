@@ -71,6 +71,7 @@ ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST
    set -e
        export PATH=$PATH:/usr/local/bin:/usr/libexec/docker/cli-plugins
        cd /home/ubuntu/app
+       docker-compose -f docker-compose-admin.yml down || true
        docker-compose -f docker-compose-admin.yml pull
        docker-compose -f docker-compose-admin.yml up -d --remove-orphans
        docker image prune -af || true
