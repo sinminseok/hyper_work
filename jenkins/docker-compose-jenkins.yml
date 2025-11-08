@@ -3,6 +3,8 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        DOCKER_GID: 36
     container_name: jenkins
     ports:
       - "9000:8080"
