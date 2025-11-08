@@ -4,6 +4,7 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import hyper.run.exception.custom.S3UploadException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -16,6 +17,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
+@ConditionalOnProperty(prefix = "cloud.aws.s3", name = "enabled", havingValue = "true")
 public class S3FileService implements FileService {
     private final AmazonS3 amazonS3;
 
