@@ -14,6 +14,7 @@ import hyper.run.utils.OptionalUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -28,6 +29,7 @@ import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 
 @Service
 @RequiredArgsConstructor
+@ConditionalOnProperty(prefix = "cloud.aws.s3", name = "enabled", havingValue = "true")
 public class UserService {
     private static final String NONE = "NONE";
 
