@@ -55,8 +55,8 @@ ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST
 echo "[2/4] prepare dir on remote"
 ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST" '
     set -e
+    rm -rf /home/ubuntu/app
     mkdir -p /home/ubuntu/app
-    sudo chown -R ubuntu:ubuntu /home/ubuntu/app
     ls -ld /home/ubuntu/app
 '
 
