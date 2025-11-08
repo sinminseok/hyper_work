@@ -12,7 +12,9 @@ RUN apt-get update && \
     apt-get update && \
     apt-get install -y docker-ce-cli git && \
     apt-get clean && \
-    rm -rf /var/lib/apt/lists/* \
+    rm -rf /var/lib/apt/lists/*
+
+
 RUN groupadd -for -g 999 docker && usermod -aG docker jenkins
 
 
