@@ -1,8 +1,8 @@
 services:
 
  admin-server:
-  image: brian506/run_admin
-  container_name: funny-run-admin-api
+  image: brian506/run_admin:1.0.3
+  container_name: admin-api
   env_file:
     - .env
   ports:
