@@ -16,10 +16,9 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-
-RUN apt-get update && apt-get install -y adduser && \
-    addgroup --gid $DOCKER_GID docker && \
-    usermod -aG docker jenkins
+RUN export GROUP_NAME=$(getent group $DOCKER_GID | cut -d: -f1) && \
+    echo "Adding jenkins to existing group $GROUP_NAME (GID $DOCKER_GID)" && \
+    usermod -aG $GROUP_NAME jenkins
 
 
 USER jenkins
