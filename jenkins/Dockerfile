@@ -1,7 +1,7 @@
 FROM jenkins/jenkins:lts
 USER root
 
-# 🔧 Docker CLI + Git + OpenJDK 17 설치
+# Docker CLI + Git + OpenJDK 17 설치
 RUN apt-get update && \
     apt-get install -y ca-certificates curl gnupg lsb-release && \
     mkdir -p /etc/apt/keyrings && \
@@ -13,7 +13,7 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# 🔧 JAVA_HOME 환경변수 등록
+# JAVA_HOME 설정 (17)
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:${PATH}"
 
