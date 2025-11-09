@@ -47,7 +47,7 @@ public class AdminSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         //  OPTIONS 요청은 인증 없이 항상 최우선으로 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/v1/api/admin/login").permitAll()
+                        .requestMatchers("/v1/api/admin/auth").permitAll()
                         .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 );
