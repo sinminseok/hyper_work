@@ -36,7 +36,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class AdminJwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private static final String NO_CHECK_URL = "/v1/api/admin/login";
+    private static final String NO_CHECK_URL = "/v1/api/admin/auth";
 
     private final AdminJwtService jwtService;
     private final AdminUserRepository adminUserRepository;
