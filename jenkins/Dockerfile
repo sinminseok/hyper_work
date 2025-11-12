@@ -2,8 +2,6 @@
 FROM jenkins/jenkins:lts-jdk17
 USER root
 
-
-
 RUN apt-get update && \
     apt-get install -y ca-certificates curl gnupg lsb-release && \
     mkdir -p /etc/apt/keyrings && \
