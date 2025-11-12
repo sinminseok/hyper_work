@@ -29,7 +29,6 @@ import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 
 @Service
 @RequiredArgsConstructor
-@ConditionalOnProperty(prefix = "cloud.aws.s3", name = "enabled", havingValue = "true")
 public class UserService {
     private static final String NONE = "NONE";
 
