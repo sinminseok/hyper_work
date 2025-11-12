@@ -17,7 +17,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.UUID;
 
 @Service
-@ConditionalOnProperty(prefix = "cloud.aws.s3", name = "enabled", havingValue = "true")
 public class S3FileService implements FileService {
     private final AmazonS3 amazonS3;
 
