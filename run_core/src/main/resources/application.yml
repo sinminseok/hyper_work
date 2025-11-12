@@ -97,3 +97,8 @@ cloud:
     region:
       static: ap-northeast-2
     enabled: true
+
+admin:
+  initial:
+    email: ${ADMIN_INITIAL_EMAIL}
+    password: ${ADMIN_INITIAL_PASSWORD}
