@@ -74,7 +74,6 @@ domain:
 
 
 server:
-  forward-headers-strategy: framework
   tomcat:
     threads:
       max: 200

@@ -4,7 +4,7 @@ pipeline {
     environment {
         DOCKER_HUB_USER = 'brian506'
         DOCKER_HUB_PASS = credentials('docker-hub')   // Secret text
-        EC2_HOST = 'ubuntu@13.124.84.245'
+        EC2_HOST = 'ubuntu@43.201.192.25'
     }
 
     stages {
@@ -89,11 +89,11 @@ ssh -i "$SSH_KEY" -o IdentitiesOnly=yes -o StrictHostKeyChecking=no "$USER@$HOST
         }
 
         success {
-            echo '✅ 배포 성공!'
+            echo '배포 성공!'
         }
 
         failure {
-            echo '❌ 배포 실패!'
+            echo '배포 실패!'
         }
     }
 }
