@@ -17,6 +17,8 @@ Database : `MongoDB`, `MySQL`
 Devops : `Jenkis`, `Docker`, `AWS`    
 Frontend : `TypeScript`, `Flutter`
 
+### TODO
+- [ ] MongoDB 계정 변경 
 
 ### 시스템 아키텍처  
 

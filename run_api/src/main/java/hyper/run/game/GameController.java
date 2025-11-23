@@ -33,7 +33,6 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    //todo 삭제
     /**
      * 진행중인 경기에서 1등 정보를 조회하는 API
      */
@@ -41,6 +40,14 @@ public class GameController {
     public ResponseEntity<?> getFirstPlace(@RequestParam Long gameId){
         GameInProgressWatchResponse gameInProgressWatchResponse = gameService.findFirstPlaceByGameId(gameId);
         SuccessResponse response = new SuccessResponse(true, "1등 정보 조회 성공", gameInProgressWatchResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    ///v1/api/games/status?gameId=\(gameId)&userId=\(userId)
+    @GetMapping("/status")
+    public ResponseEntity<?> getGameCurrentStatus(@RequestParam Long gameId, @RequestParam Long userId){
+        GameInProgressWatchResponse game = gameService.getCurrentGameStatus(gameId, userId);
+        SuccessResponse response = new SuccessResponse(true, "현재 내 등수 조회 성공", game);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

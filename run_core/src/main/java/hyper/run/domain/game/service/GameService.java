@@ -47,6 +47,11 @@ public class GameService {
         gameScheduler.startGameByTest(game);
     }
 
+    public GameInProgressWatchResponse getCurrentGameStatus(Long gameId, Long userId) {
+        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(userId, gameId), NOT_EXIST_GAME_ID);
+        return GameInProgressWatchResponse.toResponse(gameHistory);
+    }
+
     /**
      * 게임 참가 신청 메서드
      * Game 의 총 참여자 인원수를 1 증가하고, 사용자의 경기 참여 내역을 추가한다
