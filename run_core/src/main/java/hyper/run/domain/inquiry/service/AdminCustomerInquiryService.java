@@ -7,6 +7,7 @@ import hyper.run.domain.inquiry.entity.InquiryState;
 import hyper.run.domain.inquiry.repository.CustomerInquiryRepository;
 import hyper.run.domain.inquiry.repository.custom.CustomCustomerInquiryRepository;
 
+import hyper.run.utils.EmailService;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -20,6 +21,7 @@ public class AdminCustomerInquiryService {
 
     private final CustomerInquiryRepository repository;
     private final CustomCustomerInquiryRepository customerInquiryRepository;
+    private final EmailService emailService;
 
     /** 관리자
      * 문의사항 필터 조회
@@ -41,5 +43,6 @@ public class AdminCustomerInquiryService {
         CustomerInquiry customerInquiry = OptionalUtil.getOrElseThrow(repository.findById(inquiryId),"존재하지 않는 문의사항입니다.");
         customerInquiry.setState(InquiryState.SUCCESS);
         customerInquiry.setAnswer(answer);
+        emailService.sendSimpleEmail(customerInquiry.getEmail(),"문의사항 답변 안내입니다." ,answer);
     }
 }
