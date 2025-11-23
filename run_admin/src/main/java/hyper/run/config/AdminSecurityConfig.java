@@ -47,7 +47,7 @@ public class AdminSecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         //  OPTIONS 요청은 인증 없이 항상 최우선으로 허용
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-                        .requestMatchers("/v1/api/admin/login").permitAll()
+                        .requestMatchers("/v1/api/admin/auth").permitAll()
                         .requestMatchers("/v1/api/admin/**").hasAuthority("ROLE_ADMIN")
                         .anyRequest().authenticated()
                 );
@@ -57,8 +57,8 @@ public class AdminSecurityConfig {
     @Bean
     public AuthenticationManager authenticationManager(PasswordEncoder passwordEncoder) {
         DaoAuthenticationProvider authenticationProvider = new DaoAuthenticationProvider();
-        authenticationProvider.setUserDetailsService(adminUserDetailsService);
-        authenticationProvider.setPasswordEncoder(passwordEncoder);
+        authenticationProvider.setUserDetailsService(adminUserDetailsService); // 사용자 정보 가져와서
+        authenticationProvider.setPasswordEncoder(passwordEncoder); // provider 안에서 암호화된 비밀변호 db 와 비교
         return new ProviderManager(authenticationProvider);
     }
 

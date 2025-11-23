@@ -7,16 +7,14 @@ import lombok.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
-@NoArgsConstructor
+
 @AllArgsConstructor
 @Getter
 @Builder
-@Setter
 public class InquirySearchRequest {
-    private LocalDateTime startDate;
-    private LocalDateTime endDate;
-    private String keyword;
-    private InquiryState state;
-    private InquiryType type;
-
+    private final LocalDateTime startDate;
+    private final LocalDateTime endDate;
+    private final String keyword;
+    private final InquiryState state;
+    private final InquiryType type;
 }

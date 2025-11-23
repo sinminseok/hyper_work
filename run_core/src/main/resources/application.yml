@@ -24,6 +24,7 @@ spring:
     username: ${RDS_USERNAME}
     password: ${RDS_PASSWORD}
 
+
   data:
     mongodb:
       uri: ${MONGO_DB_URL}
@@ -96,3 +97,9 @@ cloud:
       secret-key: ${AWS_S3_SECRET_KEY}
     region:
       static: ap-northeast-2
+    enabled: true
+
+admin:
+  initial:
+    email: ${ADMIN_INITIAL_EMAIL}
+    password: ${ADMIN_INITIAL_PASSWORD}

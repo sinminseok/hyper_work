@@ -14,8 +14,6 @@ import hyper.run.utils.OptionalUtil;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -147,14 +145,6 @@ public class UserService {
         if(isExistPhoneNumber(number)){
             throw new UserDuplicatedException("이미 가입된 휴대폰 번호입니다.");
         }
-    }
-
-    /**
-     * 관리자 페이지에서 사용자 조회
-     */
-    public Page<UserAdminResponse> searchUsers(final String searchCategory, final String keyword, final Pageable pageable){
-        Page<User> userPage = userRepository.searchUsers(searchCategory,keyword,pageable);
-        return userPage.map(UserAdminResponse::userToAdminUserDto);
     }
 
 

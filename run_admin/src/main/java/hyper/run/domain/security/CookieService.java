@@ -37,9 +37,9 @@ public class CookieService {
     public ResponseCookie createRefreshTokenCookie(final String refreshToken) {
         return ResponseCookie.from("refreshToken",refreshToken)
                 .httpOnly(true)
-                .secure(false)
+                .secure(true) // HTTPS 환경에서만 하는거면 true
                 .maxAge(refreshKeyExpiration)
-                .sameSite("Strict")
+                .sameSite("None") // Cross-site 쿠키허용(도메인 다를경우) - none, 개발환경 : Strict
                 .path("/")
                 .build();
     }

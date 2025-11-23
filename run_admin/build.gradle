@@ -8,11 +8,11 @@ version '0.0.1-SNAPSHOT'
 repositories {
     mavenCentral()
 }
-
 bootJar {
     enabled = true
     archiveFileName = "run-admin-0.0.1-SNAPSHOT.jar"
 }
+
 
 dependencies {
     implementation project(':run_core')

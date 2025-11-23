@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class CustomLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    private static final String DEFAULT_LOGIN_REQUEST_URL = "/v1/api/admin/login";
+    private static final String DEFAULT_LOGIN_REQUEST_URL = "/v1/api/admin/auth";
     private static final String HTTP_METHOD = "POST";
     private static final String CONTENT_TYPE = "application/json";
     private static final String USERNAME_KEY = "email";
