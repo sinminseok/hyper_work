@@ -24,7 +24,7 @@ public class GameHelper {
                 .firstPlacePrize(calculateFirstPlacePrize(0))
                 .secondPlacePrize(calculateSecondPlacePrize(0))
                 .thirdPlacePrize(calculateThirdPlacePrize(0))
-                .adminGameStatus(AdminGameStatus.FINISHED)
+                .adminGameStatus(AdminGameStatus.SCHEDULED)
                 .build();
     }
 }

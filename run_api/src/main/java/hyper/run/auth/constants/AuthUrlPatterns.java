@@ -21,6 +21,8 @@ public final class AuthUrlPatterns {
             V1_BASE_API_URL + "/users",
             V1_BASE_API_URL + "/users/password",
             V1_BASE_API_URL + "/games/test",
+            V1_BASE_API_URL + "/games/test/create-game",
+            V1_BASE_API_URL + "/games/send"
     };
 
     public static final String[] NOT_AUTH_URL = {

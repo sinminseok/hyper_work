@@ -5,8 +5,12 @@ import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
+import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.service.GameHistoryService;
+import hyper.run.domain.game.service.GameRankService;
 import hyper.run.domain.game.service.GameService;
+import hyper.run.domain.user.dto.request.EmailRequest;
+import hyper.run.utils.EmailService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Map;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
 
@@ -24,11 +29,39 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecuri
 public class GameController {
 
     private final GameService gameService;
+    private final Map<GameType, GameRankService> gameRankServices;
+    private final EmailService emailService;
+
+    @PostMapping("/send")
+    public ResponseEntity<String> sendEmail(@RequestBody EmailRequest request) {
+        try {
+            emailService.sendSimpleEmail(
+                    request.getTo(),
+                    request.getSubject(),
+                    request.getText()
+            );
+            return ResponseEntity.ok("이메일 발송 성공");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("이메일 발송 실패: " + e.getMessage());
+        }
+    }
 
     //todo 삭제
     @PostMapping("/test/start")
     public ResponseEntity<?> testStart(@RequestParam Long gameId){
         gameService.testStart(gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //todo 삭제
+    @PostMapping("/test/create-game")
+    public ResponseEntity<?> testStart2(){
+        for(GameType type : GameType.values()) {
+            LocalDate oneWeekLater = LocalDate.now().plusWeeks(1);
+            gameRankServices.get(type).generateGame(oneWeekLater);
+        }
         SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

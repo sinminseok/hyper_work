@@ -46,6 +46,7 @@ public class InquiryRequest {
     public CustomerInquiry toCommonInquiry(final User user){
         return CustomerInquiry.builder()
                 .user(user)
+                .title(this.title)
                 .email(this.email)
                 .state(InquiryState.WAITING)
                 .type(this.type)
