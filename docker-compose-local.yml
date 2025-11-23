@@ -1,25 +1,10 @@
 
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: admin-mysql
-    restart: always
-    ports:
-      - "3306:3306"
-    env_file:
-      - .env.admin
-    environment:
-      MYSQL_ROOT_HOST: '%'
-    networks:
-      - basic
-    volumes:
-      - mysql-data:/var/lib/mysql
-
   api-server:
     build: ./run_api
     container_name: funy-run-api
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: default
       JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
     env_file:
       - .env
@@ -31,20 +16,22 @@ services:
     depends_on:
       - redis
 
-  admin-server:
-    build: ./run_admin
-    container_name: funny-run-admin-api
-    environment:
-      SPRING_PROFILES_ACTIVE: docker
-    env_file:
-      - .env.admin
-    ports:
-      - "8081:8080"
-    restart: always
-    networks:
-      - basic
-    depends_on:
-      - mysql
+#  admin-server:
+#    build: ./run_admin
+#    container_name: funy-run-admin
+#    environment:
+#      SPRING_PROFILES_ACTIVE: admin
+#      SERVER_PORT: 8081
+#      JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
+#    env_file:
+#      - .env
+#    ports:
+#      - "8081:8081"
+#    restart: always
+#    networks:
+#      - basic
+#    depends_on:
+#      - redis
 
   redis:
     image: redis:7.2
@@ -58,5 +45,3 @@ services:
 networks:
   basic:
     driver: bridge
-volumes:
-  mysql-data:

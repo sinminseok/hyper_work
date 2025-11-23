@@ -1,5 +1,6 @@
 package hyper.run.domain.game.service.helper;
 
+import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameType;
@@ -23,6 +24,7 @@ public class GameHelper {
                 .firstPlacePrize(calculateFirstPlacePrize(0))
                 .secondPlacePrize(calculateSecondPlacePrize(0))
                 .thirdPlacePrize(calculateThirdPlacePrize(0))
+                .adminGameStatus(AdminGameStatus.FINISHED)
                 .build();
     }
 }
