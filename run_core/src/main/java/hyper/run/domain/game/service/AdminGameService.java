@@ -24,7 +24,7 @@ public class AdminGameService {
     public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate, AdminGameStatus status, String keyword, Pageable pageable) {
 
         LocalDateTime createdAfter = (startDate != null) ? startDate.atStartOfDay() : null;
-        LocalDateTime createdBefore = (endDate != null) ? endDate.plusDays(1).atStartOfDay() : null;
+        LocalDateTime createdBefore = (endDate != null) ? endDate.atStartOfDay() : null;
 
         Page<Game> games = gameRepositoryCustom.findGamesByCriteria(createdAfter, createdBefore, status, keyword, pageable);
         return games.map(AdminGameResponse::dtoFromGame);
