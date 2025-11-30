@@ -47,13 +47,13 @@ public class GameController {
         }
     }
 
-    //todo 삭제
-    @PostMapping("/test/start")
-    public ResponseEntity<?> testStart(@RequestParam Long gameId){
-        gameService.testStart(gameId);
-        SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    //todo 삭제
+//    @PostMapping("/test/start")
+//    public ResponseEntity<?> testStart(@RequestParam Long gameId){
+//        gameService.testStart(gameId);
+//        SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     //todo 삭제
     @PostMapping("/test/create-game")

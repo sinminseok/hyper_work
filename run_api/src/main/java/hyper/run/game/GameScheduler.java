@@ -1,4 +1,4 @@
-package hyper.run.domain.game.service.scheduler;
+package hyper.run.game;
 
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameType;

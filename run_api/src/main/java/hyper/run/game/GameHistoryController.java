@@ -15,16 +15,10 @@ public class GameHistoryController {
 
     private final GameHistoryService gameHistoryService;
 
-    /**
-     * 웹소켓에 연결되어 있지 않을때 생체 데이터 업데이트
-     */
     @PatchMapping
     public ResponseEntity<?> updateGameHistory(@RequestBody final GameHistoryUpdateRequest gameHistoryUpdateRequest){
         gameHistoryService.updateAsyncGameHistory(gameHistoryUpdateRequest);
         SuccessResponse response = new SuccessResponse(true, "내 생체 데이터 정보 업데이트", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
-
-
-
 }

@@ -128,6 +128,9 @@ public class GameHistory {
     }
 
     private double calculateAverage(double currentValue, double newValue, int previousCount) {
+        if(newValue == 0.0){
+            return currentValue;
+        }
         return ((currentValue * previousCount) + newValue) / updateCount;
     }
 
