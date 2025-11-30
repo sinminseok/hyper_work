@@ -39,7 +39,6 @@ pipeline {
         stage('Deploy to EC2') {
             steps {
                 echo '=== Deploy on EC2 (scp + ssh) ==='
-                sh "echo 'DEBUG: 현재 젠킨스가 보고 있는 EC2_HOST 값은? -> $EC2_HOST'"
                 withCredentials([
                     file(credentialsId: 'env-file', variable: 'ENV_FILE'),
                     sshUserPrivateKey(credentialsId: 'ec2-key', keyFileVariable: 'SSH_KEY', usernameVariable: 'SSH_USER')
