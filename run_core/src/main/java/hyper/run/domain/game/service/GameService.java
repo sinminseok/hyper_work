@@ -72,8 +72,6 @@ public class GameService {
     @Transactional
     public void giveUpGame(final String email, final Long gameId){
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
-        game.decreaseParticipatedCount();
         GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(user.getId(), gameId), NOT_EXIST_GAME_GISTORY_ID);
         gameHistoryRepository.delete(gameHistory); // GameHistory 삭제
     }
