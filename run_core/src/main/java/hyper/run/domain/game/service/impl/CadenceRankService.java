@@ -7,7 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
-import hyper.run.domain.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -21,14 +21,13 @@ public class CadenceRankService extends AbstractGameRankService {
 
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final UserRepository userRepository;
 
-
-    public CadenceRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository) {
-        super(gameHistoryRepository, userRepository, gameRepository);
-        this.gameRepository = gameRepository;
+    public CadenceRankService(ApplicationEventPublisher applicationEventPublisher,
+                              GameHistoryRepository gameHistoryRepository,
+                              GameRepository gameRepository) {
+        super(applicationEventPublisher, gameHistoryRepository, gameRepository);
         this.gameHistoryRepository = gameHistoryRepository;
-        this.userRepository = userRepository;
+        this.gameRepository = gameRepository;
     }
 
     @Override

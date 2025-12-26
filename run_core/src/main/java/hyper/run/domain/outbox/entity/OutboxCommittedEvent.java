@@ -1,16 +1,16 @@
 package hyper.run.domain.outbox.entity;
 
-import hyper.run.domain.outbox.entity.OutboxEventData;
-import hyper.run.domain.outbox.entity.OutboxEventType;
+import hyper.run.common.job.JobEventPayload;
+import hyper.run.common.enums.JobType;
 import lombok.Getter;
 
 @Getter
 public class OutboxCommittedEvent {
     private final String outboxEventId;
-    private final OutboxEventType type;
-    private final OutboxEventData data;
+    private final JobType type;
+    private final JobEventPayload data;
 
-    public OutboxCommittedEvent(String outboxEventId, OutboxEventType type, OutboxEventData data) {
+    public OutboxCommittedEvent(String outboxEventId, JobType type, JobEventPayload data) {
         this.outboxEventId = outboxEventId;
         this.type = type;
         this.data = data;

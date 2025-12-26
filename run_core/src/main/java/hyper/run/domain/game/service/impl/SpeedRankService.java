@@ -7,7 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
-import hyper.run.domain.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,12 +24,12 @@ public class SpeedRankService extends AbstractGameRankService {
 
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final UserRepository userRepository;
 
-    public SpeedRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository, gameRepository);
-        this.gameHistoryRepository = gameHistoryRepository1;
-        this.userRepository = userRepository1;
+    public SpeedRankService(ApplicationEventPublisher applicationEventPublisher,
+                            GameHistoryRepository gameHistoryRepository,
+                            GameRepository gameRepository) {
+        super(applicationEventPublisher, gameHistoryRepository, gameRepository);
+        this.gameHistoryRepository = gameHistoryRepository;
         this.gameRepository = gameRepository;
     }
 

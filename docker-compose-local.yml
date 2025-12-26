@@ -4,7 +4,7 @@ services:
     build: ./run_api
     container_name: funy-run-api
     environment:
-      SPRING_PROFILES_ACTIVE: default
+      SPRING_PROFILES_ACTIVE: dev
       JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
     env_file:
       - .env

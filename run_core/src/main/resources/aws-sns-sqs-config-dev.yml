@@ -1,0 +1,26 @@
+# AWS SNS/SQS 설정 - 개발 환경
+cloud:
+  aws:
+    credentials:
+      access-key: ${AWS_SQS_ACCESS_KEY:${AWS_S3_ACCESS_KEY}}
+      secret-key: ${AWS_SQS_SECRET_KEY:${AWS_S3_SECRET_KEY}}
+    region:
+      static: ap-northeast-2
+    enabled: true
+    sqs:
+      enabled: true
+      region: ap-northeast-2
+      queue:
+        payment-created: ${AWS_SQS_PAYMENT_CREATED_QUEUE_NAME:DEV-payment-created-queue}
+        game-finished: ${AWS_SQS_GAME_FINISHED_QUEUE_NAME:DEV-game-finished-queue}
+      listener:
+        max-concurrent-messages: 10
+        max-messages-per-poll: 10
+        poll-timeout: 20
+        visibility-timeout: 300
+    sns:
+      enabled: ${AWS_SNS_ENABLED:true}
+      region: ap-northeast-2
+      topic:
+        payment-created: ${AWS_SNS_PAYMENT_CREATED_TOPIC_ARN:}
+        game-finished: ${AWS_SNS_GAME_FINISHED_TOPIC_ARN:}

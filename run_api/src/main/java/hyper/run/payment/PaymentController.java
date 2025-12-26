@@ -32,6 +32,14 @@ public class PaymentController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/in-app/apple")
+    public ResponseEntity<?> inAppApple(@RequestBody PaymentRequest request) {
+        String email = getLoginEmailBySecurityContext();
+        paymentService.pay(email, request);
+        SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     @GetMapping
     public ResponseEntity<?> findAll() {
         String email = getLoginEmailBySecurityContext();

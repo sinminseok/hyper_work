@@ -20,10 +20,6 @@ public class GameScheduler {
     private final GameHistoryService gameHistoryService;
     private final Map<GameType, GameRankService> gameRankServices;
 
-    //todo 삭제
-    public void startGameByTest(Game game){
-        startGameRankLoop(game);
-    }
 
     /**
      * 게임 시작 스케줄러

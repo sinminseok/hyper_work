@@ -18,7 +18,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game extends BaseTimeEntity {
+public class Game extends BaseTimeEntity<Game> {
 
     private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;

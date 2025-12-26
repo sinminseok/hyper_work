@@ -1,12 +1,11 @@
 package hyper.run.domain.outbox.application;
 
-import hyper.run.domain.outbox.entity.OutboxEventData;
-import hyper.run.domain.outbox.entity.OutboxEventType;
+import hyper.run.common.job.JobEventPayload;
+import hyper.run.common.enums.JobType;
 import org.springframework.stereotype.Component;
 
 @Component
 public abstract class OutboxEventPublishProcessor {
-    protected abstract void publish(String eventId, OutboxEventData data);
-    protected abstract OutboxEventType getType();
-
+    protected abstract void publish(String eventId, JobEventPayload data);
+    protected abstract JobType getType();
 }

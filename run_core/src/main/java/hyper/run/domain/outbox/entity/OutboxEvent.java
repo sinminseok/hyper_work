@@ -1,5 +1,7 @@
 package hyper.run.domain.outbox.entity;
 
+import hyper.run.common.job.JobEventPayload;
+import hyper.run.common.enums.JobType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
@@ -19,39 +21,44 @@ public class OutboxEvent extends AbstractAggregateRoot<OutboxEvent> {
     @Column(name = "outbox_event_id")
     private String id;
 
-    private OutboxEventType type;
+    private JobType type;
 
     private boolean isPublished;
 
     private long createdAt;
 
-    @Convert(converter = OutboxEventData.OutboxEventDataConverter.class)
-    private OutboxEventData data;
+    private int retryCount;
 
-    public void prePersist() {
-        this.createdAt = Instant.now().toEpochMilli();
-    }
+    private Long lastRetryAt;
 
-    public OutboxEvent(OutboxEventType type, OutboxEventData data) {
+    private Boolean publishedToQueue;
+
+    private Long publishedToQueueAt;
+
+    @Convert(converter = JobEventPayload.JobEventPayloadConverter.class)
+    private JobEventPayload data;
+
+
+    public OutboxEvent(JobType type, JobEventPayload data) {
         this.id = UUID.randomUUID().toString();
         this.type = type;
         this.isPublished = false;
+        this.retryCount = 0;
+        this.lastRetryAt = null;
         this.data = data;
         registerEvent(new OutboxCommittedEvent(id, type, data));
     }
 
-    public static final int PUBLISH_MINIMUM_SECONDS = 300;
-    public static final int PUBLISH_MAXIMUM_SECONDS = 900;
 
     public String getId() {
         return id;
     }
 
-    public OutboxEventType getType() {
+    public JobType getType() {
         return type;
     }
 
-    public OutboxEventData getData() {
+    public JobEventPayload getData() {
         return data;
     }
 
@@ -63,7 +70,22 @@ public class OutboxEvent extends AbstractAggregateRoot<OutboxEvent> {
         this.isPublished = true;
     }
 
-    public void setData(OutboxEventData data) {
+    public void setData(JobEventPayload data) {
         this.data = data;
+    }
+
+    public int getRetryCount() {
+        return retryCount;
+    }
+
+    public void incrementRetryCount() {
+        this.retryCount++;
+        this.lastRetryAt = Instant.now().toEpochMilli();
+    }
+
+
+    public void markPublishedToQueue() {
+        this.publishedToQueue = true;
+        this.publishedToQueueAt = Instant.now().toEpochMilli();
     }
 }

@@ -10,7 +10,7 @@ import lombok.*;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class ExchangeTransaction extends BaseTimeEntity {
+public class ExchangeTransaction extends BaseTimeEntity<ExchangeTransaction> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

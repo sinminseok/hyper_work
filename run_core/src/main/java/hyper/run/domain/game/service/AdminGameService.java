@@ -18,9 +18,7 @@ public class AdminGameService {
 
     private final GameRepositoryCustom gameRepositoryCustom;
 
-    /** 관리자 페이지
-     * 예정,진행,종료된 경기 모두 조회
-     */
+
     public Page<AdminGameResponse> findAllGames(LocalDate startDate, LocalDate endDate, AdminGameStatus status, String keyword, Pageable pageable) {
 
         LocalDateTime createdAfter = (startDate != null) ? startDate.atStartOfDay() : null;

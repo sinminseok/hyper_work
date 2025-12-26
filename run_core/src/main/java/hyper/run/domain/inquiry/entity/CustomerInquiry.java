@@ -13,7 +13,7 @@ import java.time.LocalDate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomerInquiry extends BaseTimeEntity {
+public class CustomerInquiry extends BaseTimeEntity<CustomerInquiry> {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

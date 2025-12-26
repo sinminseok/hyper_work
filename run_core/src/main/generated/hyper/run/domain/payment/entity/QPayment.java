@@ -31,6 +31,8 @@ public class QPayment extends EntityPathBase<Payment> {
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
+    public final EnumPath<InAppType> inAppType = createEnum("inAppType", InAppType.class);
+
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedDateTime = _super.modifiedDateTime;
 
@@ -38,7 +40,13 @@ public class QPayment extends EntityPathBase<Payment> {
 
     public final NumberPath<Integer> price = createNumber("price", Integer.class);
 
+    public final StringPath productId = createString("productId");
+
+    public final StringPath receiptData = createString("receiptData");
+
     public final EnumPath<PaymentState> state = createEnum("state", PaymentState.class);
+
+    public final StringPath transactionId = createString("transactionId");
 
     public final hyper.run.domain.user.entity.QUser user;
 
