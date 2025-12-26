@@ -1,6 +1,7 @@
 package hyper.run.domain.game.entity;
 
 import hyper.run.domain.common.BaseTimeEntity;
+import hyper.run.domain.game.event.GameCancelEvent;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -119,6 +120,11 @@ public class Game extends BaseTimeEntity<Game> {
     public boolean isNotYetStart() {
         LocalDateTime now = LocalDateTime.now();
         return now.isBefore(startAt);
+    }
+
+    //참가 철회
+    public void cancelGame(Long userId){
+        registerEvent(GameCancelEvent.from(this, userId));
     }
 
     // 경기 상태 업데이트

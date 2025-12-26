@@ -95,8 +95,24 @@ public class AdminJwtAuthenticationFilter extends OncePerRequestFilter {
         Claims claims = jwtService.verifyToken(accessToken);
         String email = claims.getSubject();
         String role = claims.get("role", String.class);
-        GrantedAuthority grantedAuthority = new SimpleGrantedAuthority(role);
-        Authentication authentication = new UsernamePasswordAuthenticationToken(email, null, List.of(grantedAuthority));
+
+        // AdminUser 조회하여 userId 포함한 CustomAdminUserDetails 생성
+        AdminUser adminUser = OptionalUtil.getOrElseThrow(
+                adminUserRepository.findByEmail(email),
+                "존재하지 않는 관리자입니다."
+        );
+
+        CustomAdminUserDetails userDetails = new CustomAdminUserDetails(
+                adminUser.getId(),
+                adminUser.getEmail(),
+                role
+        );
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+        );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

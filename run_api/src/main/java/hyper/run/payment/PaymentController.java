@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
+import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecurityContext;
 
 @RequiredArgsConstructor
 @RestController
@@ -27,6 +28,7 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<?> buyCoupons(@RequestBody PaymentRequest request) {
         String email = getLoginEmailBySecurityContext();
+        Long loginUserIdBySecurityContext = getLoginUserIdBySecurityContext();
         paymentService.pay(email, request);
         SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);

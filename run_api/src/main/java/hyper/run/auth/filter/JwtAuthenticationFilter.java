@@ -1,6 +1,7 @@
 package hyper.run.auth.filter;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import hyper.run.auth.domain.CustomUserDetails;
 import hyper.run.auth.service.JwtService;
 import hyper.run.auth.service.TokenCustomService;
 import hyper.run.domain.user.entity.User;
@@ -20,7 +21,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.authority.mapping.GrantedAuthoritiesMapper;
 import org.springframework.security.core.authority.mapping.NullAuthoritiesMapper;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -87,14 +87,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
 
     public void saveAuthentication(User user) {
-        UserDetails userDetailsUser = org.springframework.security.core.userdetails.User.builder()
-                .username(user.getEmail())
-                .password(user.getPassword())
-                .roles("Role")
-                .build();
+        CustomUserDetails userDetailsUser = new CustomUserDetails(
+                user.getId(),
+                user.getEmail(),
+                user.getPassword()
+        );
 
-        Authentication authentication = new UsernamePasswordAuthenticationToken(userDetailsUser, null,
-                authoritiesMapper.mapAuthorities(userDetailsUser.getAuthorities()));
+        Authentication authentication = new UsernamePasswordAuthenticationToken(
+                userDetailsUser,
+                null,
+                userDetailsUser.getAuthorities()
+        );
         SecurityContextHolder.getContext().setAuthentication(authentication);
     }
 

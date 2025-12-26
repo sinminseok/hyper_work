@@ -23,7 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class PaymentCreatedProcessor implements JobProcessor<PaymentCreatedMessage> {
+public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMessage> {
 
     private final OutboxEventRepository outboxEventRepository;
     private final PaymentRepository paymentRepository;
