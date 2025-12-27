@@ -1,6 +1,7 @@
 package hyper.run.domain.game.entity;
 
 import hyper.run.domain.common.BaseTimeEntity;
+import hyper.run.domain.game.event.GameApplyEvent;
 import hyper.run.domain.game.event.GameCancelEvent;
 import jakarta.persistence.*;
 import lombok.*;
@@ -83,6 +84,13 @@ public class Game extends BaseTimeEntity<Game> {
     @Setter
     private String thirdUserName; // 3등 이름
 
+    //참가 신청 이벤트 발행
+    public void applyGame(Long userId, Integer averageBpm, Integer targetCadence) {
+        increaseParticipatedCount();
+        System.out.println("FFF");
+        registerEvent(GameApplyEvent.from(userId, this.getId(), this.getDistance(), averageBpm, targetCadence));
+    }
+
     // 전체 참가 인원 증가
     public void increaseParticipatedCount() {
         this.participatedCount += 1;
@@ -106,7 +114,7 @@ public class Game extends BaseTimeEntity<Game> {
     }
 
     //참여 인원이 3명 이하면 시작하지 않는다.
-    public boolean canNotStartGame(){
+    public boolean canNotStartGame() {
         return GAME_START_STANDARD_PEOPLE_COUNT >= this.participatedCount;
     }
 
@@ -123,12 +131,12 @@ public class Game extends BaseTimeEntity<Game> {
     }
 
     //참가 철회
-    public void cancelGame(Long userId){
+    public void cancelGame(Long userId) {
         registerEvent(GameCancelEvent.from(this, userId));
     }
 
     // 경기 상태 업데이트
-    public void updateAdminGameStatus(AdminGameStatus newStatus){
+    public void updateAdminGameStatus(AdminGameStatus newStatus) {
         this.adminGameStatus = newStatus;
     }
 }

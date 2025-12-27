@@ -7,12 +7,14 @@ import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
+import hyper.run.domain.game.event.GameApplyEvent;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,33 +34,24 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-
-
-    public GameInProgressWatchResponse getCurrentGameStatus(Long gameId, Long userId) {
-        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(userId, gameId), NOT_EXIST_GAME_ID);
-        return GameInProgressWatchResponse.toResponse(gameHistory);
-    }
+    private final ApplicationEventPublisher publisher;
 
     /**
      * 게임 참가 신청 메서드
-     * Game 의 총 참여자 인원수를 1 증가하고, 사용자의 경기 참여 내역을 추가한다
      */
     @Transactional
-    public void applyGame(final String userEmail, final GameApplyRequest request){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(userEmail), NOT_EXIST_USER_EMAIL);
-        user.validateCouponAmount();
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(request.getGameId()), NOT_EXIST_GAME_ID);
-        gameHistoryRepository.save(request.toGameHistory(user.getId(), game.getDistance()));
-        game.increaseParticipatedCount();
-        user.decreaseCoupon();
+    public void applyGame(final Long userId, final GameApplyRequest request) {
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findByIdForUpdate(request.getGameId()), NOT_EXIST_GAME_ID);
+        game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
+        gameRepository.save(game);
     }
 
     /**
      * 참가 철회 메서드
      */
     @Transactional
-    public void cancelGame(final String email, final Long gameId){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+    public void cancelGame(final Long userId, final Long gameId){
+        User user = OptionalUtil.getOrElseThrow(userRepository.findById(userId), NOT_EXIST_USER_EMAIL);
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         game.decreaseParticipatedCount();
         GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(user.getId(), gameId), NOT_EXIST_GAME_GISTORY_ID);
@@ -138,6 +131,14 @@ public class GameService {
     public GameResponse findById(final Long gameId){
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
+    }
+
+    /**
+     * 현재 경기 상태 조회 메서드
+     */
+    public GameInProgressWatchResponse getCurrentGameStatus(Long gameId, Long userId) {
+        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(userId, gameId), NOT_EXIST_GAME_ID);
+        return GameInProgressWatchResponse.toResponse(gameHistory);
     }
 
     /**

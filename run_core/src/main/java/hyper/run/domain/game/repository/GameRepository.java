@@ -2,7 +2,9 @@ package hyper.run.domain.game.repository;
 
 import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
+import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -10,6 +12,7 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -29,5 +32,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findAllByAdminGameStatusAndStartAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
 
     List<Game> findAllByAdminGameStatusAndEndAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT g FROM Game g WHERE g.id = :gameId")
+    Optional<Game> findByIdForUpdate(@Param("gameId") Long gameId);
 
 }

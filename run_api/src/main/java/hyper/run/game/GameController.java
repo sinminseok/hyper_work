@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.Map;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
+import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecurityContext;
 
 @RequiredArgsConstructor
 @RestController
@@ -89,8 +90,8 @@ public class GameController {
      */
     @PostMapping("/apply")
     public ResponseEntity<?> applyGame(@RequestBody GameApplyRequest request){
-        String email = getLoginEmailBySecurityContext();
-        gameService.applyGame(email, request);
+        Long userId = getLoginUserIdBySecurityContext();
+        gameService.applyGame(userId, request);
         SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -101,7 +102,8 @@ public class GameController {
     @PatchMapping("/{gameId}/cancel")
     public ResponseEntity<?> cancelGame(@PathVariable Long gameId) {
         String email = getLoginEmailBySecurityContext();
-        gameService.cancelGame(email, gameId);
+        Long userId = getLoginUserIdBySecurityContext();
+        gameService.cancelGame(userId, gameId);
         SuccessResponse response = new SuccessResponse(true, "경기 참여 철회", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

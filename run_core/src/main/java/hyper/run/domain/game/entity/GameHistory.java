@@ -1,5 +1,6 @@
 package hyper.run.domain.game.entity;
 
+import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -92,12 +93,33 @@ public class GameHistory {
         }
     }
 
+
     public void markAsDone() {
         this.done = true;
     }
 
     public void connectWatch() {
         this.connectedWatch = true;
+    }
+
+    public static GameHistory createForApply(Long gameId, Long userId, GameDistance gameDistance, Integer averageBpm, Integer targetCadence) {
+        GameHistoryBuilder builder = GameHistory.builder()
+                .gameId(gameId)
+                .userId(userId)
+                .gameDistance(gameDistance)
+                .prize(0)
+                .updateCount(0)
+                .done(false)
+                .rank(0);
+
+        if (averageBpm != null) {
+            builder.targetBpm(averageBpm);
+        }
+        if (targetCadence != null) {
+            builder.targetCadence(targetCadence);
+        }
+
+        return builder.build();
     }
 
     public double getRemainingDistance() {
