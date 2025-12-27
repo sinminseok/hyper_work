@@ -37,3 +37,6 @@ out/
 
 ### VS Code ###
 .vscode/
+
+### Java heap dumps ###
+*.hprof
