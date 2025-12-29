@@ -119,13 +119,13 @@ public class UserController {
      * 참여권 구매 API
      * todo @RequestParam 에 amount 를 직접 넣어주는건 위험해 보임 수정 필요할듯함
      */
-    @PostMapping("/coupons")
-    public ResponseEntity<?> chargeCoupon(@RequestParam int amount){
-        String email = getLoginEmailBySecurityContext();
-        userService.chargeCoupon(email, amount);
-        SuccessResponse response = new SuccessResponse(true, "쿠폰 충전 완료", null);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
+//    @PostMapping("/coupons")
+//    public ResponseEntity<?> chargeCoupon(@RequestParam int amount){
+//        String email = getLoginEmailBySecurityContext();
+//        userService.chargeCoupon(email, amount);
+//        SuccessResponse response = new SuccessResponse(true, "쿠폰 충전 완료", null);
+//        return new ResponseEntity<>(response, HttpStatus.OK);
+//    }
 
     /**
      * 회원 삭제 API

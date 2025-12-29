@@ -87,7 +87,6 @@ public class Game extends BaseTimeEntity<Game> {
     //참가 신청 이벤트 발행
     public void applyGame(Long userId, Integer averageBpm, Integer targetCadence) {
         increaseParticipatedCount();
-        System.out.println("FFF");
         registerEvent(GameApplyEvent.from(userId, this.getId(), this.getDistance(), averageBpm, targetCadence));
     }
 
@@ -132,7 +131,8 @@ public class Game extends BaseTimeEntity<Game> {
 
     //참가 철회
     public void cancelGame(Long userId) {
-        registerEvent(GameCancelEvent.from(this, userId));
+        decreaseParticipatedCount();
+        registerEvent(GameCancelEvent.from(userId, this.getId()));
     }
 
     // 경기 상태 업데이트

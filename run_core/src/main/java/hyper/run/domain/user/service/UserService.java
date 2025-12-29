@@ -3,7 +3,6 @@ package hyper.run.domain.user.service;
 import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
-import hyper.run.domain.user.dto.response.UserAdminResponse;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.entity.User;
@@ -11,8 +10,6 @@ import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.FileService;
 import hyper.run.utils.OptionalUtil;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -46,7 +43,6 @@ public class UserService {
         if (user.isExistProfile()) {
             fileService.deleteFile(user.getProfileUrl());
         }
-
         user.setProfileUrl(uploadProfileImage(image));
     }
 
@@ -64,13 +60,6 @@ public class UserService {
     public boolean isExistPhoneNumber(final String phoneNumber){
         Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(phoneNumber);
         return byPhoneNumber.isPresent();
-    }
-
-    @Transactional
-    public void chargeCoupon(final String email, final int amount){
-        //사용자가 실제로 결제했는지를 검증하는 메서드 만들면 좋을듯함
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        user.chargeCoupon(amount);
     }
 
     /**
@@ -146,7 +135,6 @@ public class UserService {
             throw new UserDuplicatedException("이미 가입된 휴대폰 번호입니다.");
         }
     }
-
 
     private String uploadProfileImage(final MultipartFile image) {
         String url = fileService.toUrls(image);

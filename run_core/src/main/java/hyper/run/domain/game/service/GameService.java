@@ -4,6 +4,7 @@ import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
+import hyper.run.domain.game.dto.response.GameTopRankResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameStatus;
@@ -34,7 +35,6 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final ApplicationEventPublisher publisher;
 
     /**
      * 게임 참가 신청 메서드
@@ -51,12 +51,9 @@ public class GameService {
      */
     @Transactional
     public void cancelGame(final Long userId, final Long gameId){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findById(userId), NOT_EXIST_USER_EMAIL);
-        Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
-        game.decreaseParticipatedCount();
-        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(user.getId(), gameId), NOT_EXIST_GAME_GISTORY_ID);
-        gameHistoryRepository.delete(gameHistory); // GameHistory 삭제
-        user.increaseCoupon(); // 사용자 쿠폰 1개 증가
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findByIdForUpdate(gameId), NOT_EXIST_GAME_ID);
+        game.cancelGame(userId);
+        gameRepository.save(game);
     }
 
     /**
@@ -81,6 +78,16 @@ public class GameService {
         return gameRepository.findUpcomingGames(now).stream()
                 .filter(game -> game.isInProgress() || game.isNotYetStart())
                 .map(game -> GameResponse.toResponse(game, determineGameStatus(game, participatedGameIds)))
+                .collect(Collectors.toList());
+    }
+
+    /**
+     *
+     */
+    public List<GameTopRankResponse> findTopRankGames(){
+        LocalDateTime now = LocalDateTime.now();
+        return gameRepository.findTop3UpcomingGamesByTotalPrize(now).stream()
+                .map(GameTopRankResponse::toResponse)
                 .collect(Collectors.toList());
     }
 

@@ -15,6 +15,23 @@
 
 ---
 
-## 프로젝트 구조
-- 이벤트를 나타내는 클래스는 event 폴더 안에 XXXEvent 로 네이밍 한다.
-- 이벤트 리스너는 listener 폴더 안에 xxxListener 로 네이밍 한다.
+## EDA 규칙
+
+### 네이밍 규칙
+
+- 이벤트 네이밍
+  - Spring Event 에 대한 네이밍은 xxxEvent
+  - SNS에 발행할 네이밍은 xxxMessage
+  - OutboxEvent 로 저장할 네이밍은 xxxPayload
+- 이벤트 리스너 네이밍
+  - Spring Event에 대한 네이밍은 xxxListener
+  - SQS 에 대한 리스너 네이밍은 xxxConsumer
+
+
+JobType 은 SNS/SQS 에 발행할 메시지 타입을 정의한다. 즉, 새로운 Message 를 추가할때 JobType 을 추가해야 한다.
+
+### Outbox 패턴
+
+
+### 전략 패턴
+

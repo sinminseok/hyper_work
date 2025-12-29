@@ -37,4 +37,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.id = :gameId")
     Optional<Game> findByIdForUpdate(@Param("gameId") Long gameId);
 
+    @Query("SELECT g FROM Game g WHERE g.startAt > :now ORDER BY g.totalPrize DESC LIMIT 3")
+    List<Game> findTop3UpcomingGamesByTotalPrize(@Param("now") LocalDateTime now);
+
 }
