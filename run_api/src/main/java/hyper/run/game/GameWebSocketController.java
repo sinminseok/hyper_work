@@ -25,5 +25,4 @@ public class GameWebSocketController {
         GameInProgressWatchResponse response = service.updateGameHistory(gameHistoryUpdateRequest);
         template.convertAndSend("/sub/game/my/" + gameHistoryUpdateRequest.getGameId() + "/" +gameHistoryUpdateRequest.getUserId(), response); //게임 결과 반영 (웹소켓으로 응답)
     }
-
 }

@@ -1,6 +1,5 @@
 package hyper.run.domain.game.repository;
 
-import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
 import jakarta.persistence.LockModeType;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,16 +21,9 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     List<Game> findUpcomingGames(@Param("now") LocalDateTime now);
 
     @Query("SELECT g FROM Game g " +
-            "WHERE g.gameDate = :targetDate " +
+            "WHERE FUNCTION('DATE', g.startAt) = :targetDate " +
             "AND FUNCTION('HOUR', g.startAt) = :targetHour")
     List<Game> findGamesByDateAndHour(@Param("targetDate") LocalDate targetDate, @Param("targetHour") int targetHour);
-
-    @Query("SELECT g FROM Game g WHERE g.endAt < :targetDateTime")
-    List<Game> findGamesEndedBefore(@Param("targetDateTime") LocalDateTime targetDateTime);
-
-    List<Game> findAllByAdminGameStatusAndStartAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
-
-    List<Game> findAllByAdminGameStatusAndEndAtBefore(AdminGameStatus adminGameStatus, LocalDateTime now);
 
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT g FROM Game g WHERE g.id = :gameId")
@@ -39,5 +31,4 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g FROM Game g WHERE g.startAt > :now ORDER BY g.totalPrize DESC LIMIT 3")
     List<Game> findTop3UpcomingGamesByTotalPrize(@Param("now") LocalDateTime now);
-
 }

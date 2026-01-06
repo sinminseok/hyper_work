@@ -1,4 +1,4 @@
-package hyper.run.domain.game.repository.admin;
+package hyper.run.domain.game.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -6,9 +6,8 @@ import com.querydsl.core.types.OrderSpecifier;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.core.types.dsl.PathBuilder;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import hyper.run.domain.game.entity.AdminGameStatus;
-import hyper.run.domain.game.entity.Game;
-import hyper.run.domain.game.entity.GameStatus;
+import hyper.run.domain.game.entity.*;
+import hyper.run.domain.game.repository.GameRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,12 +15,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.StringUtils;
-import hyper.run.domain.game.entity.QGame;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
+import static hyper.run.domain.game.entity.QGame.game;
 
 @RequiredArgsConstructor
 @Repository
@@ -29,6 +30,54 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
     private final QGame game = QGame.game;
+
+
+    @Override
+    public List<Game> findGamesOrderByPrizeWithoutCursor(LocalDateTime now, int limit) {
+        return queryFactory
+                .selectFrom(game)
+                .where(game.startAt.gt(now))
+                .orderBy(game.totalPrize.desc(), game.id.asc())
+                .offset(3)
+                .limit(limit)
+                .fetch();
+    }
+
+    @Override
+    public Optional<Game> findByGameConditions(LocalDateTime startAt, GameDistance distance, GameType type, ActivityType activityType) {
+        Game result = queryFactory
+                .selectFrom(game)
+                .where(
+                        game.startAt.eq(startAt),
+                        game.distance.eq(distance),
+                        game.type.eq(type),
+                        game.activityType.eq(activityType)
+                )
+                .fetchOne();
+
+        return Optional.ofNullable(result);
+    }
+
+    @Override
+    public List<Game> findGamesOrderByPrizeWithCursor(LocalDateTime now, double cursorTotalPrize, Long cursorGameId, int limit) {
+        return queryFactory
+                .selectFrom(game)
+                .where(
+                        game.startAt.gt(now),
+                        cursorCondition(cursorTotalPrize, cursorGameId)
+                )
+                .orderBy(game.totalPrize.desc(), game.id.asc())
+                .limit(limit)
+                .fetch();
+    }
+
+    private BooleanExpression cursorCondition(double cursorTotalPrize, Long cursorGameId) {
+        BooleanExpression prizeLessThan = game.totalPrize.lt(cursorTotalPrize);
+        BooleanExpression prizeEqualsAndIdGreaterThan = game.totalPrize.eq(cursorTotalPrize)
+                .and(game.id.gt(cursorGameId));
+
+        return prizeLessThan.or(prizeEqualsAndIdGreaterThan);
+    }
 
     @Override
     public Page<Game> findGamesByCriteria(LocalDateTime createdAfter, LocalDateTime createdBefore, AdminGameStatus status, String keyword, Pageable pageable) {
@@ -117,6 +166,23 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
             return game.name.containsIgnoreCase(keyword);
         }
         return null;
+    }
+
+    @Override
+    public List<Game> findGamesByYearAndMonth(int year, int month, List<Long> gameIds) {
+        LocalDateTime monthStart = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        LocalDateTime monthEnd = monthStart.plusMonths(1).minusSeconds(1);
+        LocalDateTime now = LocalDateTime.now();
+
+        return queryFactory
+                .selectFrom(game)
+                .where(
+                        game.id.in(gameIds),
+                        game.endAt.between(monthStart, monthEnd),
+                        game.endAt.lt(now)
+                )
+                .orderBy(game.endAt.asc())
+                .fetch();
     }
 }
 

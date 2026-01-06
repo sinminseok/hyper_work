@@ -3,7 +3,7 @@ package hyper.run.domain.game.service;
 import hyper.run.domain.game.dto.response.admin.AdminGameResponse;
 import hyper.run.domain.game.entity.AdminGameStatus;
 import hyper.run.domain.game.entity.Game;
-import hyper.run.domain.game.repository.admin.GameRepositoryCustom;
+import hyper.run.domain.game.repository.GameRepositoryCustom;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

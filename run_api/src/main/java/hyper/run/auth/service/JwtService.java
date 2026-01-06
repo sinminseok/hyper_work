@@ -53,6 +53,7 @@ public class JwtService {
                 .withSubject(ACCESS_TOKEN_SUBJECT)
                 .withClaim(EMAIL_CLAIM, email)
                 .withClaim("uuid", UUID.randomUUID().toString()) // <- 매번 다른 값 추가
+                .withExpiresAt(new Date(System.currentTimeMillis() + accessTokenExpirationPeriod))
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -60,6 +61,7 @@ public class JwtService {
         return JWT.create()
                 .withSubject(REFRESH_TOKEN_SUBJECT)
                 .withClaim("uuid", UUID.randomUUID().toString()) // <- 매번 다른 값
+                .withExpiresAt(new Date(System.currentTimeMillis() + refreshTokenExpirationPeriod))
                 .sign(Algorithm.HMAC512(secretKey));
     }
 
@@ -112,8 +114,12 @@ public class JwtService {
     public void isTokenValid(String token) {
         try {
             JWT.require(Algorithm.HMAC512(secretKey)).build().verify(token);
+        } catch (com.auth0.jwt.exceptions.TokenExpiredException e) {
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "토큰이 만료되었습니다.");
+        } catch (com.auth0.jwt.exceptions.SignatureVerificationException e) {
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "토큰 서명이 유효하지 않습니다.");
         } catch (Exception e) {
-            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, NOT_VALID_TOKEN);
+            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "유효하지 않은 토큰입니다.");
         }
     }
 }

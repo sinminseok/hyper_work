@@ -3,7 +3,6 @@ package hyper.run.auth.filter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hyper.run.auth.domain.CustomUserDetails;
 import hyper.run.auth.service.JwtService;
-import hyper.run.auth.service.TokenCustomService;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.ErrorResponseCode;
@@ -26,15 +25,12 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.util.Optional;
 
-import static hyper.run.auth.constants.AuthConstants.FAIL_TO_TRANSFER_TOKEN;
-
 @RequiredArgsConstructor
 @Slf4j
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private static final String NO_CHECK_URL = "/login";
 
-    private final TokenCustomService tokenCustomService;
     private final JwtService jwtService;
     private final UserRepository userRepository;
     private GrantedAuthoritiesMapper authoritiesMapper = new NullAuthoritiesMapper();
@@ -45,29 +41,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
+
+        // /refresh 엔드포인트는 인증 체크 제외
+        if (request.getRequestURI().equals("/v1/api/auth/refresh")) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
         try {
-            Optional<String> refreshToken = jwtService.extractRefreshToken(request);
-            if (refreshToken.isPresent()) {
-                checkRefreshTokenAndReIssueAccessToken(refreshToken.get(), request, response);
-                return;
-            }
-            if (refreshToken.isEmpty()) {
-                checkAccessTokenAndAuthentication(request, response, filterChain);
-            }
+            checkAccessTokenAndAuthentication(request, response, filterChain);
         } catch (Exception ex) {
             handleException(response, ex);
         }
     }
-
-
-    public void checkRefreshTokenAndReIssueAccessToken(String refreshToken, HttpServletRequest request, HttpServletResponse response) {
-        try {
-            tokenCustomService.processRefreshToken(refreshToken, response);
-        } catch (Exception e) {
-            throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, FAIL_TO_TRANSFER_TOKEN);
-        }
-    }
-
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
         jwtService.extractAccessToken(request)
@@ -104,6 +90,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private void handleException(HttpServletResponse response, Exception ex) throws IOException {
         response.setStatus(HttpStatus.UNAUTHORIZED.value());
         response.setContentType("application/json");
-        response.getWriter().write(new ObjectMapper().writeValueAsString(new SuccessResponse(false, ex.getMessage(), null)));
+
+        SuccessResponse<?> errorResponse;
+        if (ex instanceof AuthException) {
+            AuthException authEx = (AuthException) ex;
+            errorResponse = new SuccessResponse<>(false, authEx.getErrorMessage(), authEx.getErrorCode().getCode());
+        } else {
+            errorResponse = new SuccessResponse<>(false, ex.getMessage(), null);
+        }
+
+        response.getWriter().write(new ObjectMapper().writeValueAsString(errorResponse));
     }
 }

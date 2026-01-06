@@ -57,6 +57,8 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
+        jdbc:
+          time_zone: Asia/Seoul
 
   cloud:
     aws:

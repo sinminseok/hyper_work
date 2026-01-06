@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Getter
 @Builder
-public class GameTopRankResponse {
+public class GameRankResponse {
     private Long gameId;
 
     private String name;
@@ -23,8 +23,8 @@ public class GameTopRankResponse {
 
     private double totalPrize;
 
-    public static GameTopRankResponse toResponse(Game game) {
-        return GameTopRankResponse.builder()
+    public static GameRankResponse toResponse(Game game) {
+        return GameRankResponse.builder()
                 .gameId(game.getId())
                 .name(game.getName())
                 .type(game.getType())

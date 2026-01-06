@@ -36,8 +36,9 @@ public class CadenceRankService extends AbstractGameRankService {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)
-                        .reversed()
-                        .thenComparingDouble(GameHistory::getCadenceScore)
+                        .reversed()  // 완주자 우선
+                        .thenComparingDouble(GameHistory::getCadenceScore)  // 케이던스 점수 작은 순
+                        .thenComparingLong(GameHistory::getDurationInSeconds)  // 동점 시 소요 시간 짧은 순
         );
         return histories;
     }
@@ -50,9 +51,8 @@ public class CadenceRankService extends AbstractGameRankService {
     @Override
     public void generateGame(LocalDate date) {
         for (GameDistance distance : GameDistance.values()) {
-            for (int i = 5; i <= 23; i += distance.getTime()) {
-                if (i + distance.getTime() > 24) break;
-                Game game = createGame(GameType.CADENCE, distance, date, i);
+            for (int hour = 5; hour <= 23; hour++) {
+                Game game = createGame(GameType.CADENCE, distance, date, hour, 0);
                 gameRepository.save(game);
             }
         }

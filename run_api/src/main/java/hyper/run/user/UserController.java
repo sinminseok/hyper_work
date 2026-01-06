@@ -1,9 +1,11 @@
 package hyper.run.user;
 
+import hyper.run.auth.service.JwtService;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
+import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ public class UserController {
 
     private final UserService userService;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     /**
      * 이메일 기반 사용자 회원 가입 API
@@ -138,6 +141,9 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 워치 연동 key 조회 API
+     */
     @GetMapping("/watch-connect-information")
     public ResponseEntity<?> findWatchConnectedInformation(){
         String email = getLoginEmailBySecurityContext();
@@ -146,10 +152,19 @@ public class UserController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
-    @GetMapping("/watch-connect-information/access-token")
+    /**
+     * 워치 토큰 조회
+     */
+    @GetMapping("/watch-connect-information/tokens")
     ResponseEntity<?> checkWatchKey(@RequestParam String watchKey){
-        String accessToken = userService.checkWatchKey(watchKey);
-        SuccessResponse response = new SuccessResponse(true, "accessToken 조회 성공", accessToken);
+        String email = userService.getEmailByWatchKey(watchKey);
+
+        String accessToken = jwtService.createAccessToken(email);
+        String refreshToken = jwtService.createRefreshToken();
+
+        WatchTokenResponse watchTokenResponse = userService.saveWatchRefreshToken(email, accessToken, refreshToken);
+
+        SuccessResponse response = new SuccessResponse(true, "워치 연결 성공", watchTokenResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

@@ -8,6 +8,8 @@ import org.springframework.data.mongodb.core.index.CompoundIndex;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.data.mongodb.core.mapping.Field;
 
+import java.time.LocalDateTime;
+
 
 @Getter
 @Builder
@@ -39,10 +41,10 @@ public class GameHistory {
     private double prize;
 
     @Field("target_bpm")
-    private Integer targetBpm;
+    private int targetBpm;
 
     @Field("target_cadence")
-    private Integer targetCadence;
+    private int targetCadence;
 
     @Setter
     @Field("current_bpm")
@@ -59,6 +61,22 @@ public class GameHistory {
     @Setter
     @Field("current_flight_time")
     private double currentFlightTime;
+
+    @Setter
+    @Field("start_at")
+    private LocalDateTime startAt; // 사용자가 경기를 시작한 시간 (초기값은 Game 의 startAt 참고)
+
+    @Setter
+    @Field("end_at")
+    private LocalDateTime endAt; // 사용자가 경기를 종료한 시간 (초기값은 Game 의 endAt 참고)
+
+    @Setter
+    @Field("average_bpm")
+    private double average_bpm;
+
+    @Setter
+    @Field("average_cadence")
+    private double average_cadence;
 
     @Setter
     @Field("current_ground_contact_time")
@@ -95,14 +113,17 @@ public class GameHistory {
 
 
     public void markAsDone() {
-        this.done = true;
+        if (!this.done) {  // 처음 완주할 때만 endAt 기록
+            this.done = true;
+            this.endAt = LocalDateTime.now();
+        }
     }
 
     public void connectWatch() {
         this.connectedWatch = true;
     }
 
-    public static GameHistory createForApply(Long gameId, Long userId, GameDistance gameDistance, Integer averageBpm, Integer targetCadence) {
+    public static GameHistory createForApply(Long gameId, Long userId, GameDistance gameDistance, Integer averageBpm, Integer targetCadence, LocalDateTime gameStartAt, LocalDateTime gameEndAt) {
         GameHistoryBuilder builder = GameHistory.builder()
                 .gameId(gameId)
                 .userId(userId)
@@ -110,7 +131,9 @@ public class GameHistory {
                 .prize(0)
                 .updateCount(0)
                 .done(false)
-                .rank(0);
+                .rank(0)
+                .startAt(gameStartAt)
+                .endAt(gameStartAt);
 
         if (averageBpm != null) {
             builder.targetBpm(averageBpm);
@@ -135,11 +158,29 @@ public class GameHistory {
     }
 
     /**
+     * 경기 소요 시간 계산 (초 단위)
+     * startAt과 endAt의 차이를 계산
+     * 완주하지 않은 경우 Long.MAX_VALUE 반환
+     */
+    public long getDurationInSeconds() {
+        if (startAt == null || endAt == null || !done) {
+            return Long.MAX_VALUE;  // 미완주자는 가장 낮은 순위
+        }
+        return java.time.Duration.between(startAt, endAt).getSeconds();
+    }
+
+    /**
      * getCurrentDistance() 거리 데이터를 수집할때, 워치에서, 현재 이동 거리를 시작을 감지해 측정한다.
      */
     public void updateFrom(GameHistoryUpdateRequest request) {
         updateCount++;
         int previousCount = updateCount - 1;
+
+        // 첫 업데이트 시 실제 경기 시작 시간 기록
+        if (updateCount == 1) {
+            this.startAt = LocalDateTime.now();
+        }
+
         currentDistance = request.getCurrentDistance();
         currentBpm = calculateAverage(currentBpm, request.getCurrentBpm(), previousCount);
         currentCadence = calculateAverage(currentCadence, request.getCurrentCadence(), previousCount);

@@ -32,7 +32,9 @@ public class GameApplyListener {
                 event.userId(),
                 event.gameDistance(),
                 event.averageBpm(),
-                event.targetCadence()
+                event.targetCadence(),
+                event.startAt(),
+                event.endAt()
         ));
     }
 }

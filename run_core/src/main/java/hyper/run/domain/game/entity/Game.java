@@ -37,6 +37,10 @@ public class Game extends BaseTimeEntity<Game> {
     private GameType type; // 경기 유형
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "active_type", nullable = false)
+    private ActivityType activityType; // 걷기, 뛰기 타입 구분
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private GameStatus status;
 
@@ -47,9 +51,6 @@ public class Game extends BaseTimeEntity<Game> {
     @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
     private GameDistance distance; // 경기 거리
-
-    @Column(name = "game_date")
-    private LocalDate gameDate; // 경기 날짜
 
     @Column(name = "start_at")
     private LocalDateTime startAt; // 경기 시작 시간
@@ -87,7 +88,7 @@ public class Game extends BaseTimeEntity<Game> {
     //참가 신청 이벤트 발행
     public void applyGame(Long userId, Integer averageBpm, Integer targetCadence) {
         increaseParticipatedCount();
-        registerEvent(GameApplyEvent.from(userId, this.getId(), this.getDistance(), averageBpm, targetCadence));
+        registerEvent(GameApplyEvent.from(userId, this.getId(), this.getDistance(), averageBpm, targetCadence, this.getStartAt(), this.getEndAt()));
     }
 
     // 전체 참가 인원 증가

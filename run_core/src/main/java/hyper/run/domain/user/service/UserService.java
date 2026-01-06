@@ -5,6 +5,7 @@ import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
+import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
@@ -118,9 +119,19 @@ public class UserService {
         return UserWatchConnectedResponse.from(user);
     }
 
-    public String checkWatchKey(final String watchKey) {
+    public String getEmailByWatchKey(final String watchKey) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByWatchConnectedKey(watchKey), NOT_EXIST_USER_EMAIL);
-        return user.getAccessToken();
+        return user.getEmail();
+    }
+
+    @Transactional
+    public WatchTokenResponse saveWatchRefreshToken(final String email, final String accessToken, final String refreshToken) {
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        user.setWatchRefreshToken(refreshToken);
+        return WatchTokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 
 

@@ -1,9 +1,6 @@
 package hyper.run.domain.game.dto.response;
 
-import hyper.run.domain.game.entity.Game;
-import hyper.run.domain.game.entity.GameDistance;
-import hyper.run.domain.game.entity.GameStatus;
-import hyper.run.domain.game.entity.GameType;
+import hyper.run.domain.game.entity.*;
 import lombok.Builder;
 import lombok.Getter;
 
@@ -22,6 +19,8 @@ public class GameResponse {
 
     private GameDistance distance;
 
+    private ActivityType activityType;
+
     private LocalDate gameDate;
 
     private LocalDateTime startAt;
@@ -29,6 +28,8 @@ public class GameResponse {
     private LocalDateTime endAt;
 
     private int participatedCount;
+
+    private double totalPrize;
 
     private double firstPlacePrize;
 
@@ -49,11 +50,12 @@ public class GameResponse {
                 .id(game.getId())
                 .name(game.getName())
                 .type(game.getType())
-                .gameDate(game.getGameDate())
+                .activityType(game.getActivityType())
                 .distance(game.getDistance())
                 .startAt(game.getStartAt())
                 .endAt(game.getEndAt())
                 .participatedCount(game.getParticipatedCount())
+                .totalPrize(game.getTotalPrize())
                 .firstPlacePrize(game.getFirstPlacePrize())
                 .secondPlacePrize(game.getSecondPlacePrize())
                 .thirdPlacePrize(game.getThirdPlacePrize())

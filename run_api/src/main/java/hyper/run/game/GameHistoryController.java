@@ -15,6 +15,9 @@ public class GameHistoryController {
 
     private final GameHistoryService gameHistoryService;
 
+    /**
+     * TODO 웹소켓 적용 후 삭제
+     */
     @PatchMapping
     public ResponseEntity<?> updateGameHistory(@RequestBody final GameHistoryUpdateRequest gameHistoryUpdateRequest){
         gameHistoryService.updateAsyncGameHistory(gameHistoryUpdateRequest);

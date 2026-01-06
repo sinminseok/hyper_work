@@ -10,11 +10,12 @@ public final class AuthUrlPatterns {
             V1_BASE_API_URL + "/users/email-exists",
             V1_BASE_API_URL + "/users/phone-exists",
             V1_BASE_API_URL + "/users/id",
-            V1_BASE_API_URL + "/users/watch-connect-information/access-token"
+            V1_BASE_API_URL + "/users/watch-connect-information/tokens"
     };
 
     public static final String[] POST_AUTH_WHITELIST = {
             V1_BASE_API_URL + "/google",
+            V1_BASE_API_URL + "/games/test/create",
             V1_BASE_API_URL + "/auth/**",
             V1_BASE_API_URL + "/oauth/**",
             V1_BASE_API_URL + "/apple",
@@ -22,7 +23,8 @@ public final class AuthUrlPatterns {
             V1_BASE_API_URL + "/users/password",
             V1_BASE_API_URL + "/games/test",
             V1_BASE_API_URL + "/games/test/create-game",
-            V1_BASE_API_URL + "/games/send"
+            V1_BASE_API_URL + "/games/send",
+
     };
 
     public static final String[] NOT_AUTH_URL = {

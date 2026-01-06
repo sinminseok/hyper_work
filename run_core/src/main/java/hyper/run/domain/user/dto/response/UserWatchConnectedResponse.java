@@ -7,12 +7,10 @@ import lombok.Getter;
 @Getter
 @Builder
 public class UserWatchConnectedResponse {
-    private String accessToken;
     private String watchConnectedKey;
 
     public static UserWatchConnectedResponse from(User user){
         return UserWatchConnectedResponse.builder()
-                .accessToken(user.getAccessToken())
                 .watchConnectedKey(user.getWatchConnectedKey())
                 .build();
     }

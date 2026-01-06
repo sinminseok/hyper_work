@@ -31,4 +31,6 @@ public interface UserRepository extends JpaRepository<User, Long>, UserRepositor
 
     Optional<User> findByRefreshToken(String refreshToken);
 
+    Optional<User> findByWatchRefreshToken(String watchRefreshToken);
+
 }

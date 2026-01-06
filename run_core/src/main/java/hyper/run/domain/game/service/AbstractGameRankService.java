@@ -47,11 +47,7 @@ public abstract class AbstractGameRankService implements GameRankService {
     private void assignRanks(List<GameHistory> histories) {
         int rank = 1;
         for (GameHistory history : histories) {
-            if (!history.isDone()) {
-                history.setRank(rank++);
-            } else {
-                rank++;
-            }
+            history.setRank(rank++);  // 모든 참가자에게 순위 부여
         }
     }
 

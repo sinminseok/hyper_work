@@ -74,12 +74,12 @@ public class User extends BaseTimeEntity<User> {
     private String refreshToken;
 
     @Setter
-    @Column(name = "watch_connected_key", nullable = true)
-    private String watchConnectedKey;
+    @Column(name = "watch_refresh_token", nullable = true)
+    private String watchRefreshToken;
 
     @Setter
-    @Column(name = "access_token", nullable = true)
-    private String accessToken;
+    @Column(name = "watch_connected_key", nullable = true)
+    private String watchConnectedKey;
 
     @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
