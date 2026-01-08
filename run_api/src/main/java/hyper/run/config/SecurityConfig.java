@@ -7,7 +7,6 @@ import hyper.run.auth.handler.LoginFailureHandler;
 import hyper.run.auth.handler.LoginSuccessHandler;
 import hyper.run.auth.service.JwtService;
 import hyper.run.auth.service.CustomUserDetailsService;
-import hyper.run.auth.service.TokenCustomService;
 import hyper.run.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -31,7 +30,6 @@ import static hyper.run.auth.constants.AuthUrlPatterns.*;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private final TokenCustomService tokenCustomService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
     private final ObjectMapper objectMapper;
@@ -83,7 +81,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationProcessingFilter() {
-        return new JwtAuthenticationFilter(tokenCustomService, jwtService, userRepository);
+        return new JwtAuthenticationFilter(jwtService, userRepository);
     }
 
     @Bean

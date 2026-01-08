@@ -7,11 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
-import hyper.run.domain.game.service.GameRankService;
-import hyper.run.domain.user.entity.User;
-import hyper.run.domain.user.repository.UserRepository;
-import hyper.run.utils.OptionalUtil;
-import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -19,7 +15,6 @@ import java.util.Comparator;
 import java.util.List;
 
 import static hyper.run.domain.game.service.helper.GameHelper.createGame;
-import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_ID;
 
 /**
  * 사용자가 설정한 BPM(심박수)에 가까울수록 높은 점수
@@ -29,13 +24,13 @@ public class HeartBeatRankService extends AbstractGameRankService {
 
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final UserRepository userRepository;
 
-    public HeartBeatRankService(GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameRepository gameRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository, gameRepository);
+    public HeartBeatRankService(ApplicationEventPublisher applicationEventPublisher,
+                                GameHistoryRepository gameHistoryRepository,
+                                GameRepository gameRepository) {
+        super(applicationEventPublisher, gameHistoryRepository, gameRepository);
+        this.gameHistoryRepository = gameHistoryRepository;
         this.gameRepository = gameRepository;
-        this.gameHistoryRepository = gameHistoryRepository1;
-        this.userRepository = userRepository1;
     }
 
     @Override
@@ -45,8 +40,9 @@ public class HeartBeatRankService extends AbstractGameRankService {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)
-                        .reversed()
-                        .thenComparingDouble(GameHistory::getHeartBeatScore)
+                        .reversed()  // 완주자 우선
+                        .thenComparingDouble(GameHistory::getHeartBeatScore)  // 심박수 점수 작은 순
+                        .thenComparingLong(GameHistory::getDurationInSeconds)  // 동점 시 소요 시간 짧은 순
         );
 
         return histories;
@@ -56,9 +52,8 @@ public class HeartBeatRankService extends AbstractGameRankService {
     @Override
     public void generateGame(LocalDate date) {
         for (GameDistance distance : GameDistance.values()) {
-            for (int i = 5; i <= 23; i += distance.getTime()) {
-                if (i + distance.getTime() > 24) break;
-                Game game = createGame(GameType.HEARTBEAT, distance, date, i);
+            for (int hour = 5; hour <= 23; hour++) {
+                Game game = createGame(GameType.HEARTBEAT, distance, date, hour, 0);
                 gameRepository.save(game);
             }
         }

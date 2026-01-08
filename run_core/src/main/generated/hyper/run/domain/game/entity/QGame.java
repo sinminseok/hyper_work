@@ -21,6 +21,8 @@ public class QGame extends EntityPathBase<Game> {
 
     public final hyper.run.domain.common.QBaseTimeEntity _super = new hyper.run.domain.common.QBaseTimeEntity(this);
 
+    public final EnumPath<ActivityType> activityType = createEnum("activityType", ActivityType.class);
+
     public final EnumPath<AdminGameStatus> adminGameStatus = createEnum("adminGameStatus", AdminGameStatus.class);
 
     //inherited
@@ -33,8 +35,6 @@ public class QGame extends EntityPathBase<Game> {
     public final NumberPath<Double> firstPlacePrize = createNumber("firstPlacePrize", Double.class);
 
     public final StringPath firstUserName = createString("firstUserName");
-
-    public final DatePath<java.time.LocalDate> gameDate = createDate("gameDate", java.time.LocalDate.class);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 

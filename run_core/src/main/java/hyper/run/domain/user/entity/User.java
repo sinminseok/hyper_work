@@ -23,7 +23,7 @@ import static hyper.run.exception.ErrorMessages.NOT_ENOUGH_TO_REFUND_AMOUNT;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class User extends BaseTimeEntity {
+public class User extends BaseTimeEntity<User> {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", updatable = false)
@@ -74,13 +74,14 @@ public class User extends BaseTimeEntity {
     private String refreshToken;
 
     @Setter
+    @Column(name = "watch_refresh_token", nullable = true)
+    private String watchRefreshToken;
+
+    @Setter
     @Column(name = "watch_connected_key", nullable = true)
     private String watchConnectedKey;
 
-    @Setter
-    @Column(name = "access_token", nullable = true)
-    private String accessToken;
-
+    @Builder.Default
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerInquiry> inquiries = new ArrayList<>();
 

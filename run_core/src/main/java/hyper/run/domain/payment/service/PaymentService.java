@@ -3,6 +3,7 @@ package hyper.run.domain.payment.service;
 import hyper.run.domain.payment.dto.request.PaymentRequest;
 
 import hyper.run.domain.payment.dto.response.PaymentResponse;
+import hyper.run.domain.payment.entity.InAppType;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
@@ -11,6 +12,7 @@ import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.swing.text.html.Option;
 import java.util.Comparator;
@@ -23,19 +25,45 @@ import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 @RequiredArgsConstructor
 public class PaymentService {
 
+    private final AppleReceiptService appleReceiptService;
+    private final GoogleReceiptService googleReceiptService;
     private final PaymentRepository repository;
     private final UserRepository userRepository;
 
     /**
      * 결제 메서드
      */
+    @Transactional
     public void pay(final String email, final PaymentRequest request){
+        //appleReceiptService.verifyReceipt(request.getTransactionId(), request.getProductId(), request.getReceiptData());
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
-        user.addPayment(payment);
-        user.increaseCouponByAmount(request.getCouponAmount());
-        repository.save(payment); // Payment 저장
+        repository.save(payment);
     }
+
+    /**
+     * 영수증 검증 메서드
+     * Apple/Google 서버와 통신하여 실제 결제 여부를 확인합니다.
+     */
+    private void validateReceipt(PaymentRequest request) {
+        if(request.getInAppType().equals(InAppType.APPLE)){
+            // Apple 영수증 검증
+            appleReceiptService.verifyReceipt(
+                    request.getTransactionId(),
+                    request.getProductId(),
+                    request.getReceiptData()
+            );
+        }
+        else if(request.getInAppType().equals(InAppType.GOOGLE)){
+            // Google 영수증 검증 (구현 예정)
+            googleReceiptService.verifyReceipt(
+                    request.getTransactionId(),
+                    request.getProductId(),
+                    request.getReceiptData()
+            );
+        }
+    }
+
 
     /**
      * 환불 가능한 결제 내역 모두 조회 메서드

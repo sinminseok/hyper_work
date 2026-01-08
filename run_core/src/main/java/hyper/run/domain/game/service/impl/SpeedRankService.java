@@ -7,7 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
-import hyper.run.domain.user.repository.UserRepository;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -24,12 +24,12 @@ public class SpeedRankService extends AbstractGameRankService {
 
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final UserRepository userRepository;
 
-    public SpeedRankService(GameRepository gameRepository, GameHistoryRepository gameHistoryRepository, UserRepository userRepository, GameHistoryRepository gameHistoryRepository1, UserRepository userRepository1) {
-        super(gameHistoryRepository, userRepository, gameRepository);
-        this.gameHistoryRepository = gameHistoryRepository1;
-        this.userRepository = userRepository1;
+    public SpeedRankService(ApplicationEventPublisher applicationEventPublisher,
+                            GameHistoryRepository gameHistoryRepository,
+                            GameRepository gameRepository) {
+        super(applicationEventPublisher, gameHistoryRepository, gameRepository);
+        this.gameHistoryRepository = gameHistoryRepository;
         this.gameRepository = gameRepository;
     }
 
@@ -38,8 +38,9 @@ public class SpeedRankService extends AbstractGameRankService {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)
-                        .reversed()
-                        .thenComparingDouble(GameHistory::getRemainingDistance)
+                        .reversed()  // 완주자 우선
+                        .thenComparingLong(GameHistory::getDurationInSeconds)  // 소요 시간 짧은 순 (완주자), 미완주자는 Long.MAX_VALUE
+                        .thenComparingDouble(GameHistory::getRemainingDistance)  // 미완주자: 남은 거리 적은 순
         );
 
         return histories;
@@ -48,9 +49,9 @@ public class SpeedRankService extends AbstractGameRankService {
     @Override
     public void generateGame(LocalDate date) {
         for (GameDistance distance : GameDistance.values()) {
-            for (int i = 5; i <= 23; i += distance.getTime()) {
-                if (i + distance.getTime() > 24) break;
-                Game game = createGame(GameType.SPEED, distance, date, i);
+            if(distance.isWalk()) continue; // 걷기 유형은 x
+            for (int hour = 5; hour <= 23; hour++) {
+                Game game = createGame(GameType.SPEED, distance, date, hour, 0);
                 gameRepository.save(game);
             }
         }

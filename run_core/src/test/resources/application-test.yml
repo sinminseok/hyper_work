@@ -6,29 +6,29 @@ spring:
       charset: UTF-8
       enabled: true
       force: true
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: ${DB_TEST_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
-
-
   data:
     mongodb:
-      uri: ${MONGO_DB_URL}
-      database: ${MONGO_TEST_DB_NAME}
       auto-index-creation: true
 
   jpa:
     hibernate:
-      ddl-auto: create
-      database-platform: org.hibernate.dialect.MySQLDialect
-      defer-datasource-initialization: true
+      ddl-auto: create-drop
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
         show_sql: false
         format_sql: false
+    defer-datasource-initialization: false
+
+  cloud:
+    aws:
+      region:
+        static: ap-northeast-2
+      credentials:
+        access-key: test-access-key
+        secret-key: test-secret-key
+      sns:
+        enabled: false  # SNS Auto-configuration 비활성화
 
 redis:
   host: localhost
@@ -40,7 +40,7 @@ aligo:
   sender: 01012345678   # 발신자 번호 (사전 등록된 번호여야 함)
 
 jwt:
-  secretKey: ${JWT_KEY}
+  secretKey: test-secret-key-for-testing-purposes-only-minimum-256-bits-required-for-security
   access:
     expiration: 3600000
     header: Authorization
@@ -52,8 +52,8 @@ apple:
   key-url: https://appleid.apple.com/auth/keys
 
 oauth:
-  android-client-id: ${ANDROID_OAUTH_CLIENT_KEY}
-  ios-client-id: ${IOS_OAUTH_CLIENT_KEY}
+  android-client-id: test-android-client-id
+  ios-client-id: test-ios-client-id
 
 domain:
   websocket:
@@ -73,3 +73,22 @@ server:
     keep-alive-timeout: 30000
     max-http-header-size: 8192
     max-keep-alive-requests: 100
+
+cloud:
+  aws:
+    region:
+      static: ap-northeast-2
+    credentials:
+      access-key: test-access-key
+      secret-key: test-secret-key
+    s3:
+      bucket:
+        name: hyper-run-image
+      credentials:
+        access-key: test-access-key
+        secret-key: test-secret-key
+
+admin:
+  initial:
+    email: ${ADMIN_INITIAL_EMAIL:admin@test.com}
+    password: ${ADMIN_INITIAL_PASSWORD:test1234}

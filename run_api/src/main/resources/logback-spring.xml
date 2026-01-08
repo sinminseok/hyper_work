@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- Console Appender (개발/로컬용) -->
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <!-- CloudWatch Logs Appender - Application Log -->
+    <appender name="CLOUDWATCH_APP" class="ca.pjer.logback.AwsLogsAppender">
+        <logGroupName>/funnyrun/application</logGroupName>
+        <logStreamName>%d{yyyy/MM/dd}/app</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+        <retentionTimeDays>30</retentionTimeDays>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- CloudWatch Logs Appender - Error Log -->
+    <appender name="CLOUDWATCH_ERROR" class="ca.pjer.logback.AwsLogsAppender">
+        <logGroupName>/funnyrun/error</logGroupName>
+        <logStreamName>%d{yyyy/MM/dd}/error</logStreamName>
+        <logRegion>ap-northeast-2</logRegion>
+        <maxBatchLogEvents>50</maxBatchLogEvents>
+        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
+        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
+        <retentionTimeDays>30</retentionTimeDays>
+        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+            <level>ERROR</level>
+        </filter>
+        <layout>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+        </layout>
+    </appender>
+
+    <!-- 개발 환경 (dev, test) - Console만 사용 -->
+    <springProfile name="dev,test">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <!-- 운영 환경 (prod) - Console + CloudWatch -->
+    <springProfile name="prod">
+        <root level="INFO">
+            <appender-ref ref="CONSOLE" />
+            <appender-ref ref="CLOUDWATCH_APP" />
+            <appender-ref ref="CLOUDWATCH_ERROR" />
+        </root>
+    </springProfile>
+</configuration>

@@ -1,9 +1,6 @@
 package hyper.run.domain.game.service.helper;
 
-import hyper.run.domain.game.entity.AdminGameStatus;
-import hyper.run.domain.game.entity.Game;
-import hyper.run.domain.game.entity.GameDistance;
-import hyper.run.domain.game.entity.GameType;
+import hyper.run.domain.game.entity.*;
 
 import java.time.LocalDate;
 
@@ -11,14 +8,16 @@ import static hyper.run.domain.game.utils.GamePrizeCalculator.*;
 
 public class GameHelper {
 
-    public static Game createGame(GameType gameType, GameDistance distance, LocalDate date, int startTime) {
+    public static Game createGame(GameType gameType, GameDistance distance, LocalDate date, int startHour, int startMinute) {
+        ActivityType activityType = distance.isWalk() ? ActivityType.WALKING : ActivityType.RUNNING;
+
         return Game.builder()
                 .name(gameType.getName() + "-" + distance.getName())
                 .type(gameType)
+                .activityType(activityType)
                 .distance(distance)
-                .gameDate(date)
-                .startAt(date.atTime(startTime, 0))
-                .endAt(date.atTime(startTime, 0).plusHours(distance.getTime()))
+                .startAt(date.atTime(startHour, startMinute))
+                .endAt(date.atTime(startHour, startMinute).plusMinutes(distance.getTime()))
                 .participatedCount(0)
                 .totalPrize(0)
                 .firstPlacePrize(calculateFirstPlacePrize(0))

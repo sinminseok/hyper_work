@@ -1,6 +1,8 @@
 package hyper.run.domain.game.entity;
 
 import hyper.run.domain.common.BaseTimeEntity;
+import hyper.run.domain.game.event.GameApplyEvent;
+import hyper.run.domain.game.event.GameCancelEvent;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +20,7 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Game extends BaseTimeEntity {
+public class Game extends BaseTimeEntity<Game> {
 
     private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
     private static final int PARTICIPATION_FEE = 1200;
@@ -35,6 +37,10 @@ public class Game extends BaseTimeEntity {
     private GameType type; // 경기 유형
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "active_type", nullable = false)
+    private ActivityType activityType; // 걷기, 뛰기 타입 구분
+
+    @Enumerated(EnumType.STRING)
     @Column(name = "status")
     private GameStatus status;
 
@@ -45,9 +51,6 @@ public class Game extends BaseTimeEntity {
     @Enumerated(EnumType.STRING)
     @Column(name = "distance", nullable = false)
     private GameDistance distance; // 경기 거리
-
-    @Column(name = "game_date")
-    private LocalDate gameDate; // 경기 날짜
 
     @Column(name = "start_at")
     private LocalDateTime startAt; // 경기 시작 시간
@@ -82,6 +85,12 @@ public class Game extends BaseTimeEntity {
     @Setter
     private String thirdUserName; // 3등 이름
 
+    //참가 신청 이벤트 발행
+    public void applyGame(Long userId, Integer averageBpm, Integer targetCadence) {
+        increaseParticipatedCount();
+        registerEvent(GameApplyEvent.from(userId, this.getId(), this.getDistance(), averageBpm, targetCadence, this.getStartAt(), this.getEndAt()));
+    }
+
     // 전체 참가 인원 증가
     public void increaseParticipatedCount() {
         this.participatedCount += 1;
@@ -105,7 +114,7 @@ public class Game extends BaseTimeEntity {
     }
 
     //참여 인원이 3명 이하면 시작하지 않는다.
-    public boolean canNotStartGame(){
+    public boolean canNotStartGame() {
         return GAME_START_STANDARD_PEOPLE_COUNT >= this.participatedCount;
     }
 
@@ -121,8 +130,14 @@ public class Game extends BaseTimeEntity {
         return now.isBefore(startAt);
     }
 
+    //참가 철회
+    public void cancelGame(Long userId) {
+        decreaseParticipatedCount();
+        registerEvent(GameCancelEvent.from(userId, this.getId()));
+    }
+
     // 경기 상태 업데이트
-    public void updateAdminGameStatus(AdminGameStatus newStatus){
+    public void updateAdminGameStatus(AdminGameStatus newStatus) {
         this.adminGameStatus = newStatus;
     }
 }

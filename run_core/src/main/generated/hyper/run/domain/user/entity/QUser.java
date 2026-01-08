@@ -22,8 +22,6 @@ public class QUser extends EntityPathBase<User> {
 
     public final hyper.run.domain.common.QBaseTimeEntity _super = new hyper.run.domain.common.QBaseTimeEntity(this);
 
-    public final StringPath accessToken = createString("accessToken");
-
     public final StringPath birth = createString("birth");
 
     public final NumberPath<Integer> coupon = createNumber("coupon", Integer.class);
@@ -59,6 +57,8 @@ public class QUser extends EntityPathBase<User> {
     public final StringPath refreshToken = createString("refreshToken");
 
     public final StringPath watchConnectedKey = createString("watchConnectedKey");
+
+    public final StringPath watchRefreshToken = createString("watchRefreshToken");
 
     public QUser(String variable) {
         super(User.class, forVariable(variable));

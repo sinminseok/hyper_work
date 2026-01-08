@@ -1,0 +1,138 @@
+spring:
+  mail:
+    host: smtp.naver.com
+    port: 465
+    username: funyrun88@naver.com
+    password: ${MAIL_PASSWORD}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: true
+            trust: smtp.naver.com
+          socketFactory:
+            port: 465
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+  server:
+    port: 8080
+    address: 0.0.0.0
+  jackson:
+    time-zone: Asia/Seoul
+  config:
+    import:
+      - optional:file:.env[.properties]
+  http:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_RDS_URL}
+    username: ${RDS_USERNAME}
+    password: ${RDS_PASSWORD}
+
+  data:
+    mongodb:
+      uri: ${MONGO_DB_URL}
+      database: ${MONGO_DB_NAME}
+      auto-index-creation: true
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+      database-platform: org.hibernate.dialect.MySQLDialect
+      defer-datasource-initialization: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+        show_sql: false
+        format_sql: false
+        jdbc:
+          time_zone: Asia/Seoul
+
+  cloud:
+    aws:
+      region:
+        static: ${AWS_SQS_REGION:ap-northeast-2}
+      credentials:
+        access-key: ${AWS_SQS_ACCESS_KEY:${AWS_S3_ACCESS_KEY}}
+        secret-key: ${AWS_SQS_SECRET_KEY:${AWS_S3_SECRET_KEY}}
+      sns:
+        enabled: false  # SNS Auto-configuration 비활성화
+
+redis:
+  host: ${REDIS_HOST}
+  port: 6379
+
+aligo:
+  user-id: funyrun
+  api-key: ${ALIGO_KEY}
+  sender: ${ALIGO_SENDER}
+
+jwt:
+  secretKey: ${JWT_KEY}
+  access:
+    expiration: 3600000
+    header: Authorization
+  refresh:
+    expiration: 1209600000
+    header: Authorization-refresh
+
+apple:
+  key-url: https://appleid.apple.com/auth/keys
+  verify-receipt-url:
+    production: https://buy.itunes.apple.com/verifyReceipt
+    sandbox: https://sandbox.itunes.apple.com/verifyReceipt
+  shared-secret: ${APPLE_SHARED_SECRET}
+
+
+oauth:
+  android-client-id: ${ANDROID_OAUTH_CLIENT_KEY}
+  ios-client-id: ${IOS_OAUTH_CLIENT_KEY}
+
+domain:
+  websocket:
+    game: /game
+    publish: /pub
+    subscribe: /sub
+
+
+server:
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 10
+      max-queue-capacity: 500
+    max-connections: 5000
+    accept-count: 250
+    connection-timeout: 60000
+    keep-alive-timeout: 30000
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
+
+cloud:
+  aws:
+    s3:
+      bucket:
+        name: hyper-run-image-dev
+      credentials:
+        access-key: ${AWS_S3_ACCESS_KEY}
+        secret-key: ${AWS_S3_SECRET_KEY}
+
+admin:
+  initial:
+    email: ${ADMIN_INITIAL_EMAIL}
+    password: ${ADMIN_INITIAL_PASSWORD}
+
+
+
+
+

@@ -35,7 +35,6 @@ public class LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
         if(user.getWatchConnectedKey() == null) {
             user.setWatchConnectedKey(generateRandomCode());
         }
-        user.setAccessToken(accessToken);
     }
 
     private String extractUsername(Authentication authentication) {
