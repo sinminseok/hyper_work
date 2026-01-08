@@ -25,6 +25,7 @@ public class CustomLoginAuthenticationFilter extends AbstractAuthenticationProce
     private static final String PASSWORD_KEY = "password";
     private static final AntPathRequestMatcher DEFAULT_LOGIN_PATH_REQUEST_MATCHER = new AntPathRequestMatcher(DEFAULT_LOGIN_REQUEST_URL, HTTP_METHOD);
 
+
     private final ObjectMapper objectMapper;
 
     public CustomLoginAuthenticationFilter(ObjectMapper objectMapper) {
