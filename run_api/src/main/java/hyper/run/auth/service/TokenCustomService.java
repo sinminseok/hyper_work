@@ -39,7 +39,7 @@ public class TokenCustomService {
         // 워치 RefreshToken으로 조회
         User user = OptionalUtil.getOrElseThrow(
             userRepository.findByWatchRefreshToken(refreshToken),
-            "존재하지 않는 RefreshToken 입니다."
+            "존재하지 않는 Watch RefreshToken 입니다."
         );
 
         // 워치 토큰 갱신

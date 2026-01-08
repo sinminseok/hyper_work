@@ -16,6 +16,7 @@ import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.repository.GameRepositoryCustom;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.custom.AlreadyApplyGameException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -60,6 +61,9 @@ public class GameService {
                         request.getDistance(),
                         request.getType(),
                         request.getActivityType()), NOT_EXIST_GAME_ID);
+        if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()) != null) {
+            throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
+        }
         game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
         gameRepository.save(game);
     }
@@ -190,9 +194,11 @@ public class GameService {
      * 자신의 참가중 or 참가 예정인 경기 내역을 모두 조회한다.
      */
     public List<GameHistoryResponse> findMyParticipateGames(final String email){
+        System.out.println("emailemail===" + email);
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
                 .map(gameHistory -> {
+                    System.out.println("gameHistory = " + gameHistory.getGameId());
                     Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
                     if (game.isInProgress() || game.isNotYetStart()) {
                         return GameHistoryResponse.toResponse(game, gameHistory);

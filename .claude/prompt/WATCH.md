@@ -8,37 +8,39 @@
 
 ## 📍 WebSocket 연결 정보
 
-### 서버 설정 (현재 코드 기준)
+### 기본 설정
 
-```yaml
-# application.yml
-domain:
-  websocket:
-    game: /game        # WebSocket 엔드포인트
-    publish: /pub      # 클라이언트 → 서버 메시지 prefix
-    subscribe: /sub    # 서버 → 클라이언트 메시지 prefix
-```
+**엔드포인트**
+- WebSocket 연결: `/game`
+- 클라이언트 → 서버 전송: `/pub` prefix
+- 서버 → 클라이언트 구독: `/sub` prefix
 
-### URL 구조
+**환경별 URL**
+- 개발: `ws://localhost:8080/game`
+- 운영: `wss://your-domain/game` (HTTPS 필수)
 
-| 항목 | URL | 설명 |
-|------|-----|------|
-| **WebSocket 연결** | `ws://localhost:8080/game` | 개발 환경 |
-| **WebSocket 연결** | `wss://your-domain/game` | 운영 환경 (HTTPS) |
-| **구독 Destination** | `/sub/game/my/{gameId}/{userId}` | 내 순위/상태 받기 |
-| **전송 Destination** | `/pub/game/update` | 생체 데이터 전송 |
+### 주요 Destination
+
+| 용도 | Destination | 설명 |
+|------|-------------|------|
+| **생체 데이터 전송** | `/pub/game/update` | 워치 → 서버 (5초마다) |
+| **내 상태 구독** | `/sub/game/my/{gameId}/{userId}` | 내 순위, 거리, 심박수 등 수신 |
+| **1위 정보 구독** | `/sub/game/first-place/{gameId}` | 현재 1위 실시간 정보 수신 |
 
 ---
 
-## 🔄 전체 흐름 (단계별)
+## 🔄 전체 흐름
 
-### Step 1: 토큰 발급 (REST API)
+### 1단계: 인증 토큰 발급
 
-```http
-GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx
-```
+**API**: `GET /v1/api/users/watch-connect-information/tokens?watchKey={워치키}`
 
-**응답:**
+**목적**
+- 워치 전용 Access Token 발급 (유효기간: 1시간)
+- Refresh Token 발급 (유효기간: 2주)
+- 워치키는 사전에 모바일 앱에서 생성하여 워치로 전달
+
+**응답**
 ```json
 {
   "success": true,
@@ -50,431 +52,378 @@ GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx
 }
 ```
 
-### Step 2: WebSocket 연결
-
-```javascript
-// 1. WebSocket 연결
-const socket = new SockJS('ws://localhost:8080/game');
-const stompClient = Stomp.over(socket);
-
-// 2. STOMP 연결 (인증 토큰 포함)
-stompClient.connect(
-    { 'Authorization': 'Bearer ' + accessToken },  // 헤더에 토큰 포함
-    function(frame) {
-        console.log('Connected: ' + frame);
-        // → Step 3으로 이동
-    }
-);
-```
-
-### Step 3: 구독 (내 순위/상태 받기)
-
-```javascript
-const gameId = 123;
-const userId = 456;
-
-// 구독: 서버가 보내는 내 업데이트를 받음
-stompClient.subscribe('/sub/game/my/' + gameId + '/' + userId, function(message) {
-    const response = JSON.parse(message.body);
-
-    // 받은 데이터
-    console.log('현재 순위:', response.rank);
-    console.log('현재 거리:', response.currentDistance);
-    console.log('목표 심박수:', response.targetBpm);
-    console.log('현재 심박수:', response.currentBpm);
-    console.log('완주 여부:', response.isDone);
-
-    // UI 업데이트
-    updateWatchUI(response);
-});
-```
-
-### Step 4: 생체 데이터 전송 (5초마다)
-
-```javascript
-// 5초마다 워치에서 수집한 생체 데이터 전송
-setInterval(function() {
-    // 워치 센서에서 실시간 데이터 수집
-    const bpm = getHeartRate();        // 심박수
-    const cadence = getCadence();      // 케이던스
-    const distance = getDistance();    // 현재 이동 거리
-    const speed = getSpeed();          // 현재 속도
-
-    // 서버로 전송
-    const data = {
-        gameId: gameId,
-        userId: userId,
-        currentBpm: bpm,
-        currentCadence: cadence,
-        currentDistance: distance,
-        currentSpeed: speed,
-        currentFlightTime: 0,
-        currentGroundContactTime: 0,
-        currentPower: 0,
-        currentVerticalOscillation: 0
-    };
-
-    stompClient.send('/pub/game/update', {}, JSON.stringify(data));
-
-    // → 서버가 처리 후 Step 3의 구독으로 응답 전송
-}, 5000);
-```
-
-### Step 5: 서버 응답 수신 (자동)
-
-```javascript
-// Step 3에서 등록한 구독 콜백이 자동으로 실행됨
-// 서버 → 클라이언트 메시지 전송:
-// destination: /sub/game/my/123/456
-// body: { rank: 3, currentDistance: 1250.5, ... }
-
-function updateWatchUI(response) {
-    // 워치 화면 업데이트
-    document.getElementById('rank').innerText = response.rank + '위';
-    document.getElementById('distance').innerText = response.currentDistance + 'm';
-
-    // 완주 확인
-    if (response.isDone) {
-        showFinishScreen();
-    }
-}
-```
+**토큰 재발급**
+- API: `POST /v1/api/auth/refresh`
+- Access Token 만료 시 Refresh Token으로 자동 갱신
 
 ---
 
-## 💻 전체 코드 예시
+### 2단계: WebSocket 연결
 
-### Android (Wear OS) - Kotlin
+**연결 방식**
+1. `/game` 엔드포인트로 WebSocket 연결
+2. STOMP 프로토콜 사용
+3. 연결 시 헤더에 `Authorization: Bearer {accessToken}` 포함
 
-```kotlin
-class GameWebSocketManager(
-    private val gameId: Long,
-    private val userId: Long,
-    private val accessToken: String
-) {
-    private var stompClient: StompClient? = null
+**중요 사항**
+- 모든 경기가 하나의 `/game` 엔드포인트 공유
+- Destination으로 개인별/경기별 라우팅 구분
+- 연결 실패 시 토큰 재발급 후 재시도
 
-    // 1. WebSocket 연결
-    fun connect() {
-        stompClient = Stomp.over(
-            Stomp.ConnectionProvider.OKHTTP,
-            "ws://your-server:8080/game"
-        )
+---
 
-        // 2. 연결 (헤더에 토큰 포함)
-        stompClient?.connect(
-            listOf(StompHeader("Authorization", "Bearer $accessToken"))
-        )?.subscribe { isConnected ->
-            if (isConnected) {
-                Log.d("WebSocket", "연결 성공!")
+### 3단계: 구독 설정
 
-                // 3. 구독
-                subscribeToMyUpdates()
+#### 3-1. 내 상태 구독 (필수)
 
-                // 4. 생체 데이터 전송 시작
-                startSendingBiometricData()
-            }
-        }
-    }
+**Destination**: `/sub/game/my/{gameId}/{userId}`
 
-    // 3. 구독 - 내 순위/상태 받기
-    private fun subscribeToMyUpdates() {
-        val destination = "/sub/game/my/$gameId/$userId"
+**수신 데이터**
+- `rank`: 현재 순위 (1, 2, 3, ...)
+- `currentDistance`: 현재 이동 거리 (m)
+- `currentSpeed`: 현재 속도 (km/h)
+- `currentBpm`: 현재 심박수
+- `currentCadence`: 현재 케이던스
+- `targetBpm`: 목표 심박수 (심박수 경기만 해당)
+- `targetCadence`: 목표 케이던스 (케이던스 경기만 해당)
+- `isDone`: 완주 여부
+- `connectedWatch`: 워치 연결 상태
 
-        stompClient?.topic(destination)?.subscribe { message ->
-            val response = Gson().fromJson(
-                message.payload,
-                GameInProgressWatchResponse::class.java
-            )
+**수신 시점**
+- 생체 데이터 전송 후 즉시 응답
+- 15초마다 순위 갱신 시 자동 전송
 
-            // UI 업데이트
-            withContext(Dispatchers.Main) {
-                rankTextView.text = "${response.rank}위"
-                distanceTextView.text = "${response.currentDistance}m"
-                bpmTextView.text = "${response.currentBpm.toInt()} bpm"
+#### 3-2. 1위 정보 구독 (선택)
 
-                if (response.isDone) {
-                    showFinishDialog()
-                }
-            }
-        }
-    }
+**Destination**: `/sub/game/first-place/{gameId}`
 
-    // 4. 생체 데이터 전송 (5초마다)
-    private fun startSendingBiometricData() {
-        timer = Timer()
-        timer?.scheduleAtFixedRate(object : TimerTask() {
-            override fun run() {
-                // 워치 센서에서 데이터 수집
-                val bpm = heartRateSensor.getCurrentBpm()
-                val cadence = cadenceSensor.getCurrentCadence()
-                val distance = distanceSensor.getCurrentDistance()
-                val speed = speedSensor.getCurrentSpeed()
+**수신 데이터**
+- 현재 1위의 순위, 거리, 속도, 심박수 등 모든 정보
+- 내 정보와 동일한 구조
 
-                sendBiometricData(bpm, cadence, distance, speed)
-            }
-        }, 0, 5000) // 5초마다
-    }
+**수신 시점**
+- 15초마다 순위 갱신 시 자동 전송
+- 모든 참가자가 동일한 1위 정보 수신
 
-    private fun sendBiometricData(
-        bpm: Double,
-        cadence: Double,
-        distance: Double,
-        speed: Double
-    ) {
-        val request = GameHistoryUpdateRequest(
-            gameId = gameId,
-            userId = userId,
-            currentBpm = bpm,
-            currentCadence = cadence,
-            currentDistance = distance,
-            currentSpeed = speed,
-            currentFlightTime = 0.0,
-            currentGroundContactTime = 0.0,
-            currentPower = 0.0,
-            currentVerticalOscillation = 0.0
-        )
+**활용 예시**
+- "1위와의 거리 차이" 표시
+- "1위 페이스와 비교" 기능
+- 실시간 리더보드 표시
 
-        val json = Gson().toJson(request)
-        stompClient?.send("/pub/game/update", json)?.subscribe()
-    }
+---
 
-    // 연결 해제
-    fun disconnect() {
-        timer?.cancel()
-        stompClient?.disconnect()
-    }
+### 4단계: 생체 데이터 전송
+
+**Destination**: `/pub/game/update`
+
+**전송 주기**: 5초마다
+
+**전송 데이터**
+```json
+{
+  "gameId": 123,
+  "userId": 456,
+  "currentBpm": 150.5,
+  "currentCadence": 180.0,
+  "currentDistance": 1250.5,
+  "currentSpeed": 12.5,
+  "currentFlightTime": 0.0,
+  "currentGroundContactTime": 0.0,
+  "currentPower": 0.0,
+  "currentVerticalOscillation": 0.0
 }
 ```
 
-### iOS (watchOS) - Swift
+**필수 필드**
+- `gameId`, `userId`: 경기 및 사용자 식별
+- `currentBpm`: 심박수 (bpm)
+- `currentCadence`: 케이던스 (spm, steps per minute)
+- `currentDistance`: 누적 거리 (m)
+- `currentSpeed`: 현재 속도 (km/h)
 
-```swift
-import Starscream
+**선택 필드** (현재 미사용, 향후 확장용)
+- `currentFlightTime`: 공중 체공 시간
+- `currentGroundContactTime`: 지면 접촉 시간
+- `currentPower`: 파워 (W)
+- `currentVerticalOscillation`: 수직 진폭
 
-class GameWebSocketManager: WebSocketDelegate {
-    private var socket: WebSocket?
-    private var timer: Timer?
-    private let gameId: Int
-    private let userId: Int
-    private let accessToken: String
+---
 
-    init(gameId: Int, userId: Int, accessToken: String) {
-        self.gameId = gameId
-        self.userId = userId
-        self.accessToken = accessToken
-    }
+### 5단계: 서버 응답 수신
 
-    // 1. WebSocket 연결
-    func connect() {
-        var request = URLRequest(url: URL(string: "ws://your-server:8080/game")!)
-        request.timeoutInterval = 5
+**처리 흐름**
+1. 워치 → 서버: 생체 데이터 전송 (`/pub/game/update`)
+2. 서버: MongoDB에 데이터 저장 및 누적 평균 계산
+3. 서버 → 워치: 업데이트된 내 상태 전송 (`/sub/game/my/{gameId}/{userId}`)
+4. 워치: UI 업데이트 (순위, 거리, 심박수 등 표시)
 
-        socket = WebSocket(request: request)
-        socket?.delegate = self
-        socket?.connect()
-    }
+**완주 처리**
+- `currentDistance >= 목표거리` 도달 시
+- 서버가 자동으로 `isDone: true` 설정
+- 완주 시간(`endAt`) 기록
+- 워치에서 완주 화면 표시
 
-    // 2. 연결 성공 시
-    func didReceive(event: WebSocketEvent, client: WebSocket) {
-        switch event {
-        case .connected(_):
-            print("WebSocket 연결 성공")
+---
 
-            // STOMP CONNECT (인증 토큰 포함)
-            sendStompConnect()
+## ⏱️ 순위 갱신 시스템
 
-            // 구독
-            subscribeToMyUpdates()
+### 자동 갱신 방식
 
-            // 생체 데이터 전송 시작
-            startSendingBiometricData()
+**갱신 주기**: 15초마다
 
-        case .text(let text):
-            handleStompMessage(text)
+**갱신 시점**
+- 경기 시작 후 15초마다 Timer로 자동 실행
+- 경기 종료 시간까지 반복
 
-        case .disconnected(let reason, let code):
-            print("연결 해제: \(reason), code: \(code)")
+**갱신 프로세스**
+1. 서버가 모든 참가자의 GameHistory 조회
+2. 경기 타입별 정렬 기준으로 순위 계산
+   - **SPEED**: 완주자 우선 → 소요 시간 짧은 순 → 남은 거리 적은 순
+   - **CADENCE**: 완주자 우선 → 케이던스 점수 작은 순 → 소요 시간 짧은 순
+   - **HEARTBEAT**: 완주자 우선 → 심박수 점수 작은 순 → 소요 시간 짧은 순
+3. 각 참가자의 `rank` 필드 업데이트
+4. 구독 중인 모든 워치로 자동 전송
+   - `/sub/game/my/{gameId}/{userId}` → 개인별 상태
+   - `/sub/game/first-place/{gameId}` → 1위 정보
 
-        default:
-            break
-        }
-    }
+**실시간성**
+- 생체 데이터 전송 시: 즉시 응답 (5초 주기)
+- 순위 갱신 시: 15초마다 전체 재계산
 
-    // STOMP CONNECT
-    private func sendStompConnect() {
-        let connectFrame = """
-        CONNECT
-        Authorization:Bearer \(accessToken)
-        accept-version:1.1,1.0
-        heart-beat:10000,10000
+---
 
-        \u{0000}
-        """
-        socket?.write(string: connectFrame)
-    }
+## 📱 스마트워치별 구현 가이드
 
-    // 3. 구독
-    private func subscribeToMyUpdates() {
-        let destination = "/sub/game/my/\(gameId)/\(userId)"
-        let subscribeFrame = """
-        SUBSCRIBE
-        id:sub-0
-        destination:\(destination)
+### 1. Galaxy Watch (Wear OS)
 
-        \u{0000}
-        """
-        socket?.write(string: subscribeFrame)
-    }
+**개발 환경**
+- Wear OS SDK (Android)
+- Kotlin 권장
+- STOMP 라이브러리: `com.github.NaikSoftware:StompProtocolAndroid`
 
-    // 4. 생체 데이터 전송 (5초마다)
-    private func startSendingBiometricData() {
-        timer = Timer.scheduledTimer(withTimeInterval: 5.0, repeats: true) { _ in
-            // 워치 센서에서 데이터 수집
-            let bpm = self.getHeartRate()
-            let cadence = self.getCadence()
-            let distance = self.getDistance()
-            let speed = self.getSpeed()
+**핵심 기능**
+- **Foreground Service**: 백그라운드 연결 유지
+- **타이머**: `Handler` 또는 `Timer`로 5초마다 데이터 전송
 
-            self.sendBiometricData(bpm: bpm, cadence: cadence, distance: distance, speed: speed)
-        }
-    }
 
-    private func sendBiometricData(bpm: Double, cadence: Double, distance: Double, speed: Double) {
-        let payload: [String: Any] = [
-            "gameId": gameId,
-            "userId": userId,
-            "currentBpm": bpm,
-            "currentCadence": cadence,
-            "currentDistance": distance,
-            "currentSpeed": speed,
-            "currentFlightTime": 0,
-            "currentGroundContactTime": 0,
-            "currentPower": 0,
-            "currentVerticalOscillation": 0
-        ]
+**연결 유지 전략**
+- Foreground Service로 앱 강제 종료 방지
+- 연결 끊김 시 자동 재연결 로직
+- 배터리 최적화 예외 설정 안내
 
-        let jsonData = try! JSONSerialization.data(withJSONObject: payload)
-        let jsonString = String(data: jsonData, encoding: .utf8)!
+---
 
-        let sendFrame = """
-        SEND
-        destination:/pub/game/update
-        content-type:application/json
+### 2. Apple Watch (watchOS)
 
-        \(jsonString)\u{0000}
-        """
-        socket?.write(string: sendFrame)
-    }
+**개발 환경**
+- watchOS SDK
+- Swift
+- WebSocket 라이브러리: `Starscream` 또는 `SwiftStomp`
 
-    // 5. 메시지 수신 처리
-    private func handleStompMessage(_ text: String) {
-        if text.hasPrefix("MESSAGE") {
-            let lines = text.components(separatedBy: "\n")
-            if let body = lines.last?.trimmingCharacters(in: .controlCharacters) {
-                if let data = body.data(using: .utf8) {
-                    let response = try? JSONDecoder().decode(
-                        GameInProgressWatchResponse.self,
-                        from: data
-                    )
+**핵심 기능**
+- **HKWorkoutSession**: 운동 세션 백그라운드 실행
+- **HealthKit**: 심박수, 거리, 케이던스 등 실시간 수집
+- **타이머**: `Timer.scheduledTimer`로 5초마다 데이터 전송
 
-                    updateUI(response)
-                }
-            }
-        }
-    }
+**센서 매핑**
+- 심박수: `HKQuantityType.quantityType(forIdentifier: .heartRate)`
+- 거리: `HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)`
+- 케이던스: `HKQuantityType.quantityType(forIdentifier: .runningStrideLength)` + 계산
 
-    private func updateUI(_ response: GameInProgressWatchResponse?) {
-        guard let response = response else { return }
+**연결 유지 전략**
+- HKWorkoutSession으로 백그라운드 실행 권한 획득
+- 화면 꺼짐 시에도 연결 유지
+- Extended Runtime Session 활용
 
-        DispatchQueue.main.async {
-            self.rankLabel.text = "\(response.rank)위"
-            self.distanceLabel.text = "\(response.currentDistance)m"
-            self.bpmLabel.text = "\(Int(response.currentBpm)) bpm"
+---
 
-            if response.isDone {
-                self.showFinishScreen()
-            }
-        }
-    }
+### 3. Garmin Watch
 
-    func disconnect() {
-        timer?.invalidate()
-        socket?.disconnect()
-    }
-}
-```
+**개발 환경**
+- Connect IQ SDK
+- Monkey C 언어
+- HTTP 또는 WebSocket 직접 구현
+
+**핵심 기능**
+- **Activity API**: 운동 세션 관리
+- **Sensor API**: 심박수, 가속도계, GPS 데이터 수집
+- **Communications API**: 서버 통신
+
+**센서 매핑**
+- 심박수: `Activity.getActivityInfo().currentHeartRate`
+- 거리: `Activity.getActivityInfo().elapsedDistance`
+- 케이던스: `Activity.getActivityInfo().currentCadence`
+
+**연결 유지 전략**
+- Activity 실행 중 백그라운드 통신 지원
+- 배터리 최적화를 위해 GPS 정확도 조정
+- 연결 끊김 시 로컬 데이터 큐잉 후 재전송
+
+**제약 사항**
+- WebSocket 지원이 제한적일 수 있음
+- HTTP Long Polling 대안 고려 필요
+- Connect IQ 버전별 API 차이 확인 필요
+
+---
+
+## 🎯 핵심 구현 포인트
+
+### 1. 배터리 최적화
+
+**데이터 전송 주기**
+- 5초: 실시간성과 배터리의 균형점
+- 너무 짧으면 배터리 소모 증가
+- 너무 길면 순위 반영 지연
+
+**센서 샘플링**
+- 심박수: 1초마다 측정 → 5초 평균값 전송
+- GPS: 최소 정확도로 설정 (10~20m)
+- 불필요한 센서 비활성화
+
+### 2. 연결 안정성
+
+**재연결 로직**
+- 연결 끊김 감지 시 자동 재연결
+- 최대 3회 재시도 (지수 백오프)
+- 재연결 실패 시 사용자 알림
+
+**데이터 손실 방지**
+- 오프라인 시 로컬 큐에 데이터 저장
+- 재연결 시 누락된 데이터 일괄 전송
+- 중복 전송 방지 (타임스탬프 체크)
+
+### 3. 사용자 경험
+
+**화면 표시 정보**
+- **필수**: 순위, 현재 거리, 목표 거리까지 남은 거리
+- **권장**: 현재 속도, 심박수, 예상 완주 시간
+- **선택**: 1위와의 거리 차이, 페이스 비교
+
+**완주 처리**
+- `isDone: true` 수신 시 축하 화면 표시
+- 최종 순위 및 기록 안내
+- WebSocket 연결 유지 (경기 종료 시 까지)
+
+**에러 핸들링**
+- 네트워크 오류: 재연결 시도 안내
+- 토큰 만료: 자동 갱신 시도
+- 서버 오류: 관리자 문의 안내
+
+---
+
+## 🔧 개발 시 주의사항
+
+### 인증 토큰 관리
+- Access Token은 메모리에만 저장 (보안)
+- Refresh Token은 안전한 저장소에 보관
+- 토큰 만료 30초 전 자동 갱신
+
+### WebSocket 연결
+- 연결 전 네트워크 상태 확인
+- STOMP 헤더에 반드시 토큰 포함
+- 연결 실패 시 재시도 간격 증가 (1초 → 2초 → 4초)
+
+### 데이터 전송
+- JSON 직렬화 전 데이터 유효성 검증
+- 음수 거리/속도 등 비정상 값 필터링
+- 전송 실패 시 로컬 큐에 저장 후 재시도
+
+### 순위 표시
+- 순위 변동 시 애니메이션 효과 (선택)
+- "계산 중" 상태 표시 (15초 갱신 주기 고려)
+- 완주 후에도 순위 업데이트 지속 수신
 
 ---
 
 ## 📊 메시지 흐름도
 
 ```
-워치 앱                                서버
-  |                                    |
-  |---(1) HTTP: 토큰 발급------------->|
-  |<------ accessToken, refreshToken--|
-  |                                    |
-  |---(2) WebSocket 연결: /game------>|
-  |<------ CONNECTED------------------|
-  |                                    |
-  |---(3) SUBSCRIBE------------------>|
-  |     /sub/game/my/123/456          |
-  |                                    | SimpleBroker에 구독 등록
-  |                                    |
-  |---(4) SEND (5초마다)------------->|
-  |     /pub/game/update              |
-  |     {bpm:150, distance:1000,...}  |
-  |                                    |
-  |                                    |-> GameWebSocketController.sendMessage()
-  |                                    |-> service.updateGameHistory()
-  |                                    |   (MongoDB 저장, 순위 계산)
-  |                                    |-> template.convertAndSend()
-  |                                    |
-  |<---(5) MESSAGE---------------------|
-  |     /sub/game/my/123/456          |
-  |     {rank:3, distance:1000,...}   |
-  |                                    |
-  |--- UI 업데이트 (순위, 거리 표시) ---|
-  |                                    |
-  |---(4) SEND (5초 후 다시)--------->|
-  |     {bpm:152, distance:1050,...}  |
-  |                                    |
-  |<---(5) MESSAGE---------------------|
-  |     {rank:2, distance:1050,...}   | ← 순위가 올라감!
-  |                                    |
+[워치 앱]                          [서버]
+   |                                 |
+   |---(1) HTTP 토큰 발급----------->|
+   |<------ Access/Refresh Token-----|
+   |                                 |
+   |---(2) WebSocket 연결: /game---->|
+   |     (Authorization 헤더 포함)    |
+   |<------ CONNECTED----------------|
+   |                                 |
+   |---(3) SUBSCRIBE---------------->|
+   |     /sub/game/my/123/456        |
+   |     /sub/game/first-place/123   |
+   |                                 |
+   |                                 |
+   |--- 5초 경과 ------------------- |
+   |                                 |
+   |---(4) SEND-------------------->|
+   |     /pub/game/update            |
+   |     {bpm:150, distance:100,...} |
+   |                                 |
+   |                                 |-> MongoDB 저장
+   |                                 |-> 누적 평균 계산
+   |                                 |-> 완주 체크
+   |                                 |
+   |<---(5) MESSAGE------------------|
+   |     /sub/game/my/123/456        |
+   |     {rank:3, distance:100,...}  |
+   |                                 |
+   |--- UI 업데이트 (순위, 거리) ----|
+   |                                 |
+   |                                 |
+   |--- 15초 경과 (순위 갱신) -------|
+   |                                 |
+   |                                 |-> 전체 순위 재계산
+   |                                 |
+   |<---(6) MESSAGE------------------|
+   |     /sub/game/my/123/456        |
+   |     {rank:2, distance:100,...}  | ← 순위 상승!
+   |                                 |
+   |<---(7) MESSAGE------------------|
+   |     /sub/game/first-place/123   |
+   |     {rank:1, distance:500,...}  | ← 1위 정보
+   |                                 |
+   |--- "1위와 400m 차이" 표시 ------|
+   |                                 |
 ```
 
 ---
 
-## 🎯 핵심 포인트
+## 🧪 테스트용 API
 
-### 1. 인증 방식
-- **워치 전용 토큰**: Access Token(1시간) + Refresh Token(2주) 발급
-- **자동 갱신**: 토큰 만료 시 자동 재발급
-- **독립적인 토큰 관리**: 모바일과 워치의 refreshToken 별도 관리
-- **API**:
-  - `GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx` - 토큰 발급
-  - `POST /v1/api/auth/refresh` - 토큰 재발급
+**경기 강제 시작**
+- API: `POST /v1/api/games/test/start/{gameId}`
+- 스케줄러 대기 없이 즉시 경기 시작
+- 15초마다 순위 갱신 시작
+- 개발/테스트 환경 전용
 
-### 2. WebSocket 연결
-- **하나의 엔드포인트**: 모든 경기가 `/game` 공유
-- **Destination으로 구분**: `/sub/game/my/{gameId}/{userId}`로 개인별 라우팅
-- **STOMP 프로토콜**: 구독, 메시지 전송, 수신 관리
+**활용 방법**
+1. 경기 생성 API로 테스트 경기 생성
+2. 워치에서 경기 신청
+3. 테스트 API로 즉시 경기 시작
+4. 워치에서 데이터 전송 및 순위 확인
 
-### 3. 데이터 전송 주기
-- **5초마다**: 배터리와 실시간성 밸런스
-- **자동 전송**: Timer로 주기적 전송
-- **센서 데이터**: 심박수, 케이던스, 거리, 속도 등
+---
 
-### 4. 응답 처리
-- **구독 콜백**: 서버가 보낸 메시지를 자동으로 받음
-- **UI 업데이트**: 순위, 거리, 완주 여부 실시간 표시
-- **완주 처리**: `isDone: true` 수신 시 완료 화면 표시
+## 📝 요약
 
-### 5. 백그라운드 처리
-- **Apple Watch**: `HKWorkoutSession` 사용
-- **Wear OS**: `Foreground Service` 사용
-- **연결 유지**: 운동 중 WebSocket 연결 지속
+### 연결 순서
+1. 토큰 발급 (HTTP)
+2. WebSocket 연결 (/game)
+3. 구독 설정 (내 상태, 1위 정보)
+4. 생체 데이터 전송 (5초마다)
+5. 서버 응답 수신 (즉시 + 15초마다)
 
+### 주요 URL
+- 토큰: `GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx`
+- WebSocket: `ws(s)://domain/game`
+- 전송: `/pub/game/update`
+- 구독: `/sub/game/my/{gameId}/{userId}`, `/sub/game/first-place/{gameId}`
 
+### 데이터 주기
+- 생체 데이터 전송: 5초마다
+- 순위 갱신: 15초마다
+- 토큰 갱신: Access Token 만료 30초 전
+
+### 스마트워치 SDK
+- Galaxy Watch: Wear OS + Kotlin
+- Apple Watch: watchOS + Swift + HealthKit
+- Garmin Watch: Connect IQ + Monkey C

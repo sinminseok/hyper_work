@@ -34,6 +34,7 @@ public class GameController {
     private final GameService gameService;
     private final Map<GameType, GameRankService> gameRankServices;
     private final EmailService emailService;
+    private final GameScheduler gameScheduler;
 
     @PostMapping("/send")
     public ResponseEntity<String> sendEmail(@RequestBody EmailRequest request) {
@@ -67,6 +68,14 @@ public class GameController {
             gameRankServices.get(type).generateGame(oneWeekLater);
         }
         SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    //todo 삭제
+    @PostMapping("/test/start/{gameId}")
+    public ResponseEntity<?> testStartGame(@PathVariable Long gameId){
+        gameScheduler.testStart(gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 강제 시작 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

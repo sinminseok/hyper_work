@@ -133,7 +133,7 @@ public class GameHistory {
                 .done(false)
                 .rank(0)
                 .startAt(gameStartAt)
-                .endAt(gameStartAt);
+                .endAt(gameEndAt);
 
         if (averageBpm != null) {
             builder.targetBpm(averageBpm);
