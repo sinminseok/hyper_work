@@ -56,18 +56,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     }
     public void checkAccessTokenAndAuthentication(HttpServletRequest request, HttpServletResponse response,
                                                   FilterChain filterChain) throws ServletException, IOException {
+
         jwtService.extractAccessToken(request)
                 .ifPresent(accessToken -> {
                     try {
-                        // isTokenValid 호출 시 예외 처리
                         jwtService.isTokenValid(accessToken);
+
                         jwtService.extractEmail(accessToken)
-                                .ifPresent(email -> userRepository.findByEmail(email)
-                                        .ifPresent(this::saveAuthentication));
+                                .ifPresent(email -> {
+                                    userRepository.findByEmail(email)
+                                            .ifPresent(user -> {
+                                                saveAuthentication(user);
+                                            });
+                                });
                     } catch (Exception e) {
+                        log.error("Token validation failed: {}", e.getMessage());
                         throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "유효하지 않는 토큰입니다.");
                     }
                 });
+
 
         filterChain.doFilter(request, response);
     }
@@ -76,8 +83,10 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         CustomUserDetails userDetailsUser = new CustomUserDetails(
                 user.getId(),
                 user.getEmail(),
-                user.getPassword()
+                user.getPassword(),
+                user.getRole()
         );
+
 
         Authentication authentication = new UsernamePasswordAuthenticationToken(
                 userDetailsUser,

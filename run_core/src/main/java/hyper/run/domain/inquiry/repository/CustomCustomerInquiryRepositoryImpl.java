@@ -1,4 +1,4 @@
-package hyper.run.domain.inquiry.repository.custom;
+package hyper.run.domain.inquiry.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;

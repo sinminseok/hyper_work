@@ -1,4 +1,4 @@
-package hyper.run.domain.payment.repository.impl;
+package hyper.run.domain.payment.repository;
 
 import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.types.Order;
@@ -11,7 +11,6 @@ import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
-import hyper.run.domain.user.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;

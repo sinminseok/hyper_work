@@ -11,8 +11,8 @@ cloud:
       enabled: true
       region: ap-northeast-2
       queue:
-        payment-created: ${AWS_SQS_PAYMENT_CREATED_QUEUE_NAME:PROD-payment-created-queue}
-        game-finished: ${AWS_SQS_GAME_FINISHED_QUEUE_NAME:PROD-game-finished-queue}
+        payment-created: ${AWS_SQS_PAYMENT_CREATED_QUEUE_NAME:payment-created-queue}
+        game-finished: ${AWS_SQS_GAME_FINISHED_QUEUE_NAME:game-finished-queue}
       listener:
         max-concurrent-messages: 20
         max-messages-per-poll: 10

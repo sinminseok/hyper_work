@@ -52,6 +52,11 @@ public class User extends BaseTimeEntity<User> {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
+    @Builder.Default
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.GENERAL;
+
     @Column(name = "coupon", nullable = false)
     private int coupon;
 

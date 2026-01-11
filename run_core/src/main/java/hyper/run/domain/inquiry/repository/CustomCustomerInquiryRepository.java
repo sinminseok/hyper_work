@@ -1,4 +1,4 @@
-package hyper.run.domain.inquiry.repository.custom;
+package hyper.run.domain.inquiry.repository;
 
 import hyper.run.domain.inquiry.dto.request.InquirySearchRequest;
 import hyper.run.domain.inquiry.dto.response.CustomerInquiryResponse;

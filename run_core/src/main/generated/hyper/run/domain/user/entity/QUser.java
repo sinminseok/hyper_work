@@ -56,6 +56,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath refreshToken = createString("refreshToken");
 
+    public final EnumPath<Role> role = createEnum("role", Role.class);
+
     public final StringPath watchConnectedKey = createString("watchConnectedKey");
 
     public final StringPath watchRefreshToken = createString("watchRefreshToken");

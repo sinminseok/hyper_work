@@ -1,4 +1,4 @@
-package hyper.run.domain.payment.repository.impl;
+package hyper.run.domain.payment.repository;
 
 import hyper.run.domain.payment.dto.request.PaymentSearchRequest;
 import hyper.run.domain.payment.dto.response.AdminPaymentResponse;
