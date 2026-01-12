@@ -126,9 +126,6 @@ public class User extends BaseTimeEntity<User> {
         this.coupon += amount;
     }
 
-    public void chargeCoupon(final int amount){
-        this.coupon += amount;
-    }
 
     public void validateCouponAmount(){
         if(coupon < 1) {

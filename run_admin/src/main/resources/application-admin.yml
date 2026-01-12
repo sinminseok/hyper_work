@@ -1,3 +1,20 @@
+server:
+  port: 8082
+  servlet:
+    session:
+      timeout: 30m
+  tomcat:
+    threads:
+      max: 100
+      min-spare: 10
+      max-queue-capacity: 500
+    max-connections: 5000
+    accept-count: 250
+    connection-timeout: 60000
+    keep-alive-timeout: 30000
+    max-http-header-size: 8192
+    max-keep-alive-requests: 100
+
 spring:
   mail:
     host: smtp.naver.com
@@ -20,11 +37,10 @@ spring:
     multipart:
       max-file-size: 10MB
       max-request-size: 10MB
-  server:
-    port: 8080
-    address: 0.0.0.0
+
   jackson:
     time-zone: Asia/Seoul
+
   config:
     import:
       - optional:file:.env[.properties]
@@ -68,6 +84,12 @@ spring:
       sns:
         enabled: false  # SNS Auto-configuration 비활성화
 
+  thymeleaf:
+    prefix: classpath:/templates/
+    suffix: .html
+    cache: false
+    encoding: UTF-8
+
 redis:
   host: ${REDIS_HOST}
   port: 6379
@@ -104,20 +126,6 @@ domain:
     publish: /pub
     subscribe: /sub
 
-
-server:
-  tomcat:
-    threads:
-      max: 100
-      min-spare: 10
-      max-queue-capacity: 500
-    max-connections: 5000
-    accept-count: 250
-    connection-timeout: 60000
-    keep-alive-timeout: 30000
-    max-http-header-size: 8192
-    max-keep-alive-requests: 100
-
 cloud:
   aws:
     credentials:
@@ -134,12 +142,8 @@ admin:
     email: ${ADMIN_INITIAL_EMAIL}
     password: ${ADMIN_INITIAL_PASSWORD}
 
+
 logging:
   level:
-    org.springframework.security: DEBUG
     hyper.run: DEBUG
-
-
-
-
-
+    org.springframework.security: DEBUG

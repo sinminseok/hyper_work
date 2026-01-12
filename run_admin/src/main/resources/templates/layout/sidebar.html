@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+</head>
+<body>
+<div th:fragment="sidebar" class="sidebar">
+    <style>
+        .sidebar {
+            width: 260px;
+            height: 100vh;
+            background: linear-gradient(180deg, #1a1e2e 0%, #16213e 100%);
+            position: fixed;
+            left: 0;
+            top: 0;
+            box-shadow: 4px 0 15px rgba(0, 0, 0, 0.2);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        /* 로고 영역 */
+        .sidebar-header {
+            padding: 25px 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .brand-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+
+        .brand-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .brand-text {
+            flex: 1;
+        }
+
+        .brand-title {
+            color: #ffffff;
+            font-size: 18px;
+            font-weight: 700;
+            line-height: 1.2;
+        }
+
+        .brand-subtitle {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        /* 사용자 정보 */
+        .sidebar-user {
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .user-info-container {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 38px;
+            height: 38px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 600;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+
+        .user-details {
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .user-name {
+            color: #ffffff;
+            font-size: 13px;
+            font-weight: 600;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .user-role {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 11px;
+            margin-top: 2px;
+        }
+
+        /* 메뉴 */
+        .sidebar-menu {
+            list-style: none;
+            padding: 15px 0;
+            margin: 0;
+            flex: 1;
+        }
+
+        .menu-section-title {
+            padding: 15px 20px 10px 20px;
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 11px;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .sidebar-menu li {
+            margin: 0;
+            padding: 0 10px;
+        }
+
+        .sidebar-menu a {
+            display: flex;
+            align-items: center;
+            padding: 12px 15px;
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 8px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .sidebar-menu a::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 3px;
+            height: 0;
+            background: linear-gradient(180deg, #667eea 0%, #764ba2 100%);
+            border-radius: 0 3px 3px 0;
+            transition: height 0.3s ease;
+        }
+
+        .sidebar-menu a:hover {
+            background: rgba(255, 255, 255, 0.08);
+            color: #ffffff;
+            padding-left: 20px;
+        }
+
+        .sidebar-menu a:hover::before {
+            height: 60%;
+        }
+
+        .sidebar-menu a.active {
+            background: rgba(102, 126, 234, 0.15);
+            color: #ffffff;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .sidebar-menu a.active::before {
+            height: 80%;
+        }
+
+        .menu-icon {
+            width: 22px;
+            height: 22px;
+            margin-right: 12px;
+            font-size: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.3s ease;
+        }
+
+        .sidebar-menu a:hover .menu-icon {
+            transform: scale(1.15);
+        }
+
+        .menu-text {
+            flex: 1;
+        }
+
+        /* 하단 푸터 */
+        .sidebar-footer {
+            padding: 15px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .footer-text {
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 11px;
+            text-align: center;
+        }
+
+        .footer-version {
+            color: rgba(255, 255, 255, 0.2);
+            font-size: 10px;
+            text-align: center;
+            margin-top: 5px;
+        }
+
+        /* 스크롤바 스타일 */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .sidebar::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.1);
+        }
+
+        .sidebar::-webkit-scrollbar-thumb {
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+        }
+
+        .sidebar::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+    </style>
+    <!-- 로고 영역 -->
+    <div class="sidebar-header">
+        <div class="brand-container">
+            <div class="brand-icon">🏃</div>
+            <div class="brand-text">
+                <div class="brand-title">FunnyRun</div>
+                <div class="brand-subtitle">관리자 시스템</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 사용자 정보 -->
+    <div class="sidebar-user">
+        <div class="user-info-container">
+            <div class="user-avatar">👤</div>
+            <div class="user-details">
+                <div class="user-name" sec:authentication="name">관리자</div>
+                <div class="user-role">Administrator</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 메뉴 -->
+    <ul class="sidebar-menu">
+        <div class="menu-section-title">주요 메뉴</div>
+        <li>
+            <a th:href="@{/admin/games}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/games')} ? 'active' : ''">
+                <span class="menu-icon">🏃</span>
+                <span class="menu-text">경기 관리</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/admin/users}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/users')} ? 'active' : ''">
+                <span class="menu-icon">👥</span>
+                <span class="menu-text">사용자 관리</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/admin/payments}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/payments')} ? 'active' : ''">
+                <span class="menu-icon">💳</span>
+                <span class="menu-text">결제 관리</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/admin/exchanges}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/exchanges')} ? 'active' : ''">
+                <span class="menu-icon">💰</span>
+                <span class="menu-text">포인트 환전 관리</span>
+            </a>
+        </li>
+        <li>
+            <a th:href="@{/admin/support}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/support')} ? 'active' : ''">
+                <span class="menu-icon">💬</span>
+                <span class="menu-text">고객 지원</span>
+            </a>
+        </li>
+    </ul>
+
+    <!-- 푸터 -->
+    <div class="sidebar-footer">
+        <div class="footer-text">© 2026 FunnyRun</div>
+        <div class="footer-version">v1.0.0</div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,6 +1,5 @@
 package hyper.run.domain.game.consumer;
 
-import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.event.GameApplyEvent;
 import hyper.run.domain.game.repository.GameHistoryRepository;

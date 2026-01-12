@@ -1,5 +1,6 @@
 package hyper.run.domain.payment.service;
 
+import hyper.run.annotation.DistributionLock;
 import hyper.run.domain.payment.dto.request.PaymentRequest;
 
 import hyper.run.domain.payment.dto.response.PaymentResponse;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.swing.text.html.Option;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
@@ -33,8 +35,9 @@ public class PaymentService {
     /**
      * 결제 메서드
      */
-    @Transactional
+    @DistributionLock(key = "#email", prefix = "payment:", waitTime = 5, leaseTime = 3, timeUnit = TimeUnit.SECONDS, useTransaction = true)
     public void pay(final String email, final PaymentRequest request){
+        //todo 영수증 검사는 나중에 추가
         //appleReceiptService.verifyReceipt(request.getTransactionId(), request.getProductId(), request.getReceiptData());
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);

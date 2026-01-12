@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포인트 환전 관리</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: #ecf0f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-wrapper {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-navbar {
+            background: #34495e;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-navbar-item {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .top-navbar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .top-navbar-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .top-navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            padding: 6px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .page-breadcrumb {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .filter-box {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .form-table tr {
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .form-table th {
+            background: #f8f9fa;
+            padding: 12px 15px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            width: 150px;
+            border-right: 1px solid #ecf0f1;
+        }
+
+        .form-table td {
+            padding: 12px 15px;
+        }
+
+        .form-input,
+        .form-select {
+            padding: 8px 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 200px;
+        }
+
+        .form-input:focus,
+        .form-select:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .btn-primary {
+            padding: 8px 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+        }
+
+        .data-table-container {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .total-count {
+            font-size: 14px;
+            color: #2c3e50;
+            font-weight: 600;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            border: 1px solid #dfe6e9;
+        }
+
+        .data-table thead {
+            background: #f8f9fa;
+        }
+
+        .data-table th {
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 13px;
+            color: #2c3e50;
+            border-bottom: 2px solid #dfe6e9;
+        }
+
+        .data-table td {
+            padding: 12px;
+            font-size: 13px;
+            color: #2c3e50;
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .data-table tbody tr:hover {
+            background: #f8f9fa;
+            cursor: pointer;
+        }
+
+        .exchange-link {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 500;
+        }
+
+        .exchange-link:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 3px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .status-requested {
+            background: #fff3cd;
+            color: #f39c12;
+        }
+
+        .status-cancelled {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: center;
+            gap: 5px;
+            padding: 20px 0;
+        }
+
+        .page-btn {
+            padding: 6px 12px;
+            background: white;
+            border: 1px solid #dfe6e9;
+            cursor: pointer;
+            font-size: 13px;
+            color: #2c3e50;
+        }
+
+        .page-btn:hover {
+            background: #f8f9fa;
+        }
+
+        .page-btn.active {
+            background: #3498db;
+            color: white;
+            border-color: #3498db;
+        }
+
+        .page-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+    <div class="top-navbar">
+        <div class="top-navbar-left">
+            <span class="top-navbar-item">포인트 환전 관리</span>
+        </div>
+        <div class="top-navbar-right">
+            <span class="top-navbar-item" sec:authentication="name">관리자</span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title">포인트 환전 관리</div>
+            <div class="page-breadcrumb">홈 > 포인트 환전 관리 > 목록</div>
+        </div>
+
+        <!-- 필터 박스 -->
+        <form th:action="@{/admin/exchanges}" method="get" id="filterForm">
+            <div class="filter-box">
+                <table class="form-table">
+                    <tr>
+                        <th>날짜 범위</th>
+                        <td>
+                            <input type="date" name="startDate" class="form-input" th:value="${startDate}">
+                            ~
+                            <input type="date" name="endDate" class="form-input" th:value="${endDate}">
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>환전 상태</th>
+                        <td>
+                            <select name="filterStatus" class="form-select">
+                                <option value="ALL" th:selected="${filterStatus == 'ALL'}">전체</option>
+                                <option value="REQUESTED" th:selected="${filterStatus == 'REQUESTED'}">신청됨</option>
+                                <option value="COMPLETED" th:selected="${filterStatus == 'COMPLETED'}">완료됨</option>
+                                <option value="CANCELLED" th:selected="${filterStatus == 'CANCELLED'}">취소됨</option>
+                            </select>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th></th>
+                        <td>
+                            <button type="submit" class="btn-primary">검색</button>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </form>
+
+        <div class="data-table-container">
+            <div class="table-header">
+                <div class="total-count">총 <strong th:text="${exchanges.totalElements}">0</strong>건</div>
+            </div>
+
+            <table class="data-table">
+                <thead>
+                <tr>
+                    <th style="width: 80px;">번호</th>
+                    <th style="width: 150px;">신청일</th>
+                    <th style="width: 120px;">환전 금액</th>
+                    <th style="width: 200px;">신청자 이메일</th>
+                    <th style="width: 120px;">신청자 이름</th>
+                    <th style="width: 120px;">환전 상태</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="exchange, iterStat : ${exchanges.content}"
+                    th:onclick="|location.href='@{/admin/exchanges/{id}(id=${exchange.id})}'|"
+                    style="cursor: pointer;">
+                    <td th:text="${exchanges.number * exchanges.size + iterStat.count}">1</td>
+                    <td th:text="${exchange.createdAtFormatted}">2025-01-10 10:00</td>
+                    <td th:text="${#numbers.formatDecimal(exchange.amount, 0, 'COMMA', 0, 'POINT') + '원'}">10,000원</td>
+                    <td th:text="${exchange.userEmail}">user@example.com</td>
+                    <td th:text="${exchange.userName}">홍길동</td>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${exchange.status.name() == 'REQUESTED'} ? 'status-requested' :
+                                             (${exchange.status.name() == 'CANCELLED'} ? 'status-cancelled' : 'status-completed')"
+                              th:text="${exchange.statusName}">
+                            신청됨
+                        </span>
+                    </td>
+                </tr>
+                <tr th:if="${exchanges.empty}">
+                    <td colspan="6" style="text-align: center; padding: 40px; color: #95a5a6;">조회된 환전 신청이 없습니다.</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <div class="pagination" th:if="${!exchanges.empty}">
+                <!-- 이전 페이지 버튼 -->
+                <button class="page-btn"
+                        th:disabled="${exchanges.first}"
+                        th:onclick="|goToPage(${exchanges.number - 1})|">◀</button>
+
+                <!-- 이전 10개 그룹으로 이동 -->
+                <th:block th:with="currentGroup=${exchanges.number / 10}, startPage=${currentGroup * 10}">
+                    <button class="page-btn"
+                            th:if="${startPage > 0}"
+                            th:onclick="|goToPage(${startPage - 1})|">...</button>
+
+                    <!-- 현재 그룹의 페이지 번호들 (최대 10개) -->
+                    <th:block th:with="endPage=${T(java.lang.Math).min(startPage + 9, exchanges.totalPages - 1)}">
+                        <th:block th:each="i : ${#numbers.sequence(startPage, endPage)}">
+                            <button class="page-btn"
+                                    th:classappend="${i == exchanges.number} ? 'active' : ''"
+                                    th:text="${i + 1}"
+                                    th:onclick="|goToPage(${i})|">1</button>
+                        </th:block>
+                    </th:block>
+
+                    <!-- 다음 10개 그룹으로 이동 -->
+                    <th:block th:with="endPage=${T(java.lang.Math).min(startPage + 9, exchanges.totalPages - 1)}">
+                        <button class="page-btn"
+                                th:if="${endPage < exchanges.totalPages - 1}"
+                                th:onclick="|goToPage(${endPage + 1})|">...</button>
+                    </th:block>
+                </th:block>
+
+                <!-- 다음 페이지 버튼 -->
+                <button class="page-btn"
+                        th:disabled="${exchanges.last}"
+                        th:onclick="|goToPage(${exchanges.number + 1})|">▶</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function goToPage(pageNum) {
+        const form = document.getElementById('filterForm');
+        const pageInput = document.createElement('input');
+        pageInput.type = 'hidden';
+        pageInput.name = 'page';
+        pageInput.value = pageNum;
+        form.appendChild(pageInput);
+        form.submit();
+    }
+</script>
+</body>
+</html>

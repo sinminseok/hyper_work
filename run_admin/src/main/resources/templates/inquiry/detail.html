@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>문의 상세</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: #ecf0f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-wrapper {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-navbar {
+            background: #34495e;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-navbar-item {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .top-navbar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .top-navbar-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .top-navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            padding: 6px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .page-breadcrumb {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .detail-container {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+            margin-bottom: 20px;
+        }
+
+        .detail-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .btn-list {
+            padding: 8px 16px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-list:hover {
+            background: #7f8c8d;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .detail-table tr {
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .detail-table th {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            width: 200px;
+            border-right: 1px solid #ecf0f1;
+        }
+
+        .detail-table td {
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-success {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .status-waiting {
+            background: #fff3cd;
+            color: #f39c12;
+        }
+
+        .type-badge {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+            background: #e8f4f8;
+            color: #3498db;
+        }
+
+        .message-box {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 4px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .answer-section {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ecf0f1;
+        }
+
+        .answer-textarea {
+            width: 100%;
+            min-height: 150px;
+            padding: 12px;
+            border: 1px solid #dfe6e9;
+            border-radius: 4px;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .answer-textarea:focus {
+            outline: none;
+            border-color: #3498db;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 20px;
+        }
+
+        .btn-answer {
+            padding: 12px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .btn-answer:hover {
+            background: #229954;
+        }
+
+        .btn-delete {
+            padding: 12px 30px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .btn-delete:hover {
+            background: #c0392b;
+        }
+
+        .btn-answer:disabled,
+        .btn-delete:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* 모달 팝업 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .modal-content {
+            background-color: white;
+            margin: 15% auto;
+            padding: 30px;
+            border-radius: 8px;
+            width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .modal-body {
+            font-size: 14px;
+            color: #2c3e50;
+            margin-bottom: 25px;
+            text-align: center;
+            line-height: 1.6;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .modal-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .modal-btn-confirm {
+            background: #3498db;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #2980b9;
+        }
+
+        .modal-btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .info-text {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+    <div class="top-navbar">
+        <div class="top-navbar-left">
+            <span class="top-navbar-item">고객 지원 관리</span>
+        </div>
+        <div class="top-navbar-right">
+            <span class="top-navbar-item" sec:authentication="name">관리자</span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title">문의 상세</div>
+            <div class="page-breadcrumb">홈 > 고객 지원 > 상세</div>
+        </div>
+
+        <div class="detail-container">
+            <div class="detail-header">
+                <div class="detail-title">문의 정보</div>
+                <a th:href="@{/admin/support}" class="btn-list">목록으로</a>
+            </div>
+
+            <table class="detail-table">
+                <tr>
+                    <th>문의 ID</th>
+                    <td th:text="${inquiry.id}">1</td>
+                </tr>
+                <tr>
+                    <th>문의 상태</th>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${inquiry.state.name() == 'SUCCESS'} ? 'status-success' : 'status-waiting'"
+                              th:text="${inquiry.stateName}">
+                            문의중
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>문의 유형</th>
+                    <td>
+                        <span class="type-badge" th:text="${inquiry.typeName}">계정</span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>제목</th>
+                    <td th:text="${inquiry.title}">문의 제목</td>
+                </tr>
+                <tr>
+                    <th>문의 내용</th>
+                    <td>
+                        <div class="message-box" th:text="${inquiry.message}">문의 내용입니다.</div>
+                    </td>
+                </tr>
+                <tr>
+                    <th>문의일시</th>
+                    <td th:text="${inquiry.createdAtFormatted}">2025-01-10 10:00</td>
+                </tr>
+                <tr th:if="${inquiry.answer != null}">
+                    <th>답변 내용</th>
+                    <td>
+                        <div class="message-box" th:text="${inquiry.answer}">답변 내용입니다.</div>
+                    </td>
+                </tr>
+                <tr th:if="${inquiry.answer != null}">
+                    <th>답변일시</th>
+                    <td th:text="${inquiry.updatedAtFormatted}">2025-01-10 12:00</td>
+                </tr>
+            </table>
+
+            <table class="detail-table" style="margin-top: 30px;">
+                <tr>
+                    <th>사용자 ID</th>
+                    <td th:text="${inquiry.userId}">1</td>
+                </tr>
+                <tr>
+                    <th>사용자 이름</th>
+                    <td th:text="${inquiry.userName}">홍길동</td>
+                </tr>
+                <tr>
+                    <th>이메일</th>
+                    <td th:text="${inquiry.email}">user@example.com</td>
+                </tr>
+                <tr>
+                    <th>연락처</th>
+                    <td th:text="${inquiry.phoneNumber}">010-1234-5678</td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="answer-section" th:if="${inquiry.state.name() == 'WAITING'}">
+            <div class="section-title">답변 작성</div>
+            <textarea id="answerContent" class="answer-textarea" placeholder="답변 내용을 입력하세요..."></textarea>
+            <div class="action-buttons">
+                <button type="button" class="btn-answer" onclick="showAnswerConfirmModal()">답변하기</button>
+                <button type="button" class="btn-delete" onclick="showDeleteConfirmModal()">삭제</button>
+            </div>
+        </div>
+
+        <div class="detail-container" th:if="${inquiry.state.name() == 'SUCCESS'}">
+            <div class="info-text">이미 답변이 완료된 문의입니다.</div>
+            <div class="action-buttons">
+                <button type="button" class="btn-delete" onclick="showDeleteConfirmModal()">삭제</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 답변 확인 모달 -->
+<div id="answerModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">답변 전송 확인</div>
+        <div class="modal-body">
+            이 문의에 답변을 전송하시겠습니까?<br>
+            답변은 사용자 이메일로 전송됩니다.
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-confirm" onclick="sendAnswer()">확인</button>
+            <button class="modal-btn modal-btn-cancel" onclick="closeAnswerModal()">취소</button>
+        </div>
+    </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div id="deleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">문의 삭제 확인</div>
+        <div class="modal-body">
+            이 문의를 삭제하시겠습니까?<br>
+            삭제된 문의는 복구할 수 없습니다.
+        </div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-confirm" onclick="deleteInquiry()">확인</button>
+            <button class="modal-btn modal-btn-cancel" onclick="closeDeleteModal()">취소</button>
+        </div>
+    </div>
+</div>
+
+<!-- 완료 모달 -->
+<div id="successModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">완료</div>
+        <div class="modal-body" id="successMessage"></div>
+        <div class="modal-buttons">
+            <button class="modal-btn modal-btn-confirm" onclick="closeSuccessModal()">확인</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const inquiryId = /*[[${inquiry.id}]]*/ 1;
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+    function showAnswerConfirmModal() {
+        const answer = document.getElementById('answerContent').value.trim();
+        if (!answer) {
+            alert('답변 내용을 입력해주세요.');
+            return;
+        }
+        document.getElementById('answerModal').style.display = 'block';
+    }
+
+    function closeAnswerModal() {
+        document.getElementById('answerModal').style.display = 'none';
+    }
+
+    function showDeleteConfirmModal() {
+        document.getElementById('deleteModal').style.display = 'block';
+    }
+
+    function closeDeleteModal() {
+        document.getElementById('deleteModal').style.display = 'none';
+    }
+
+    function showSuccessModal(message) {
+        document.getElementById('successMessage').textContent = message;
+        document.getElementById('successModal').style.display = 'block';
+    }
+
+    function closeSuccessModal() {
+        document.getElementById('successModal').style.display = 'none';
+        location.reload();
+    }
+
+    function sendAnswer() {
+        const answer = document.getElementById('answerContent').value.trim();
+
+        const formData = new URLSearchParams();
+        formData.append('answer', answer);
+
+        fetch(`/admin/support/${inquiryId}/answer`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                [csrfHeader]: csrfToken
+            },
+            body: formData
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeAnswerModal();
+                    showSuccessModal('답변이 성공적으로 전송되었습니다.');
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text || '답변 전송 중 오류가 발생했습니다.');
+                    });
+                }
+            })
+            .catch(error => {
+                closeAnswerModal();
+                alert(error.message);
+            });
+    }
+
+    function deleteInquiry() {
+        fetch(`/admin/support/${inquiryId}/delete`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    closeDeleteModal();
+                    showSuccessModal('문의가 삭제되었습니다.');
+                    setTimeout(() => {
+                        window.location.href = '/admin/support';
+                    }, 1500);
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text || '삭제 중 오류가 발생했습니다.');
+                    });
+                }
+            })
+            .catch(error => {
+                closeDeleteModal();
+                alert(error.message);
+            });
+    }
+
+    // 모달 외부 클릭시 닫기
+    window.onclick = function(event) {
+        if (event.target.classList.contains('modal')) {
+            event.target.style.display = 'none';
+        }
+    }
+</script>
+</body>
+</html>

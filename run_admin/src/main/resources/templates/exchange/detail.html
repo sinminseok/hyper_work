@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>환전 신청 상세</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Malgun Gothic', sans-serif;
+            background: #ecf0f1;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-wrapper {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .top-navbar {
+            background: #34495e;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .top-navbar-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .top-navbar-item {
+            color: #ecf0f1;
+            text-decoration: none;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 500;
+            border-radius: 4px;
+            transition: background 0.2s;
+        }
+
+        .top-navbar-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .top-navbar-item.active {
+            background: #3498db;
+            color: white;
+        }
+
+        .top-navbar-right {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .btn-logout {
+            padding: 6px 16px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .content-area {
+            flex: 1;
+            padding: 20px;
+        }
+
+        .page-header {
+            background: white;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .page-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 5px;
+        }
+
+        .page-breadcrumb {
+            font-size: 13px;
+            color: #7f8c8d;
+        }
+
+        .detail-container {
+            background: white;
+            padding: 20px;
+            border-radius: 4px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .detail-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #ecf0f1;
+            margin-bottom: 20px;
+        }
+
+        .detail-title {
+            font-size: 18px;
+            font-weight: 700;
+            color: #2c3e50;
+        }
+
+        .btn-list {
+            padding: 8px 16px;
+            background: #95a5a6;
+            color: white;
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-list:hover {
+            background: #7f8c8d;
+        }
+
+        .detail-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 30px;
+        }
+
+        .detail-table tr {
+            border-bottom: 1px solid #ecf0f1;
+        }
+
+        .detail-table th {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 14px;
+            color: #2c3e50;
+            width: 200px;
+            border-right: 1px solid #ecf0f1;
+        }
+
+        .detail-table td {
+            padding: 15px 20px;
+            font-size: 14px;
+            color: #2c3e50;
+        }
+
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-requested {
+            background: #fff3cd;
+            color: #f39c12;
+        }
+
+        .status-cancelled {
+            background: #fadbd8;
+            color: #e74c3c;
+        }
+
+        .status-completed {
+            background: #d5f4e6;
+            color: #27ae60;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            padding-top: 20px;
+            border-top: 2px solid #ecf0f1;
+        }
+
+        .btn-approve {
+            padding: 12px 30px;
+            background: #27ae60;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .btn-approve:hover {
+            background: #229954;
+        }
+
+        .btn-reject {
+            padding: 12px 30px;
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .btn-reject:hover {
+            background: #c0392b;
+        }
+
+        .btn-approve:disabled,
+        .btn-reject:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .info-text {
+            color: #7f8c8d;
+            font-size: 13px;
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.2s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background-color: white;
+            border-radius: 8px;
+            padding: 0;
+            width: 90%;
+            max-width: 400px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            animation: slideDown 0.3s;
+        }
+
+        .modal-header {
+            background: #34495e;
+            color: white;
+            padding: 16px 20px;
+            font-size: 18px;
+            font-weight: 600;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .modal-body {
+            padding: 24px 20px;
+            font-size: 15px;
+            line-height: 1.6;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        .modal-footer {
+            padding: 16px 20px;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            border-top: 1px solid #ecf0f1;
+        }
+
+        .modal-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .modal-btn-cancel {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #7f8c8d;
+        }
+
+        .modal-btn-confirm {
+            background: #27ae60;
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            background: #229954;
+        }
+
+        .modal-btn-reject {
+            background: #e74c3c;
+            color: white;
+        }
+
+        .modal-btn-reject:hover {
+            background: #c0392b;
+        }
+
+        .modal-btn-ok {
+            background: #3498db;
+            color: white;
+        }
+
+        .modal-btn-ok:hover {
+            background: #2980b9;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDown {
+            from {
+                transform: translateY(-50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+    <div class="top-navbar">
+        <div class="top-navbar-left">
+            <span class="top-navbar-item">포인트 환전 관리</span>
+        </div>
+        <div class="top-navbar-right">
+            <span class="top-navbar-item" sec:authentication="name">관리자</span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-area">
+        <div class="page-header">
+            <div class="page-title">환전 신청 상세</div>
+            <div class="page-breadcrumb">홈 > 포인트 환전 관리 > 상세</div>
+        </div>
+
+        <div class="detail-container">
+            <div class="detail-header">
+                <div class="detail-title">환전 신청 정보</div>
+                <a th:href="@{/admin/exchanges}" class="btn-list">목록으로</a>
+            </div>
+
+            <table class="detail-table">
+                <tr>
+                    <th>환전 ID</th>
+                    <td th:text="${exchange.id}">1</td>
+                </tr>
+                <tr>
+                    <th>환전 상태</th>
+                    <td>
+                        <span class="status-badge"
+                              th:classappend="${exchange.status.name() == 'REQUESTED'} ? 'status-requested' :
+                                             (${exchange.status.name() == 'CANCELLED'} ? 'status-cancelled' : 'status-completed')"
+                              th:text="${exchange.statusName}">
+                            신청됨
+                        </span>
+                    </td>
+                </tr>
+                <tr>
+                    <th>환전 금액</th>
+                    <td th:text="${#numbers.formatDecimal(exchange.amount, 0, 'COMMA', 0, 'POINT') + '원'}">10,000원</td>
+                </tr>
+                <tr>
+                    <th>은행명</th>
+                    <td th:text="${exchange.bankName}">국민은행</td>
+                </tr>
+                <tr>
+                    <th>계좌번호</th>
+                    <td th:text="${exchange.accountNumber}">123-456-789</td>
+                </tr>
+                <tr>
+                    <th>신청일시</th>
+                    <td th:text="${exchange.createdAtFormatted}">2025-01-10 10:00</td>
+                </tr>
+                <tr>
+                    <th>최종 수정일시</th>
+                    <td th:text="${exchange.updatedAtFormatted}">2025-01-10 10:00</td>
+                </tr>
+            </table>
+
+            <table class="detail-table" style="margin-top: 30px;">
+                <tr>
+                    <th>사용자 ID</th>
+                    <td th:text="${exchange.userId}">1</td>
+                </tr>
+                <tr>
+                    <th>사용자 이메일</th>
+                    <td th:text="${exchange.userEmail}">user@example.com</td>
+                </tr>
+                <tr>
+                    <th>사용자 이름</th>
+                    <td th:text="${exchange.userName}">홍길동</td>
+                </tr>
+                <tr>
+                    <th>사용자 연락처</th>
+                    <td th:text="${exchange.userPhoneNumber}">010-1234-5678</td>
+                </tr>
+            </table>
+
+            <div class="action-buttons" th:if="${exchange.status.name() == 'REQUESTED'}">
+                <button type="button" class="btn-approve" onclick="approveExchange()">승인</button>
+                <button type="button" class="btn-reject" onclick="rejectExchange()">거절</button>
+            </div>
+
+            <div class="info-text" th:if="${exchange.status.name() != 'REQUESTED'}">
+                <span th:if="${exchange.status.name() == 'COMPLETED'}">이미 승인된 환전 신청입니다.</span>
+                <span th:if="${exchange.status.name() == 'CANCELLED'}">이미 거절된 환전 신청입니다.</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 승인 확인 모달 -->
+<div id="approveConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">환전 승인 확인</div>
+        <div class="modal-body">
+            환전 신청을 승인하시겠습니까?<br>
+            승인 시 사용자에게 환전 금액이 지급됩니다.
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" onclick="hideApproveConfirm()">아니요</button>
+            <button class="modal-btn modal-btn-confirm" onclick="confirmApproveExchange()">예, 승인합니다</button>
+        </div>
+    </div>
+</div>
+
+<!-- 거절 확인 모달 -->
+<div id="rejectConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">환전 거절 확인</div>
+        <div class="modal-body">
+            환전 신청을 거절하시겠습니까?<br>
+            거절 시 사용자의 포인트가 복구됩니다.
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" onclick="hideRejectConfirm()">아니요</button>
+            <button class="modal-btn modal-btn-reject" onclick="confirmRejectExchange()">예, 거절합니다</button>
+        </div>
+    </div>
+</div>
+
+<!-- 완료 모달 -->
+<div id="completeModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header" id="completeModalHeader">완료</div>
+        <div class="modal-body" id="completeModalBody">
+            처리가 완료되었습니다.
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-ok" onclick="goToList()">확인</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const exchangeId = /*[[${exchange.id}]]*/ 1;
+    const csrfToken = /*[[${_csrf.token}]]*/ '';
+    const csrfHeader = /*[[${_csrf.headerName}]]*/ '';
+
+    // 모달 표시/숨김 함수
+    function showApproveConfirm() {
+        document.getElementById('approveConfirmModal').classList.add('show');
+    }
+
+    function hideApproveConfirm() {
+        document.getElementById('approveConfirmModal').classList.remove('show');
+    }
+
+    function showRejectConfirm() {
+        document.getElementById('rejectConfirmModal').classList.add('show');
+    }
+
+    function hideRejectConfirm() {
+        document.getElementById('rejectConfirmModal').classList.remove('show');
+    }
+
+    function showComplete(title, message) {
+        document.getElementById('completeModalHeader').innerText = title;
+        document.getElementById('completeModalBody').innerText = message;
+        document.getElementById('completeModal').classList.add('show');
+    }
+
+    function goToList() {
+        window.location.href = '/admin/exchanges';
+    }
+
+    // 승인/거절 버튼 클릭 시 모달 표시
+    function approveExchange() {
+        showApproveConfirm();
+    }
+
+    function rejectExchange() {
+        showRejectConfirm();
+    }
+
+    // 실제 승인 처리
+    function confirmApproveExchange() {
+        fetch(`/admin/exchanges/${exchangeId}/approve`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    hideApproveConfirm();
+                    showComplete('환전 승인 완료', '환전 신청이 승인되었습니다.');
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text || '승인 처리 중 오류가 발생했습니다.');
+                    });
+                }
+            })
+            .catch(error => {
+                hideApproveConfirm();
+                alert(error.message);
+            });
+    }
+
+    // 실제 거절 처리
+    function confirmRejectExchange() {
+        fetch(`/admin/exchanges/${exchangeId}/reject`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                [csrfHeader]: csrfToken
+            }
+        })
+            .then(response => {
+                if (response.ok) {
+                    hideRejectConfirm();
+                    showComplete('환전 거절 완료', '환전 신청이 거절되었으며, 사용자의 포인트가 복구되었습니다.');
+                } else {
+                    return response.text().then(text => {
+                        throw new Error(text || '거절 처리 중 오류가 발생했습니다.');
+                    });
+                }
+            })
+            .catch(error => {
+                hideRejectConfirm();
+                alert(error.message);
+            });
+    }
+</script>
+</body>
+</html>

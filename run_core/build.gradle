@@ -81,6 +81,12 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sns'
 
+    // Redisson (Redis 분산락)
+    implementation 'org.redisson:redisson-spring-boot-starter:3.25.2'
+
+    // Spring AOP
+    implementation 'org.springframework.boot:spring-boot-starter-aop'
+
 }
 
 // [3] Querydsl 설정부

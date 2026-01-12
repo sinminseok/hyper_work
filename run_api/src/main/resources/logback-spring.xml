@@ -9,6 +9,8 @@
 
     <!-- CloudWatch Logs Appender - Application Log -->
     <appender name="CLOUDWATCH_APP" class="ca.pjer.logback.AwsLogsAppender">
+        <awsAccessKey>${AWS_S3_ACCESS_KEY}</awsAccessKey>
+        <awsSecretKey>${AWS_S3_SECRET_KEY}</awsSecretKey>
         <logGroupName>/funnyrun/application</logGroupName>
         <logStreamName>%d{yyyy/MM/dd}/app</logStreamName>
         <logRegion>ap-northeast-2</logRegion>
@@ -23,6 +25,8 @@
 
     <!-- CloudWatch Logs Appender - Error Log -->
     <appender name="CLOUDWATCH_ERROR" class="ca.pjer.logback.AwsLogsAppender">
+        <awsAccessKey>${AWS_S3_ACCESS_KEY}</awsAccessKey>
+        <awsSecretKey>${AWS_S3_SECRET_KEY}</awsSecretKey>
         <logGroupName>/funnyrun/error</logGroupName>
         <logStreamName>%d{yyyy/MM/dd}/error</logStreamName>
         <logRegion>ap-northeast-2</logRegion>

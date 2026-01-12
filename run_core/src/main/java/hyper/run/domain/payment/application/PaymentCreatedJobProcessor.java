@@ -40,7 +40,6 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
                     .orElseThrow(() -> new IllegalStateException("OutboxEvent not found: " + outboxEventId));
 
             if (outboxEvent.isPublished()) {
-                log.info("Already processed. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId());
                 return;
             }
 
@@ -49,8 +48,6 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
                     .orElseThrow(() -> new IllegalStateException("Payment not found: " + message.getPaymentId()));
 
             if (payment.getState() != PaymentState.PENDING) {
-                log.info("Payment already processed. outboxEventId: {}, paymentId: {}, state: {}",
-                        outboxEventId, message.getPaymentId(), payment.getState());
                 outboxEvent.publish();
                 return;
             }
@@ -70,8 +67,6 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
 
             // STEP 5: OutboxEvent 완료 처리
             outboxEvent.publish();
-
-            log.info("Payment processed successfully. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId());
 
         } catch (Exception e) {
             log.error("Failed to process payment. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId(), e);
