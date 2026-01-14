@@ -16,6 +16,9 @@ import java.util.List;
 
 import static hyper.run.domain.game.service.helper.GameHelper.createGame;
 
+/**
+ * 사용자가 설정한 케이던스와 가까울 수록 이기는 경기
+ */
 @Service
 public class CadenceRankService extends AbstractGameRankService {
 

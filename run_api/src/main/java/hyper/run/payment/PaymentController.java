@@ -27,16 +27,16 @@ public class PaymentController {
      */
     @PostMapping
     public ResponseEntity<?> buyCoupons(@RequestBody PaymentRequest request) {
-        String email = getLoginEmailBySecurityContext();
-        paymentService.pay(email, request);
+        Long userId = getLoginUserIdBySecurityContext();
+        paymentService.pay(userId, request);
         SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @PostMapping("/in-app/apple")
     public ResponseEntity<?> inAppApple(@RequestBody PaymentRequest request) {
-        String email = getLoginEmailBySecurityContext();
-        paymentService.pay(email, request);
+        Long userId = getLoginUserIdBySecurityContext();
+        paymentService.pay(userId, request);
         SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

@@ -14,5 +14,6 @@ public class ErrorMessages {
     public static String INVALID_APPLE_RECEIPT = "유효하지 않은 Apple 영수증입니다.";
     public static String DUPLICATED_APPLE_TRANSACTION = "이미 처리된 Apple 거래입니다.";
     public static String APPLE_RECEIPT_VERIFICATION_FAILED = "Apple 영수증 검증에 실패했습니다.";
+    public static String NOT_EXIST_OUTBOX_EVENT_ID = "존재하지 않는 OutboxEvent Id 입니다.";
 
 }

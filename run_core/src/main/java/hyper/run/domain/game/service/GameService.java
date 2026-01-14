@@ -42,6 +42,7 @@ public class GameService {
     private final GameRepositoryCustom gameRepositoryCustom;
     private final Map<GameType, GameRankService> gameRankServices;
 
+    //todo 삭제
     @Transactional
     public void test() {
         for(GameType type : GameType.values()) {

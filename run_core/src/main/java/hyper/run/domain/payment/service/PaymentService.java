@@ -35,11 +35,11 @@ public class PaymentService {
     /**
      * 결제 메서드
      */
-    @DistributionLock(key = "#email", prefix = "payment:", waitTime = 5, leaseTime = 3, timeUnit = TimeUnit.SECONDS, useTransaction = true)
-    public void pay(final String email, final PaymentRequest request){
+    @Transactional
+    public void pay(final Long userId, final PaymentRequest request){
         //todo 영수증 검사는 나중에 추가
         //appleReceiptService.verifyReceipt(request.getTransactionId(), request.getProductId(), request.getReceiptData());
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         repository.save(payment);
     }

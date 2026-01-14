@@ -5,6 +5,8 @@ import hyper.run.domain.outbox.entity.OutboxCommittedEvent;
 import hyper.run.domain.outbox.entity.OutboxEvent;
 import hyper.run.common.enums.JobType;
 import hyper.run.domain.outbox.repository.OutboxEventRepository;
+import hyper.run.exception.ErrorMessages;
+import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -13,6 +15,8 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import java.util.List;
+
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_OUTBOX_EVENT_ID;
 
 @Component
 @RequiredArgsConstructor
@@ -46,8 +50,7 @@ public class OutboxEventPublisher {
     @Transactional
     protected void markPublishedToQueue(String eventId) {
         try {
-            OutboxEvent event = outboxEventRepository.findById(eventId)
-                    .orElseThrow(() -> new IllegalStateException("OutboxEvent not found: " + eventId));
+            OutboxEvent event = OptionalUtil.getOrElseThrow(outboxEventRepository.findById(eventId), NOT_EXIST_OUTBOX_EVENT_ID);
             event.markPublishedToQueue();
             outboxEventRepository.save(event);
         } catch (Exception e) {

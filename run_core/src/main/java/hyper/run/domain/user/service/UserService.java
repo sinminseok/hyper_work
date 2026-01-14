@@ -1,24 +1,22 @@
 package hyper.run.domain.user.service;
 
-import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.entity.User;
+import hyper.run.domain.user.event.UserEditEvent;
+import hyper.run.domain.user.event.UserProfileImageEvent;
 import hyper.run.domain.user.repository.UserRepository;
-import hyper.run.exception.custom.UserDuplicatedException;
-import hyper.run.utils.FileService;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 
@@ -28,23 +26,17 @@ public class UserService {
     private static final String NONE = "NONE";
 
     private final UserRepository userRepository;
-    private final FileService fileService;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public void save(final UserSignupRequest userSignupRequest, final String encodePassword) {
-        validateDuplicatedEmail(userSignupRequest.getEmail());
-        validateDuplicatedPhoneNumber(userSignupRequest.getPhoneNumber());
         User user = userSignupRequest.toEntity(encodePassword);
         userRepository.save(user);
     }
 
     @Transactional
-    public void updateImage(String email, MultipartFile image){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        if (user.isExistProfile()) {
-            fileService.deleteFile(user.getProfileUrl());
-        }
-        user.setProfileUrl(uploadProfileImage(image));
+    public void updateImage(Long userId, MultipartFile image){
+        eventPublisher.publishEvent(new UserProfileImageEvent(userId, image));
     }
 
     @Transactional
@@ -63,9 +55,6 @@ public class UserService {
         return byPhoneNumber.isPresent();
     }
 
-    /**
-     * 휴대폰번호로 가입된 이메일(아이디) 찾는 메서드
-     */
     public String findEmailByPhoneNumber(final String phoneNumber){
         Optional<User> byPhoneNumber = userRepository.findByPhoneNumber(phoneNumber);
         if(byPhoneNumber.isPresent()){
@@ -74,30 +63,14 @@ public class UserService {
         return NONE;
     }
 
-    /**
-     * 내 프로필 조회 메서드
-     */
     public UserProfileResponse getMyProfile(final String email) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return UserProfileResponse.toProfileResponse(user);
     }
 
-    /**
-     * 내 잔여 쿠폰 조회 메서드
-     */
     public int getMyCouponAmount(final String email){
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
         return user.getCoupon();
-    }
-
-    /**
-     * 자신의 모든 결제 내역을 조회하는 메서드
-     */
-    public List<PaymentResponse> getMyPayments(final String email){
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        return user.getPayments().stream()
-                .map(p->PaymentResponse.toResponse(p))
-                .collect(Collectors.toList());
     }
 
     @Transactional
@@ -107,11 +80,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfile(String email, UserUpdateRequest userUpdateRequest) {
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        user.setBirth(userUpdateRequest.getBirth());
-        user.setName(userUpdateRequest.getName());
-        user.setPhoneNumber(userUpdateRequest.getPhoneNumber());
+    public void updateProfile(Long userId, UserUpdateRequest userUpdateRequest) {
+        eventPublisher.publishEvent(new UserEditEvent(userId,
+                userUpdateRequest.getName(),
+                userUpdateRequest.getPhoneNumber(),
+                userUpdateRequest.getBirth()));
     }
 
     public UserWatchConnectedResponse findUserWatchConnectedResponse(final String email){
@@ -132,24 +105,5 @@ public class UserService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
-    }
-
-
-    private void validateDuplicatedEmail(String email){
-        if(isExistEmail(email)){
-            throw new UserDuplicatedException("이미 가입된 이메일입니다.");
-        }
-    }
-
-    private void validateDuplicatedPhoneNumber(String number){
-        if(isExistPhoneNumber(number)){
-            throw new UserDuplicatedException("이미 가입된 휴대폰 번호입니다.");
-        }
-    }
-
-    private String uploadProfileImage(final MultipartFile image) {
-        String url = fileService.toUrls(image);
-        fileService.fileUpload(image, url);
-        return url;
     }
 }

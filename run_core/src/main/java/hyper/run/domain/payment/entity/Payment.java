@@ -70,7 +70,7 @@ public class Payment extends BaseTimeEntity<Payment> {
 
     @PostPersist
     private void publishPaymentCreatedEvent() {
-        registerEvent(PaymentCreatedEvent.from(this));
+        registerEvent(new PaymentCreatedEvent(this.id, this.user.getId()));
     }
 
     public void updateState(PaymentState updateState) {

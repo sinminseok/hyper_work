@@ -34,6 +34,6 @@ public interface GameRepository extends JpaRepository<Game, Long> {
     @Query("SELECT g FROM Game g WHERE g.startAt > :now ORDER BY g.totalPrize DESC LIMIT 3")
     List<Game> findTop3UpcomingGamesByTotalPrize(@Param("now") LocalDateTime now);
 
-    // 관리자용 페이지네이션 조회
     Page<Game> findAllByCreateDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
+
 }
