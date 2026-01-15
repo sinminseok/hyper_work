@@ -7,9 +7,11 @@ import hyper.run.common.job.JobEventPayload;
 import hyper.run.domain.game.event.GameFinishedMessage;
 import hyper.run.utils.SnsPublisherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "cloud.aws.sns.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class GameFinishedProcessor extends OutboxEventPublishProcessor {
 

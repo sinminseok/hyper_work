@@ -17,6 +17,15 @@ public interface GameRepositoryCustom {
             Pageable pageable
     );
 
+    Page<Game> findGamesForAdmin(
+            LocalDateTime startDateFrom,
+            LocalDateTime startDateTo,
+            GameType gameType,
+            GameDistance gameDistance,
+            String status,
+            Pageable pageable
+    );
+
     List<Game> findGamesOrderByPrizeWithoutCursor(LocalDateTime now, int limit);
 
     List<Game> findGamesOrderByPrizeWithCursor(LocalDateTime now, double cursorTotalPrize, Long cursorGameId, int limit);

@@ -7,36 +7,24 @@
         </encoder>
     </appender>
 
-    <!-- CloudWatch Logs Appender - Application Log -->
-    <appender name="CLOUDWATCH_APP" class="ca.pjer.logback.AwsLogsAppender">
-        <logGroupName>/funnyrun/application</logGroupName>
-        <logStreamName>%d{yyyy/MM/dd}/app</logStreamName>
+    <!-- CloudWatch Logs Appender - Error Log -->
+    <appender name="CLOUDWATCH_ERROR" class="ca.pjer.logback.AwsLogsAppender">
+        <awsAccessKey>${AWS_S3_ACCESS_KEY}</awsAccessKey>
+        <awsSecretKey>${AWS_S3_SECRET_KEY}</awsSecretKey>
+        <logGroupName>/funnyrun/error</logGroupName>
+        <logStreamName>error-%d{yyyy-MM-dd}</logStreamName>
         <logRegion>ap-northeast-2</logRegion>
         <maxBatchLogEvents>50</maxBatchLogEvents>
         <maxFlushTimeMillis>30000</maxFlushTimeMillis>
         <maxBlockTimeMillis>5000</maxBlockTimeMillis>
-        <retentionTimeDays>30</retentionTimeDays>
+        <retentionTimeDays>7</retentionTimeDays>
         <layout>
             <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
         </layout>
     </appender>
 
-    <!-- CloudWatch Logs Appender - Error Log -->
-    <appender name="CLOUDWATCH_ERROR" class="ca.pjer.logback.AwsLogsAppender">
-        <logGroupName>/funnyrun/error</logGroupName>
-        <logStreamName>%d{yyyy/MM/dd}/error</logStreamName>
-        <logRegion>ap-northeast-2</logRegion>
-        <maxBatchLogEvents>50</maxBatchLogEvents>
-        <maxFlushTimeMillis>30000</maxFlushTimeMillis>
-        <maxBlockTimeMillis>5000</maxBlockTimeMillis>
-        <retentionTimeDays>30</retentionTimeDays>
-        <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
-            <level>ERROR</level>
-        </filter>
-        <layout>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
-        </layout>
-    </appender>
+    <!-- WebSocket 통계 로그 비활성화 (모든 환경) -->
+    <logger name="org.springframework.web.socket.config.WebSocketMessageBrokerStats" level="OFF"/>
 
     <!-- 개발 환경 (dev, test) - Console만 사용 -->
     <springProfile name="dev,test">
@@ -45,11 +33,10 @@
         </root>
     </springProfile>
 
-    <!-- 운영 환경 (prod) - Console + CloudWatch -->
+    <!-- 운영 환경 (prod) - ERROR 레벨만 출력 + CloudWatch -->
     <springProfile name="prod">
-        <root level="INFO">
+        <root level="ERROR">
             <appender-ref ref="CONSOLE" />
-            <appender-ref ref="CLOUDWATCH_APP" />
             <appender-ref ref="CLOUDWATCH_ERROR" />
         </root>
     </springProfile>

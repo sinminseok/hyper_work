@@ -5,6 +5,7 @@ import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.payment.entity.Payment;
+import hyper.run.domain.user.event.UserCreateEvent;
 import hyper.run.exception.custom.InsufficientCouponException;
 import hyper.run.exception.custom.NotEnoughRefundAmount;
 import hyper.run.exception.custom.UserDuplicatedException;
@@ -52,6 +53,11 @@ public class User extends BaseTimeEntity<User> {
     @Enumerated(EnumType.STRING)
     private LoginType loginType;
 
+    @Builder.Default
+    @Column(name = "role", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private Role role = Role.GENERAL;
+
     @Column(name = "coupon", nullable = false)
     private int coupon;
 
@@ -85,6 +91,18 @@ public class User extends BaseTimeEntity<User> {
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<CustomerInquiry> inquiries = new ArrayList<>();
 
+    public User(String name, String birth, String email, String phoneNumber, LoginType loginType, String encodePassword) {
+        this.name = name;
+        this.birth = birth;
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.loginType = loginType;
+        this.password = encodePassword;
+        this.coupon = 0;
+        this.point = 0;
+        registerEvent(new UserCreateEvent(this));
+    }
+
     public void validateRefundPossible(final int couponCount){
         if(this.coupon < couponCount){
             throw new NotEnoughRefundAmount(NOT_ENOUGH_TO_REFUND_AMOUNT);
@@ -94,6 +112,12 @@ public class User extends BaseTimeEntity<User> {
     public void validateExchange(final double amount){
         if(this.point < amount){
             throw new NotEnoughRefundAmount(NOT_ENOUGH_TO_REFUND_AMOUNT);
+        }
+    }
+
+    public void validateCouponAmount(){
+        if(coupon < 1) {
+            throw new InsufficientCouponException(NOT_ENOUGH_COUPON_AMOUNT);
         }
     }
 
@@ -121,27 +145,9 @@ public class User extends BaseTimeEntity<User> {
         this.coupon += amount;
     }
 
-    public void chargeCoupon(final int amount){
-        this.coupon += amount;
-    }
 
-    public void validateCouponAmount(){
-        if(coupon < 1) {
-            throw new InsufficientCouponException(NOT_ENOUGH_COUPON_AMOUNT);
-        }
-    }
-
-    public void addPayment(Payment payment){
-        this.payments.add(payment);
-        payment.setUser(this); // 양방향 관계 유지
-    }
     public void updatePassword(final String encodePassword){
         this.password = encodePassword;
-    }
-
-    public void addInquiry(CustomerInquiry inquiry) {
-        this.inquiries.add(inquiry);
-        inquiry.setUser(this); // 양방향 관계 유지
     }
 
     public boolean isExistProfile() {

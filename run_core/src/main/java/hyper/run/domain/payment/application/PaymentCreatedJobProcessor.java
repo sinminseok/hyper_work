@@ -10,16 +10,16 @@ import hyper.run.domain.payment.entity.PaymentState;
 import hyper.run.domain.payment.repository.PaymentRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.utils.OptionalUtil;
 import io.awspring.cloud.sqs.listener.Visibility;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-/**
- * Payment 생성 이벤트를 처리하는 Processor
- * - PaymentCreatedMessage를 받아 쿠폰 지급 및 Payment 상태 변경
- */
+import static hyper.run.exception.ErrorMessages.*;
+
+
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -33,50 +33,25 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
     @Transactional
     public void process(PaymentCreatedMessage message, Visibility visibility) {
         String outboxEventId = message.getOutboxEventId();
-
-        try {
-            // STEP 1: OutboxEvent 조회 및 멱등성 체크
-            OutboxEvent outboxEvent = outboxEventRepository.findById(outboxEventId)
-                    .orElseThrow(() -> new IllegalStateException("OutboxEvent not found: " + outboxEventId));
-
-            if (outboxEvent.isPublished()) {
-                log.info("Already processed. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId());
-                return;
-            }
-
-            // STEP 2: Payment 조회 및 상태 확인
-            Payment payment = paymentRepository.findById(message.getPaymentId())
-                    .orElseThrow(() -> new IllegalStateException("Payment not found: " + message.getPaymentId()));
-
-            if (payment.getState() != PaymentState.PENDING) {
-                log.info("Payment already processed. outboxEventId: {}, paymentId: {}, state: {}",
-                        outboxEventId, message.getPaymentId(), payment.getState());
-                outboxEvent.publish();
-                return;
-            }
-
-            // STEP 3: User 쿠폰 지급
-            User user = userRepository.findById(message.getUserId())
-                    .orElseThrow(() -> new IllegalStateException("User not found: " + message.getUserId()));
-
-            if (message.getCouponAmount() > 0) {
-                user.increaseCouponByAmount(message.getCouponAmount());
-            } else {
-                user.increaseCoupon();
-            }
-
-            // STEP 4: Payment 상태 변경
-            payment.updateState(PaymentState.PAYMENT_COMPLETED);
-
-            // STEP 5: OutboxEvent 완료 처리
-            outboxEvent.publish();
-
-            log.info("Payment processed successfully. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId());
-
-        } catch (Exception e) {
-            log.error("Failed to process payment. outboxEventId: {}, paymentId: {}", outboxEventId, message.getPaymentId(), e);
-            throw e;
+        OutboxEvent outboxEvent = OptionalUtil.getOrElseThrow(outboxEventRepository.findById(outboxEventId), NOT_EXIST_OUTBOX_EVENT_ID);
+        if (outboxEvent.isPublished()) {
+            return;
         }
+
+        Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByIdForUpdate(message.getPaymentId()), NOT_EXIST_PAYMENT_ID);
+
+        //결제 이벤트 중복 발행시 publish 처리 후 return 하기 위한 코드 (2차 검증용)
+        if (payment.getState() != PaymentState.PENDING) {
+            outboxEvent.publish();
+            return;
+        }
+
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(message.getPaymentId()), NOT_EXIST_USER_ID);
+        user.increaseCouponByAmount(payment.getCouponAmount());
+
+        payment.updateState(PaymentState.PAYMENT_COMPLETED);
+
+        outboxEvent.publish();
     }
 
     @Override

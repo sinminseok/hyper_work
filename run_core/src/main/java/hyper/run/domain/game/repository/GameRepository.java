@@ -2,6 +2,8 @@ package hyper.run.domain.game.repository;
 
 import hyper.run.domain.game.entity.Game;
 import jakarta.persistence.LockModeType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
@@ -15,7 +17,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface GameRepository extends JpaRepository<Game, Long> {
+public interface GameRepository extends JpaRepository<Game, Long>, GameRepositoryCustom {
 
     @Query("SELECT g FROM Game g WHERE g.endAt > :now")
     List<Game> findUpcomingGames(@Param("now") LocalDateTime now);
@@ -31,4 +33,7 @@ public interface GameRepository extends JpaRepository<Game, Long> {
 
     @Query("SELECT g FROM Game g WHERE g.startAt > :now ORDER BY g.totalPrize DESC LIMIT 3")
     List<Game> findTop3UpcomingGamesByTotalPrize(@Param("now") LocalDateTime now);
+
+    Page<Game> findAllByCreateDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
+
 }

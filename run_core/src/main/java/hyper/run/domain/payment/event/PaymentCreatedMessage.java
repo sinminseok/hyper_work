@@ -20,14 +20,11 @@ public class PaymentCreatedMessage implements SqsMessage {
 
     private Long userId;
 
-    private int couponAmount;
-
     public static PaymentCreatedMessage from(String outboxEventId, PaymentJobPayload data) {
         return PaymentCreatedMessage.builder()
                 .outboxEventId(outboxEventId)
                 .paymentId(data.getPaymentId())
                 .userId(data.getUserId())
-                .couponAmount(data.getCouponAmount())
                 .build();
     }
 

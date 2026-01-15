@@ -1,5 +1,6 @@
 package hyper.run.auth.domain;
 
+import hyper.run.domain.user.entity.Role;
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -21,11 +22,11 @@ public class CustomUserDetails implements UserDetails {
     private final String password;
     private final Collection<? extends GrantedAuthority> authorities;
 
-    public CustomUserDetails(Long userId, String email, String password) {
+    public CustomUserDetails(Long userId, String email, String password, Role role) {
         this.userId = userId;
         this.email = email;
         this.password = password;
-        this.authorities = Collections.singletonList(new SimpleGrantedAuthority("ROLE_USER"));
+        this.authorities = Collections.singletonList(new SimpleGrantedAuthority(role.getKey()));
     }
 
     @Override

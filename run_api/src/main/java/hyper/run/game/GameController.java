@@ -6,7 +6,6 @@ import hyper.run.domain.game.dto.response.GameCalendarResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
-import hyper.run.domain.game.dto.response.GameRankResponse;
 import hyper.run.domain.game.dto.response.WeeklyExerciseResponse;
 import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.service.GameRankService;
@@ -64,7 +63,6 @@ public class GameController {
     public ResponseEntity<?> testStart2(){
         for(GameType type : GameType.values()) {
             LocalDate oneWeekLater = LocalDate.now().plusWeeks(1);
-            System.out.println("oneWeekLater = " + oneWeekLater);
             gameRankServices.get(type).generateGame(oneWeekLater);
         }
         SuccessResponse response = new SuccessResponse(true, "경기 예약 성공", null);

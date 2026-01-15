@@ -14,7 +14,6 @@ import org.springframework.transaction.event.TransactionalEventListener;
 
 @Component
 @RequiredArgsConstructor
-@Slf4j
 public class PaymentListener {
 
     private final OutboxEventRepository outboxEventRepository;
@@ -29,14 +28,7 @@ public class PaymentListener {
     private PaymentJobPayload createOutboxEvent(PaymentCreatedEvent event){
         return new PaymentJobPayload(
                 event.getPaymentId(),
-                event.getUserId(),
-                event.getPrice(),
-                event.getCouponAmount(),
-                event.getInAppType(),
-                event.getPaymentMethod(),
-                event.getTransactionId(),
-                event.getProductId(),
-                event.getReceiptData()
+                event.getUserId()
         );
     }
 }

@@ -24,11 +24,6 @@ public enum PaymentState {
      */
     PAYMENT_COMPLETED,
 
-    /**
-     * 결제 실패 (현재 미사용)
-     * 영수증 검증 실패 시 Payment가 생성되지 않으므로 이 상태는 사용되지 않음
-     */
-    FAILED,
 
     /**
      * 환불 요청됨

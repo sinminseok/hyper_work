@@ -1,5 +1,8 @@
 package hyper.run.config;
 
+import org.redisson.Redisson;
+import org.redisson.api.RedissonClient;
+import org.redisson.config.Config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
@@ -34,6 +37,22 @@ public class RedisConfig {
         template.setHashValueSerializer(new StringRedisSerializer());
 
         return template;
+    }
+
+    /**
+     * Redisson Client 설정 (분산락용)
+     */
+    @Bean
+    public RedissonClient redissonClient() {
+        Config config = new Config();
+        config.useSingleServer()
+                .setAddress("redis://" + redisHost + ":" + redisPort)
+                .setConnectionPoolSize(50)
+                .setConnectionMinimumIdleSize(10)
+                .setRetryAttempts(3)
+                .setRetryInterval(1500);
+
+        return Redisson.create(config);
     }
 
     @Bean

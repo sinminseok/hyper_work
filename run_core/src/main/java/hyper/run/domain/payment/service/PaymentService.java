@@ -1,5 +1,6 @@
 package hyper.run.domain.payment.service;
 
+import hyper.run.annotation.DistributionLock;
 import hyper.run.domain.payment.dto.request.PaymentRequest;
 
 import hyper.run.domain.payment.dto.response.PaymentResponse;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.swing.text.html.Option;
 import java.util.Comparator;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
@@ -32,11 +34,16 @@ public class PaymentService {
 
     /**
      * 결제 메서드
+     * 1. 영수증 검증 (Apple/Google)
+     * 2. 결제 정보 저장
      */
     @Transactional
-    public void pay(final String email, final PaymentRequest request){
-        //appleReceiptService.verifyReceipt(request.getTransactionId(), request.getProductId(), request.getReceiptData());
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+    public void pay(final Long userId, final PaymentRequest request){
+        // 1. 영수증 검증 (검증 실패 시 예외 발생)
+        validateReceipt(request);
+
+        // 2. 결제 정보 저장
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         repository.save(payment);
     }

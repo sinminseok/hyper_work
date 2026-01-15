@@ -7,9 +7,11 @@ import hyper.run.domain.payment.event.PaymentJobPayload;
 import hyper.run.domain.payment.event.PaymentCreatedMessage;
 import hyper.run.utils.SnsPublisherService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
 @Component
+@ConditionalOnProperty(name = "cloud.aws.sns.enabled", havingValue = "true")
 @RequiredArgsConstructor
 public class PaymentCreatedProcessor extends OutboxEventPublishProcessor {
 

@@ -1,14 +1,27 @@
 API_MODULE_DIR="./run_api"
+ADMIN_MODULE_DIR="./run_admin"
 
-echo "Cleaning and building the jar with Gradle..."
+echo "Cleaning and building the API jar with Gradle..."
 ./gradlew clean bootJar -p "$API_MODULE_DIR" || {
-  echo "Gradle bootJar build failed!"
+  echo "Gradle API bootJar build failed!"
   exit 1
 }
 
-echo "Building the jar (excluding tests)..."
+echo "Building the API jar (excluding tests)..."
 ./gradlew -p "$API_MODULE_DIR" -x test || {
-  echo "Gradle build failed!"
+  echo "Gradle API build failed!"
+  exit 1
+}
+
+echo "Cleaning and building the Admin jar with Gradle..."
+./gradlew clean bootJar -p "$ADMIN_MODULE_DIR" || {
+  echo "Gradle Admin bootJar build failed!"
+  exit 1
+}
+
+echo "Building the Admin jar (excluding tests)..."
+./gradlew -p "$ADMIN_MODULE_DIR" -x test || {
+  echo "Gradle Admin build failed!"
   exit 1
 }
 

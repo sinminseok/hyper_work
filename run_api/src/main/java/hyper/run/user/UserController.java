@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
+import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecurityContext;
 
 @RestController
 @RequiredArgsConstructor
@@ -42,8 +43,8 @@ public class UserController {
      */
     @PatchMapping
     public ResponseEntity<?> updateProfile(@RequestBody UserUpdateRequest userUpdateRequest){
-        String email = getLoginEmailBySecurityContext();
-        userService.updateProfile(email, userUpdateRequest);
+        Long userId = getLoginUserIdBySecurityContext();
+        userService.updateProfile(userId, userUpdateRequest);
         SuccessResponse response = new SuccessResponse(true, "회원 정보 수정", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -60,8 +61,8 @@ public class UserController {
 
     @PatchMapping("/profile-url")
     public ResponseEntity<?> updateUserImage(@RequestPart(value = "image", required = false) final MultipartFile image) {
-        String email = getLoginEmailBySecurityContext();
-        userService.updateImage(email, image);
+        Long userId = getLoginUserIdBySecurityContext();
+        userService.updateImage(userId, image);
         SuccessResponse response = new SuccessResponse(true, "프로필 이미지 수정", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

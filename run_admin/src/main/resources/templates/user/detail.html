@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="_csrf" th:content="${_csrf.token}"/>
+    <meta name="_csrf_header" th:content="${_csrf.headerName}"/>
+    <title>사용자 상세</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f5f6fa;
+            margin: 0;
+            padding: 0;
+        }
+
+        .main-wrapper {
+            margin-left: 240px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: white;
+            padding: 24px 40px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #e9ecef;
+        }
+
+        .header-title {
+            font-size: 28px;
+            color: #2c3e50;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .user-info {
+            color: #666;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-logout {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-logout:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .content-wrapper {
+            padding: 30px 40px;
+            max-width: 1200px;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 24px;
+        }
+
+        .back-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: #6c757d;
+            color: white;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(108, 117, 125, 0.3);
+            border: none;
+            cursor: pointer;
+        }
+
+        .back-button:hover {
+            background: #5a6268;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(108, 117, 125, 0.4);
+        }
+
+        .btn-delete {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(220, 53, 69, 0.3);
+        }
+
+        .btn-delete:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .detail-card {
+            background: white;
+            border-radius: 16px;
+            padding: 40px;
+            box-shadow: 0 2px 16px rgba(0, 0, 0, 0.08);
+            margin-bottom: 20px;
+            border: 1px solid #e9ecef;
+        }
+
+        .detail-header {
+            border-bottom: 3px solid transparent;
+            border-image: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-image-slice: 1;
+            padding-bottom: 20px;
+            margin-bottom: 32px;
+        }
+
+        .detail-header h2 {
+            color: #2c3e50;
+            font-size: 32px;
+            margin-bottom: 12px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+        }
+
+        .detail-section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #dee2e6;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+        }
+
+        .info-item {
+            display: flex;
+            padding: 12px 0;
+        }
+
+        .info-label {
+            font-weight: 600;
+            color: #666;
+            min-width: 150px;
+        }
+
+        .info-value {
+            color: #333;
+            flex: 1;
+        }
+
+        .profile-section {
+            text-align: center;
+            padding: 20px;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .profile-image {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            margin-bottom: 15px;
+        }
+
+        .profile-placeholder {
+            width: 150px;
+            height: 150px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            color: white;
+            font-size: 48px;
+            font-weight: 700;
+            border: 4px solid white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        /* 모달 스타일 */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            animation: fadeIn 0.3s;
+        }
+
+        .modal.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            max-width: 400px;
+            width: 90%;
+            animation: slideUp 0.3s;
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 700;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .modal-body {
+            color: #666;
+            margin-bottom: 25px;
+            line-height: 1.6;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .modal-btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .modal-btn-cancel {
+            background: #6c757d;
+            color: white;
+        }
+
+        .modal-btn-cancel:hover {
+            background: #5a6268;
+        }
+
+        .modal-btn-confirm {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+            color: white;
+        }
+
+        .modal-btn-confirm:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.4);
+        }
+
+        .modal-btn-ok {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: white;
+        }
+
+        .modal-btn-ok:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(40, 167, 69, 0.4);
+        }
+    </style>
+</head>
+<body>
+<div th:replace="~{layout/sidebar :: sidebar}"></div>
+
+<div class="main-wrapper">
+    <div class="header">
+        <h1 class="header-title">사용자 상세</h1>
+        <div class="header-right">
+            <span class="user-info" sec:authentication="name">관리자</span>
+            <form th:action="@{/logout}" method="post" style="margin: 0;">
+                <button type="submit" class="btn-logout">로그아웃</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="content-wrapper">
+        <div class="action-buttons">
+            <a th:href="@{/admin/users}" class="back-button">← 목록으로 돌아가기</a>
+            <button class="btn-delete" onclick="showDeleteConfirm()">회원 삭제</button>
+        </div>
+
+        <div class="detail-card">
+            <!-- 프로필 섹션 -->
+            <div class="profile-section">
+                <div th:if="${user.profileUrl != null}">
+                    <img th:src="${user.profileUrl}" alt="프로필 이미지" class="profile-image">
+                </div>
+                <div th:if="${user.profileUrl == null}" class="profile-placeholder">
+                    <span th:text="${user.name.substring(0, 1)}">홍</span>
+                </div>
+                <h3 th:text="${user.name}">홍길동</h3>
+            </div>
+
+            <div class="detail-header">
+                <h2>기본 정보</h2>
+            </div>
+
+            <!-- 기본 정보 -->
+            <div class="detail-section">
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">사용자 ID</span>
+                        <span class="info-value" th:text="${user.id}">1</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">이메일</span>
+                        <span class="info-value" th:text="${user.email}">user@example.com</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">이름</span>
+                        <span class="info-value" th:text="${user.name}">홍길동</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">휴대폰 번호</span>
+                        <span class="info-value" th:text="${user.phoneNumber}">010-1234-5678</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">생년월일</span>
+                        <span class="info-value" th:text="${user.birth}">1990-01-01</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">로그인 타입</span>
+                        <span class="info-value" th:text="${user.loginTypeName}">일반</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">권한</span>
+                        <span class="info-value" th:text="${user.roleName}">GENERAL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 포인트 및 쿠폰 정보 -->
+            <div class="detail-section">
+                <h3 class="section-title">포인트 및 쿠폰 정보</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">포인트</span>
+                        <span class="info-value" th:text="${#numbers.formatDecimal(user.point, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">쿠폰</span>
+                        <span class="info-value" th:text="${user.coupon + '개'}">0개</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 계정 정보 -->
+            <div class="detail-section">
+                <h3 class="section-title">계정 정보</h3>
+                <div class="info-grid">
+                    <div class="info-item">
+                        <span class="info-label">가입일</span>
+                        <span class="info-value" th:text="${user.createdAtFormatted}">2025-01-10 10:00</span>
+                    </div>
+                    <div class="info-item">
+                        <span class="info-label">최종 수정일</span>
+                        <span class="info-value" th:text="${user.updatedAtFormatted}">2025-01-10 15:30</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- 삭제 확인 모달 -->
+<div id="deleteConfirmModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">회원 삭제 확인</div>
+        <div class="modal-body">
+            정말로 이 회원을 삭제하시겠습니까?<br>
+            삭제된 데이터는 복구할 수 없습니다.
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-cancel" onclick="hideDeleteConfirm()">취소</button>
+            <button class="modal-btn modal-btn-confirm" onclick="deleteUser()">삭제</button>
+        </div>
+    </div>
+</div>
+
+<!-- 삭제 완료 모달 -->
+<div id="deleteCompleteModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">삭제 완료</div>
+        <div class="modal-body">
+            회원이 성공적으로 삭제되었습니다.
+        </div>
+        <div class="modal-footer">
+            <button class="modal-btn modal-btn-ok" onclick="goToList()">확인</button>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    const userId = [[${user.id}]];
+
+    // CSRF 토큰 가져오기
+    const csrfToken = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+    const csrfHeader = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+
+    function showDeleteConfirm() {
+        document.getElementById('deleteConfirmModal').classList.add('show');
+    }
+
+    function hideDeleteConfirm() {
+        document.getElementById('deleteConfirmModal').classList.remove('show');
+    }
+
+    function showDeleteComplete() {
+        document.getElementById('deleteCompleteModal').classList.add('show');
+    }
+
+    function deleteUser() {
+        const headers = {
+            'Content-Type': 'application/json'
+        };
+
+        // CSRF 토큰이 있으면 헤더에 추가
+        if (csrfToken && csrfHeader) {
+            headers[csrfHeader] = csrfToken;
+        }
+
+        fetch(`/admin/users/${userId}`, {
+            method: 'DELETE',
+            headers: headers
+        })
+        .then(response => {
+            if (response.ok) {
+                hideDeleteConfirm();
+                showDeleteComplete();
+            } else {
+                alert('삭제 중 오류가 발생했습니다.');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('삭제 중 오류가 발생했습니다.');
+        });
+    }
+
+    function goToList() {
+        window.location.href = '/admin/users';
+    }
+</script>
+</body>
+</html>
