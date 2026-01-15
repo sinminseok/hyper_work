@@ -13,7 +13,6 @@ import hyper.run.domain.game.entity.GameStatus;
 import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
-import hyper.run.domain.game.repository.GameRepositoryCustom;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.exception.custom.AlreadyApplyGameException;
@@ -39,7 +38,6 @@ public class GameService {
     private final UserRepository userRepository;
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
-    private final GameRepositoryCustom gameRepositoryCustom;
     private final Map<GameType, GameRankService> gameRankServices;
 
     //todo 삭제
@@ -57,12 +55,12 @@ public class GameService {
     @Transactional
     public void applyGame(final Long userId, final GameApplyRequest request) {
         Game game = OptionalUtil.getOrElseThrow(
-                gameRepositoryCustom.findByGameConditions(
+                gameRepository.findByGameConditions(
                         request.getStartAt(),
                         request.getDistance(),
                         request.getType(),
                         request.getActivityType()), NOT_EXIST_GAME_ID);
-        if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()) != null) {
+        if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()).isPresent()) {
             throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
         }
         game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
@@ -129,14 +127,14 @@ public class GameService {
         List<Game> games;
 
         if (request.hasCursor()) {
-            games = gameRepositoryCustom.findGamesOrderByPrizeWithCursor(
+            games = gameRepository.findGamesOrderByPrizeWithCursor(
                     now,
                     request.getCursorTotalPrize(),
                     request.getCursorGameId(),
                     request.getSize()
             );
         } else {
-            games = gameRepositoryCustom.findGamesOrderByPrizeWithoutCursor(now, request.getSize());
+            games = gameRepository.findGamesOrderByPrizeWithoutCursor(now, request.getSize());
         }
 
         return games.stream()
@@ -345,7 +343,7 @@ public class GameService {
             return Collections.emptyList();
         }
 
-        List<Game> monthlyGames = gameRepositoryCustom.findGamesByYearAndMonth(year, month, gameIds);
+        List<Game> monthlyGames = gameRepository.findGamesByYearAndMonth(year, month, gameIds);
 
         return monthlyGames.stream()
                 .map(game -> createGameCalendarResponse(game, userGameHistories))

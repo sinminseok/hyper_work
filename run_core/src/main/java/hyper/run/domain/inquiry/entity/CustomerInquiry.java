@@ -63,4 +63,14 @@ public class CustomerInquiry extends BaseTimeEntity<CustomerInquiry> {
     @Column(name = "answer",nullable = true)
     private String answer; // 답변 내용
 
+    public void approveRefund(String reason){
+        this.state = InquiryState.SUCCESS;
+        this.answer = "환불 요청이 승인되었습니다. 승인 사유: " + reason;
+    }
+
+    public void rejectRefund(String reason) {
+        this.state = InquiryState.SUCCESS;
+        this.answer = "환불 요청이 거절되었습니다. 거절 사유: " + reason;
+    }
+
 }

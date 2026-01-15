@@ -34,11 +34,15 @@ public class PaymentService {
 
     /**
      * 결제 메서드
+     * 1. 영수증 검증 (Apple/Google)
+     * 2. 결제 정보 저장
      */
     @Transactional
     public void pay(final Long userId, final PaymentRequest request){
-        //todo 영수증 검사는 나중에 추가
-        //appleReceiptService.verifyReceipt(request.getTransactionId(), request.getProductId(), request.getReceiptData());
+        // 1. 영수증 검증 (검증 실패 시 예외 발생)
+        validateReceipt(request);
+
+        // 2. 결제 정보 저장
         User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         repository.save(payment);

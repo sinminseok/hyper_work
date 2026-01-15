@@ -184,6 +184,94 @@ public class GameRepositoryCustomImpl implements GameRepositoryCustom {
                 .orderBy(game.endAt.asc())
                 .fetch();
     }
+
+    @Override
+    public Page<Game> findGamesForAdmin(
+            LocalDateTime startDateFrom,
+            LocalDateTime startDateTo,
+            GameType gameType,
+            GameDistance gameDistance,
+            String status,
+            Pageable pageable
+    ) {
+        BooleanBuilder whereClause = createAdminWhereConditions(startDateFrom, startDateTo, gameType, gameDistance, status);
+
+        List<Game> content = queryFactory
+                .selectFrom(game)
+                .where(whereClause)
+                .orderBy(getOrderSpecifiers(pageable.getSort()))
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
+                .fetch();
+
+        Long total = queryFactory
+                .select(game.count())
+                .from(game)
+                .where(whereClause)
+                .fetchOne();
+
+        return new PageImpl<>(content, pageable, Objects.requireNonNullElse(total, 0L));
+    }
+
+    private BooleanBuilder createAdminWhereConditions(
+            LocalDateTime startDateFrom,
+            LocalDateTime startDateTo,
+            GameType gameType,
+            GameDistance gameDistance,
+            String status
+    ) {
+        BooleanBuilder builder = new BooleanBuilder();
+        builder.and(startAtGoe(startDateFrom));
+        builder.and(startAtLoe(startDateTo));
+        builder.and(gameTypeEq(gameType));
+        builder.and(gameDistanceEq(gameDistance));
+        builder.and(dynamicStatusEq(status));
+
+        return builder;
+    }
+
+    private BooleanExpression startAtGoe(LocalDateTime startDateFrom) {
+        if (startDateFrom != null) {
+            return game.startAt.goe(startDateFrom);
+        }
+        return null;
+    }
+
+    private BooleanExpression startAtLoe(LocalDateTime startDateTo) {
+        if (startDateTo != null) {
+            return game.startAt.loe(startDateTo);
+        }
+        return null;
+    }
+
+    private BooleanExpression gameTypeEq(GameType gameType) {
+        if (gameType != null) {
+            return game.type.eq(gameType);
+        }
+        return null;
+    }
+
+    private BooleanExpression gameDistanceEq(GameDistance gameDistance) {
+        if (gameDistance != null) {
+            return game.distance.eq(gameDistance);
+        }
+        return null;
+    }
+
+    private BooleanExpression dynamicStatusEq(String status) {
+        if (status == null || status.equals("ALL")) {
+            return null;
+        }
+
+        LocalDateTime now = LocalDateTime.now();
+
+        return switch (status) {
+            case "SCHEDULED" -> game.startAt.gt(now);
+            case "IN_PROGRESS" -> game.startAt.loe(now).and(game.endAt.goe(now));
+            case "FINISHED" -> game.endAt.lt(now);
+            default -> null;
+        };
+    }
 }
 
 

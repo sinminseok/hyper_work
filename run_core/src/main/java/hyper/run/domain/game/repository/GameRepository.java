@@ -17,7 +17,7 @@ import java.util.Optional;
 
 
 @Repository
-public interface GameRepository extends JpaRepository<Game, Long> {
+public interface GameRepository extends JpaRepository<Game, Long>, GameRepositoryCustom {
 
     @Query("SELECT g FROM Game g WHERE g.endAt > :now")
     List<Game> findUpcomingGames(@Param("now") LocalDateTime now);
