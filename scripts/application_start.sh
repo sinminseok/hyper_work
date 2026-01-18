@@ -6,10 +6,10 @@ echo "========== ApplicationStart: Starting containers =========="
 cd /home/ubuntu/funy-run
 
 # Pull latest images
-docker-compose pull
+docker compose pull
 
 # Start containers
-docker-compose up -d
+docker compose up -d
 
 # Cleanup unused images
 docker image prune -f
