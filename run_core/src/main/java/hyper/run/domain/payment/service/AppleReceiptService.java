@@ -122,6 +122,7 @@ public class AppleReceiptService {
         } catch (Exception e) {
             log.error("Apple 영수증 검증 중 예외 발생: transactionId={}", transactionId, e);
             throw new ReceiptVerificationException(APPLE_RECEIPT_VERIFICATION_FAILED);
+
         }
     }
 
