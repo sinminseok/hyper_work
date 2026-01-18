@@ -7,7 +7,7 @@ cd /home/ubuntu/funy-run || exit 0
 
 # Stop and remove existing containers
 if [ -f docker-compose.yml ]; then
-    docker-compose down --remove-orphans || true
+    docker compose down --remove-orphans || true
 fi
 
 # Force remove containers if they still exist
