@@ -39,10 +39,7 @@ public class PaymentService {
      */
     @Transactional
     public void pay(final Long userId, final PaymentRequest request){
-        // 1. 영수증 검증 (검증 실패 시 예외 발생)
         validateReceipt(request);
-
-        // 2. 결제 정보 저장
         User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         repository.save(payment);

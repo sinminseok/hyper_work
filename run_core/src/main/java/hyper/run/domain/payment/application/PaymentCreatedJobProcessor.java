@@ -40,7 +40,6 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
 
         Payment payment = OptionalUtil.getOrElseThrow(paymentRepository.findByIdForUpdate(message.getPaymentId()), NOT_EXIST_PAYMENT_ID);
 
-        //결제 이벤트 중복 발행시 publish 처리 후 return 하기 위한 코드 (2차 검증용)
         if (payment.getState() != PaymentState.PENDING) {
             outboxEvent.publish();
             return;

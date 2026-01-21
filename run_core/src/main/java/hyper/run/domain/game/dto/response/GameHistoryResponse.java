@@ -50,6 +50,7 @@ public class GameHistoryResponse {
     public static GameHistoryResponse toResponse(Game game , GameHistory gameHistory){
         return GameHistoryResponse.builder()
                 .gameId(game.getId())
+                .gameDate(game.getStartAt().toLocalDate())
                 .gameType(game.getType())
                 .gameDistance(game.getDistance())
                 .endAt(game.getEndAt())
