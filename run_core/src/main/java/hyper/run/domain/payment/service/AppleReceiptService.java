@@ -126,7 +126,6 @@ public class AppleReceiptService {
         }
     }
 
-
     /**
      * JSON 응답을 AppleTransactionResponse로 파싱
      */
