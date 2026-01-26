@@ -36,6 +36,11 @@ public class CadenceRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return sortHistories(histories);
+    }
+
+    @Override
+    protected List<GameHistory> sortHistories(List<GameHistory> histories) {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)

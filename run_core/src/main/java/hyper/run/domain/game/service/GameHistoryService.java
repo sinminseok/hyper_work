@@ -1,6 +1,9 @@
 package hyper.run.domain.game.service;
 
+import hyper.run.domain.game.dto.request.GameHistoryBatchUpdateRequest;
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
+import hyper.run.domain.game.dto.response.GameHistoryBatchUpdateResponse;
+import hyper.run.domain.game.event.GameHistoryBatchUpdateEvent;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.entity.Game;
@@ -12,6 +15,7 @@ import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,6 +34,7 @@ public class GameHistoryService {
     private final GameHistoryRepository repository;
     private final GameRepository gameRepository;
     private final UserRepository userRepository;
+    private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
     public GameInProgressWatchResponse updateGameHistory(final GameHistoryUpdateRequest request) {
@@ -48,16 +53,11 @@ public class GameHistoryService {
     }
 
     @Transactional
-    public void quitGame(final GameHistoryUpdateRequest request) {
-        GameHistory gameHistory = getGameHistory(request);
-        Game game = getGameById(gameHistory.getGameId());
-        calculateRank(game);
-        markGameAsDone(gameHistory);
+    public void updateBatchGameHistory(final GameHistoryBatchUpdateRequest request) {
+        eventPublisher.publishEvent(GameHistoryBatchUpdateEvent.from(request));
     }
 
-    /**
-     * 시작되지 않은 경기에 대해 쿠폰을 환불해주는 메서드
-     */
+
     @Transactional
     public void stopGame(final Long gameId) {
         List<GameHistory> histories = repository.findAllByGameId(gameId);

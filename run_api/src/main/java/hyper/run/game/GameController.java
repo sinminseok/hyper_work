@@ -114,23 +114,6 @@ public class GameController {
     }
 
     /**
-     * 해당 경기의 1위(rank=1) 경기 기록을 조회하는 API
-     */
-    @GetMapping("/first-place-history")
-    public ResponseEntity<?> getFirstPlaceGameHistory(@RequestParam Long gameId){
-        GameHistoryResponse firstPlaceHistory = gameService.findFirstPlaceGameHistory(gameId);
-        SuccessResponse response = new SuccessResponse(true, "1위 경기 기록 조회 성공", firstPlaceHistory);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/status")
-    public ResponseEntity<?> getGameCurrentStatus(@RequestParam Long gameId, @RequestParam Long userId){
-        GameInProgressWatchResponse game = gameService.getCurrentGameStatus(gameId, userId);
-        SuccessResponse response = new SuccessResponse(true, "현재 내 등수 조회 성공", game);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    /**
      * 경기 신청 API
      */
     @PostMapping("/apply")

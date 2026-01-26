@@ -4,6 +4,7 @@ import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameRepository;
+import hyper.run.domain.game.service.GameHistoryCacheService;
 import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameRankService;
 import hyper.run.domain.game.service.GameService;
@@ -23,6 +24,7 @@ public class GameScheduler {
     private final GameHistoryService gameHistoryService;
     private final Map<GameType, GameRankService> gameRankServices;
     private final SimpMessagingTemplate messagingTemplate;
+    private final GameHistoryCacheService gameHistoryCacheService;
     private final GameService gameService;
 
 
@@ -85,13 +87,12 @@ public class GameScheduler {
             GameInProgressWatchResponse firstPlace = gameService.findFirstPlaceByGameId(gameId);
             messagingTemplate.convertAndSend("/sub/game/first-place/" + gameId, firstPlace);
         } catch (Exception e) {
-            // 1위가 없는 경우 등의 예외 처리 (로그만 남기고 계속 진행)
-            System.err.println("Failed to broadcast first place for game " + gameId + ": " + e.getMessage());
         }
     }
 
     private void finishGame(Timer timer, GameRankService service, Game game) {
         timer.cancel();
+        gameHistoryCacheService.evictCache(game.getId());
         if (service != null) {
             service.saveGameResult(game);
         }

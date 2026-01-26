@@ -53,4 +53,22 @@ public abstract class AbstractGameRankService implements GameRankService {
 
     // 각 경기별 순위 산정 방식 다름 → 정렬 방식 추상화
     protected abstract List<GameHistory> fetchSortedHistories(Game game);
+
+    /**
+     * 주어진 히스토리 목록에서 1위를 찾아 반환
+     * 각 구현체의 정렬 기준에 맞게 정렬 후 첫 번째 반환
+     */
+    @Override
+    public GameHistory findFirstPlace(List<GameHistory> histories) {
+        if (histories == null || histories.isEmpty()) {
+            return null;
+        }
+        List<GameHistory> sorted = sortHistories(histories);
+        return sorted.isEmpty() ? null : sorted.get(0);
+    }
+
+    /**
+     * 히스토리 목록을 순위 기준으로 정렬
+     */
+    protected abstract List<GameHistory> sortHistories(List<GameHistory> histories);
 }

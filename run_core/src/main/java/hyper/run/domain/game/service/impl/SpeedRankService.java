@@ -35,6 +35,11 @@ public class SpeedRankService extends AbstractGameRankService {
 
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return sortHistories(histories);
+    }
+
+    @Override
+    protected List<GameHistory> sortHistories(List<GameHistory> histories) {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)
@@ -42,7 +47,6 @@ public class SpeedRankService extends AbstractGameRankService {
                         .thenComparingLong(GameHistory::getDurationInSeconds)  // 소요 시간 짧은 순 (완주자), 미완주자는 Long.MAX_VALUE
                         .thenComparingDouble(GameHistory::getRemainingDistance)  // 미완주자: 남은 거리 적은 순
         );
-
         return histories;
     }
 

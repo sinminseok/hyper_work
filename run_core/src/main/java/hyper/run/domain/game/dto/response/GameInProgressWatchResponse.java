@@ -19,10 +19,6 @@ public class GameInProgressWatchResponse {
 
     private Integer targetCadence;
 
-    private double averageBpm;
-
-    private double averageCadence;
-
     private double currentBpm;
 
     private double currentCadence;

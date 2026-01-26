@@ -1,6 +1,7 @@
 package hyper.run.domain.game.entity;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.request.GameHistoryBatchUpdateRequest;
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -199,5 +200,96 @@ public class GameHistory {
 
     private void accumulateFlightTime(double additionalTime) {
         currentFlightTime += additionalTime;
+    }
+
+    /**
+     * 배치 데이터로 업데이트 (Apple Watch HTTP Polling 최적화용)
+     * 클라이언트에서 여러 샘플을 모아서 전송하면 마지막 거리와 평균값으로 업데이트
+     */
+    public void updateFromBatch(GameHistoryBatchUpdateRequest request) {
+        if (request.getSamples() == null || request.getSamples().isEmpty()) {
+            return;
+        }
+
+        java.util.List<GameHistoryBatchUpdateRequest.BioDataSample> samples = request.getSamples();
+        int sampleCount = samples.size();
+
+        // 첫 업데이트 시 실제 경기 시작 시간 기록
+        if (updateCount == 0) {
+            this.startAt = LocalDateTime.now();
+        }
+
+        // 배치의 마지막 샘플에서 거리 가져오기 (누적 거리)
+        GameHistoryBatchUpdateRequest.BioDataSample lastSample = samples.get(sampleCount - 1);
+        currentDistance = lastSample.getCurrentDistance();
+
+        // 배치 샘플들의 평균 계산
+        double bpmSum = 0, cadenceSum = 0, powerSum = 0;
+        double groundContactTimeSum = 0, verticalOscillationSum = 0;
+        double flightTimeSum = 0;
+        int validBpmCount = 0, validCadenceCount = 0, validPowerCount = 0;
+        int validGroundContactTimeCount = 0, validVerticalOscillationCount = 0;
+
+        for (GameHistoryBatchUpdateRequest.BioDataSample sample : samples) {
+            if (sample.getCurrentBpm() > 0) {
+                bpmSum += sample.getCurrentBpm();
+                validBpmCount++;
+            }
+            if (sample.getCurrentCadence() > 0) {
+                cadenceSum += sample.getCurrentCadence();
+                validCadenceCount++;
+            }
+            if (sample.getCurrentPower() > 0) {
+                powerSum += sample.getCurrentPower();
+                validPowerCount++;
+            }
+            if (sample.getCurrentGroundContactTime() > 0) {
+                groundContactTimeSum += sample.getCurrentGroundContactTime();
+                validGroundContactTimeCount++;
+            }
+            if (sample.getCurrentVerticalOscillation() > 0) {
+                verticalOscillationSum += sample.getCurrentVerticalOscillation();
+                validVerticalOscillationCount++;
+            }
+            flightTimeSum += sample.getCurrentFlightTime();
+        }
+
+        // 배치 평균값을 기존 누적 평균과 병합
+        int previousCount = updateCount;
+        updateCount += sampleCount;
+
+        if (validBpmCount > 0) {
+            double batchAvgBpm = bpmSum / validBpmCount;
+            currentBpm = mergeAverage(currentBpm, previousCount, batchAvgBpm, validBpmCount);
+        }
+        if (validCadenceCount > 0) {
+            double batchAvgCadence = cadenceSum / validCadenceCount;
+            currentCadence = mergeAverage(currentCadence, previousCount, batchAvgCadence, validCadenceCount);
+        }
+        if (validPowerCount > 0) {
+            double batchAvgPower = powerSum / validPowerCount;
+            currentPower = mergeAverage(currentPower, previousCount, batchAvgPower, validPowerCount);
+        }
+        if (validGroundContactTimeCount > 0) {
+            double batchAvgGroundContactTime = groundContactTimeSum / validGroundContactTimeCount;
+            currentGroundContactTime = mergeAverage(currentGroundContactTime, previousCount, batchAvgGroundContactTime, validGroundContactTimeCount);
+        }
+        if (validVerticalOscillationCount > 0) {
+            double batchAvgVerticalOscillation = verticalOscillationSum / validVerticalOscillationCount;
+            currentVerticalOscillation = mergeAverage(currentVerticalOscillation, previousCount, batchAvgVerticalOscillation, validVerticalOscillationCount);
+        }
+
+        // 비행 시간은 누적
+        currentFlightTime += flightTimeSum;
+    }
+
+    /**
+     * 기존 누적 평균과 새로운 배치 평균을 병합
+     */
+    private double mergeAverage(double existingAvg, int existingCount, double batchAvg, int batchCount) {
+        if (existingCount == 0) {
+            return batchAvg;
+        }
+        return ((existingAvg * existingCount) + (batchAvg * batchCount)) / (existingCount + batchCount);
     }
 }
