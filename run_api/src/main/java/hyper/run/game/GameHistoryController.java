@@ -5,6 +5,7 @@ import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import hyper.run.domain.game.dto.response.GameHistoryBatchUpdateResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
+import hyper.run.domain.game.service.GameHistoryCacheService;
 import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.utils.SuccessResponse;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 public class GameHistoryController {
 
     private final GameService gameService;
+    private final GameHistoryCacheService gameHistoryCacheService;
     private final GameHistoryService gameHistoryService;
 
     /**
@@ -45,6 +47,7 @@ public class GameHistoryController {
     @PatchMapping("/batch")
     public ResponseEntity<?> updateGameHistoryBatch(@RequestBody final GameHistoryBatchUpdateRequest request) {
         gameHistoryService.updateBatchGameHistory(request);
+        System.out.println("call batch");
         SuccessResponse response = new SuccessResponse(true, "배치 업데이트 완료", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -61,14 +64,14 @@ public class GameHistoryController {
 
     @GetMapping("/first-status")
     public ResponseEntity<?> getFirstStatus(@RequestParam Long gameId){
-        GameInProgressWatchResponse firstPlaceHistory = gameService.findFirstStatus(gameId);
+        GameInProgressWatchResponse firstPlaceHistory = gameHistoryCacheService.getFirstPlaceStatus(gameId);
         SuccessResponse response = new SuccessResponse(true, "1위 경기 상태 조회 성공", firstPlaceHistory);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     @GetMapping("/status")
     public ResponseEntity<?> getGameCurrentStatus(@RequestParam Long gameId, @RequestParam Long userId){
-        GameInProgressWatchResponse game = gameService.getCurrentGameStatus(gameId, userId);
+        GameInProgressWatchResponse game = gameHistoryCacheService.getUserStatus(gameId, userId);
         SuccessResponse response = new SuccessResponse(true, "현재 내 등수 조회 성공", game);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }

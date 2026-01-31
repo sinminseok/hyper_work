@@ -39,7 +39,7 @@ public class GameService {
     private final GameRepository gameRepository;
     private final GameHistoryRepository gameHistoryRepository;
     private final Map<GameType, GameRankService> gameRankServices;
-    private final GameHistoryCacheService firstPlaceCacheService;
+
 
     //todo 삭제
     @Transactional
@@ -212,14 +212,6 @@ public class GameService {
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
     }
 
-    /**
-     * 현재 경기 상태 조회 메서드
-     * Redis 캐시 우선 조회, 캐시 미스 시 DB 조회 후 캐시 저장
-     */
-    public GameInProgressWatchResponse getCurrentGameStatus(Long gameId, Long userId) {
-        return firstPlaceCacheService.getUserStatus(gameId, userId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GAME_ID));
-    }
 
     /**
      * gameId와 userId로 GameHistory를 단건 조회하는 메서드
@@ -250,10 +242,6 @@ public class GameService {
         return GameHistoryResponse.toResponse(game, gameHistory);
     }
 
-    public GameInProgressWatchResponse findFirstStatus(Long gameId) {
-        return firstPlaceCacheService.getFirstPlaceStatus(gameId)
-                .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GAME_GISTORY_ID));
-    }
 
     private GameStatus determineGameStatus(Game game, Set<Long> participatedGameIds) {
         boolean userParticipated = participatedGameIds.contains(game.getId());

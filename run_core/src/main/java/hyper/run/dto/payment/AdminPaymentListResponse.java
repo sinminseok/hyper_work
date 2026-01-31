@@ -3,14 +3,18 @@ package hyper.run.dto.payment;
 import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminPaymentListResponse {
     private Long id;
     private LocalDateTime createdAt;

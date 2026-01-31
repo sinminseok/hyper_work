@@ -4,28 +4,20 @@
 스마트워치(Apple Watch, Galaxy Watch, Garmin)에서 실시간 생체 데이터를 수집하고,
 경기 참가자 간 실시간 순위를 계산하여 워치에 표시하는 시스템
 
+**통신 방식**: HTTP Polling (Adaptive Polling + Jitter)
+
 ---
 
-## 📍 WebSocket 연결 정보
+## 📍 API 정보
 
-### 기본 설정
 
-**엔드포인트**
-- WebSocket 연결: `/game`
-- 클라이언트 → 서버 전송: `/pub` prefix
-- 서버 → 클라이언트 구독: `/sub` prefix
+### 주요 API
 
-**환경별 URL**
-- 개발: `ws://localhost:8080/game`
-- 운영: `wss://your-domain/game` (HTTPS 필수)
-
-### 주요 Destination
-
-| 용도 | Destination | 설명 |
-|------|-------------|------|
-| **생체 데이터 전송** | `/pub/game/update` | 워치 → 서버 (5초마다) |
-| **내 상태 구독** | `/sub/game/my/{gameId}/{userId}` | 내 순위, 거리, 심박수 등 수신 |
-| **1위 정보 구독** | `/sub/game/first-place/{gameId}` | 현재 1위 실시간 정보 수신 |
+| 용도 | Method | Endpoint | 설명 |
+|------|--------|----------|------|
+| **생체 데이터 전송** | PATCH | `/v1/api/game-histories/batch` | 배치 데이터 전송 (3~5초마다) |
+| **내 상태 조회** | GET | `/v1/api/game-histories/status` | 내 순위, 생체 데이터 조회 |
+| **1위 정보 조회** | GET | `/v1/api/game-histories/first-status` | 현재 1위 정보 조회 |
 
 ---
 
@@ -58,90 +50,50 @@
 
 ---
 
-### 2단계: WebSocket 연결
+### 2단계: 생체 데이터 배치 전송
 
-**연결 방식**
-1. `/game` 엔드포인트로 WebSocket 연결
-2. STOMP 프로토콜 사용
-3. 연결 시 헤더에 `Authorization: Bearer {accessToken}` 포함
+**API**: `PATCH /v1/api/game-histories/batch`
 
-**중요 사항**
-- 모든 경기가 하나의 `/game` 엔드포인트 공유
-- Destination으로 개인별/경기별 라우팅 구분
-- 연결 실패 시 토큰 재발급 후 재시도
+**전송 주기**: 클라이언트는 생체 데이터를 5초 주기로 수집하고, 6번 모은 뒤 해당 API 로 한번에 보낸다.
 
----
-
-### 3단계: 구독 설정
-
-#### 3-1. 내 상태 구독 (필수)
-
-**Destination**: `/sub/game/my/{gameId}/{userId}`
-
-**수신 데이터**
-- `rank`: 현재 순위 (1, 2, 3, ...)
-- `currentDistance`: 현재 이동 거리 (m)
-- `currentSpeed`: 현재 속도 (km/h)
-- `currentBpm`: 현재 심박수
-- `currentCadence`: 현재 케이던스
-- `targetBpm`: 목표 심박수 (심박수 경기만 해당)
-- `targetCadence`: 목표 케이던스 (케이던스 경기만 해당)
-- `isDone`: 완주 여부
-- `connectedWatch`: 워치 연결 상태
-
-**수신 시점**
-- 생체 데이터 전송 후 즉시 응답
-- 15초마다 순위 갱신 시 자동 전송
-
-#### 3-2. 1위 정보 구독 (선택)
-
-**Destination**: `/sub/game/first-place/{gameId}`
-
-**수신 데이터**
-- 현재 1위의 순위, 거리, 속도, 심박수 등 모든 정보
-- 내 정보와 동일한 구조
-
-**수신 시점**
-- 15초마다 순위 갱신 시 자동 전송
-- 모든 참가자가 동일한 1위 정보 수신
-
-**활용 예시**
-- "1위와의 거리 차이" 표시
-- "1위 페이스와 비교" 기능
-- 실시간 리더보드 표시
-
----
-
-### 4단계: 생체 데이터 전송
-
-**Destination**: `/pub/game/update`
-
-**전송 주기**: 5초마다
-
-**전송 데이터**
+**요청 데이터**
 ```json
 {
   "gameId": 123,
   "userId": 456,
-  "currentBpm": 150.5,
-  "currentCadence": 180.0,
-  "currentDistance": 1250.5,
-  "currentSpeed": 12.5,
-  "currentFlightTime": 0.0,
-  "currentGroundContactTime": 0.0,
-  "currentPower": 0.0,
-  "currentVerticalOscillation": 0.0
+  "samples": [
+    {
+      "currentBpm": 150.5,
+      "currentCadence": 180.0,
+      "currentDistance": 1250.5,
+      "currentSpeed": 12.5,
+      "currentFlightTime": 0.0,
+      "currentGroundContactTime": 0.0,
+      "currentPower": 0.0,
+      "currentVerticalOscillation": 0.0,
+      "timestamp": "2024-01-15T10:30:00"
+    },
+    {
+      "currentBpm": 152.0,
+      "currentCadence": 182.0,
+      "currentDistance": 1280.0,
+      "...": "..."
+    }
+  ]
 }
 ```
 
 **필수 필드**
 - `gameId`, `userId`: 경기 및 사용자 식별
+- `samples`: 수집한 생체 데이터 배열
+
+**Sample 필드**
 - `currentBpm`: 심박수 (bpm)
-- `currentCadence`: 케이던스 (spm, steps per minute)
+- `currentCadence`: 케이던스 (spm)
 - `currentDistance`: 누적 거리 (m)
 - `currentSpeed`: 현재 속도 (km/h)
 
-**선택 필드** (현재 미사용, 향후 확장용)
+**선택 필드** (향후 확장용)
 - `currentFlightTime`: 공중 체공 시간
 - `currentGroundContactTime`: 지면 접촉 시간
 - `currentPower`: 파워 (W)
@@ -149,19 +101,97 @@
 
 ---
 
-### 5단계: 서버 응답 수신
+### 3단계: 내 상태 조회 (Polling)
 
-**처리 흐름**
-1. 워치 → 서버: 생체 데이터 전송 (`/pub/game/update`)
-2. 서버: MongoDB에 데이터 저장 및 누적 평균 계산
-3. 서버 → 워치: 업데이트된 내 상태 전송 (`/sub/game/my/{gameId}/{userId}`)
-4. 워치: UI 업데이트 (순위, 거리, 심박수 등 표시)
+**API**: `GET /v1/api/game-histories/status?gameId={gameId}&userId={userId}`
 
-**완주 처리**
-- `currentDistance >= 목표거리` 도달 시
-- 서버가 자동으로 `isDone: true` 설정
-- 완주 시간(`endAt`) 기록
-- 워치에서 완주 화면 표시
+**조회 주기**: 응답의 `pollInterval` 값에 따라 동적 조절
+
+**응답 데이터**
+- - GameInProgressWatchResponse
+```json
+{
+  "success": true,
+  "message": "현재 내 등수 조회 성공",
+  "data": {
+    "rank": 3,
+    "targetBpm": 150,
+    "targetCadence": 180,
+    "currentBpm": 152.3,
+    "currentCadence": 178.5,
+    "currentDistance": 4500.0,
+    "targetDistance": 5000.0,
+    "currentFlightTime": 0.0,
+    "currentGroundContactTime": 0.0,
+    "currentPower": 0.0,
+    "currentVerticalOscillation": 0.0,
+    "currentSpeed": 12.5,
+    "done": false,
+    "connectedWatch": true,
+    "pollInterval": 3
+  }
+}
+```
+
+**주요 필드**
+- `rank`: 현재 순위 (1, 2, 3, ...)
+- `currentDistance`: 현재 이동 거리 (m)
+- `targetDistance`: 목표 거리 (m)
+- `done`: 완주 여부
+- `pollInterval`: 다음 Polling 주기 (초)
+  - `5`: 초반 (0~10%)
+  - `3`: 중반 (10~90%)
+  - `1`: 막판 (90~100%)
+  - `-1`: 완주 (Polling 중단)
+
+---
+
+### 4단계: 1위 정보 조회 
+
+**API**: `GET /v1/api/game-histories/first-status?gameId={gameId}`
+
+**응답 데이터**
+- GameInProgressWatchResponse
+- 현재 1위의 순위, 거리, 속도, 심박수 등 모든 정보
+- 내 정보와 동일한 구조
+
+**활용 예시**
+- "1위와의 거리 차이" 표시
+- "1위 페이스와 비교" 기능
+
+---
+
+## ⏱️ Adaptive Polling (가변 주기)
+
+### Polling 주기 결정
+
+경기 진행률에 따라 서버가 `pollInterval`을 동적으로 결정합니다.
+
+| 진행률 | pollInterval | 이유 |
+|--------|:------------:|------|
+| 0~10% | 5초 | 초반, 순위 변동 적음 |
+| 10~90% | 3초 | 일반 진행 |
+| 90~100% | 1초 | 막판 스퍼트, 순위 변동 많음 |
+| 완주 | -1 (중단) | 더 이상 조회 불필요 |
+
+### Jitter (지터) 적용
+
+모든 클라이언트가 같은 주기로 요청하면 트래픽이 몰립니다.
+0~0.5초 랜덤 지연을 추가하여 요청을 분산합니다.
+
+**클라이언트 구현 예시 (Swift)**
+```swift
+func scheduleNextPoll(pollInterval: Int) {
+    if pollInterval < 0 { return }  // 완주 시 중단
+
+    let jitter = Double.random(in: 0...0.5)
+    let nextPoll = Double(pollInterval) + jitter
+
+    DispatchQueue.main.asyncAfter(deadline: .now() + nextPoll) {
+        self.fetchMyStatus()
+    }
+}
+```
 
 ---
 
@@ -182,58 +212,189 @@
    - **CADENCE**: 완주자 우선 → 케이던스 점수 작은 순 → 소요 시간 짧은 순
    - **HEARTBEAT**: 완주자 우선 → 심박수 점수 작은 순 → 소요 시간 짧은 순
 3. 각 참가자의 `rank` 필드 업데이트
-4. 구독 중인 모든 워치로 자동 전송
-   - `/sub/game/my/{gameId}/{userId}` → 개인별 상태
-   - `/sub/game/first-place/{gameId}` → 1위 정보
+4. Redis 캐시 전체 갱신 (ZSet + Hash)
 
 **실시간성**
-- 생체 데이터 전송 시: 즉시 응답 (5초 주기)
+- 생체 데이터 전송 시: 캐시에 즉시 반영
 - 순위 갱신 시: 15초마다 전체 재계산
+
+---
+
+## 🗄️ Redis 캐시 구조
+
+### 두 개의 Key 사용
+
+순위 조회 성능을 위해 ZSet과 Hash를 조합하여 사용합니다.
+
+**game:rank:{gameId} (ZSet)**
+```
+┌─────────────────────────────────┐
+│  용도: 순위 조회/정렬            │
+│                                 │
+│  userId │ score (= rank)       │
+│  ───────┼────────────────      │
+│  "5"    │ 1  ← 1위             │
+│  "3"    │ 2                    │
+│  "7"    │ 3                    │
+│                                 │
+│  1위 조회: ZRANGE 0 0 → O(1)    │
+│  내 순위: ZRANK → O(log N)      │
+└─────────────────────────────────┘
+```
+
+**game:data:{gameId} (Hash)**
+```
+┌─────────────────────────────────┐
+│  용도: 상세 데이터 조회          │
+│                                 │
+│  userId │ data (JSON)          │
+│  ───────┼────────────────      │
+│  "5"    │ {rank:1,             │
+│         │  distance:4500,      │
+│         │  bpm:152, ...}       │
+│  "3"    │ {...}                │
+│                                 │
+│  상세 조회: HGET → O(1)         │
+└─────────────────────────────────┘
+```
+
+### 시간 복잡도
+
+| 연산 | Redis 명령어 | 시간 복잡도 |
+|------|-------------|:----------:|
+| 1위 조회 | `ZRANGE key 0 0` | O(1) |
+| 내 순위 조회 | `ZRANK key member` | O(log N) |
+| 상세 정보 조회 | `HGET key field` | O(1) |
 
 ---
 
 ## 📱 스마트워치별 구현 가이드
 
-### 1. Galaxy Watch (Wear OS)
-
-**개발 환경**
-- Wear OS SDK (Android)
-- Kotlin 권장
-- STOMP 라이브러리: `com.github.NaikSoftware:StompProtocolAndroid`
-
-**핵심 기능**
-- **Foreground Service**: 백그라운드 연결 유지
-- **타이머**: `Handler` 또는 `Timer`로 5초마다 데이터 전송
-
-
-**연결 유지 전략**
-- Foreground Service로 앱 강제 종료 방지
-- 연결 끊김 시 자동 재연결 로직
-- 배터리 최적화 예외 설정 안내
-
----
-
-### 2. Apple Watch (watchOS)
+### 1. Apple Watch (watchOS)
 
 **개발 환경**
 - watchOS SDK
 - Swift
-- WebSocket 라이브러리: `Starscream` 또는 `SwiftStomp`
+- URLSession (HTTP 통신)
 
 **핵심 기능**
 - **HKWorkoutSession**: 운동 세션 백그라운드 실행
 - **HealthKit**: 심박수, 거리, 케이던스 등 실시간 수집
-- **타이머**: `Timer.scheduledTimer`로 5초마다 데이터 전송
+- **Timer**: 주기적 데이터 전송 및 상태 조회
 
 **센서 매핑**
 - 심박수: `HKQuantityType.quantityType(forIdentifier: .heartRate)`
 - 거리: `HKQuantityType.quantityType(forIdentifier: .distanceWalkingRunning)`
 - 케이던스: `HKQuantityType.quantityType(forIdentifier: .runningStrideLength)` + 계산
 
-**연결 유지 전략**
+**구현 예시**
+```swift
+class GamePollingManager {
+    private var pollTimer: Timer?
+    private var samples: [BioDataSample] = []
+
+    // 생체 데이터 수집 (1초마다)
+    func collectSample(bpm: Double, distance: Double, cadence: Double) {
+        let sample = BioDataSample(
+            currentBpm: bpm,
+            currentDistance: distance,
+            currentCadence: cadence,
+            timestamp: Date()
+        )
+        samples.append(sample)
+    }
+
+    // 배치 전송 (3~5초마다)
+    func sendBatch() {
+        guard !samples.isEmpty else { return }
+
+        let request = BatchUpdateRequest(
+            gameId: gameId,
+            userId: userId,
+            samples: samples
+        )
+
+        api.sendBatch(request) { response in
+            self.samples.removeAll()
+        }
+    }
+
+    // 상태 조회 + 다음 Polling 스케줄
+    func fetchMyStatus() {
+        api.getStatus(gameId: gameId, userId: userId) { response in
+            self.updateUI(response)
+            self.scheduleNextPoll(pollInterval: response.pollInterval)
+        }
+    }
+
+    // Jitter 적용 Polling
+    func scheduleNextPoll(pollInterval: Int) {
+        if pollInterval < 0 { return }
+
+        let jitter = Double.random(in: 0...0.5)
+        let delay = Double(pollInterval) + jitter
+
+        pollTimer = Timer.scheduledTimer(withTimeInterval: delay, repeats: false) { _ in
+            self.fetchMyStatus()
+        }
+    }
+}
+```
+
+**백그라운드 실행**
 - HKWorkoutSession으로 백그라운드 실행 권한 획득
-- 화면 꺼짐 시에도 연결 유지
+- 화면 꺼짐 시에도 통신 유지
 - Extended Runtime Session 활용
+
+---
+
+### 2. Galaxy Watch (Wear OS)
+
+**개발 환경**
+- Wear OS SDK (Android)
+- Kotlin 권장
+- OkHttp 또는 Retrofit (HTTP 통신)
+
+**핵심 기능**
+- **Foreground Service**: 백그라운드 실행 유지
+- **SensorManager**: 심박수, 가속도계 데이터 수집
+- **AlarmManager/Handler**: 주기적 작업 실행
+
+**구현 예시**
+```kotlin
+class GamePollingService : Service() {
+    private val samples = mutableListOf<BioDataSample>()
+    private val handler = Handler(Looper.getMainLooper())
+
+    private val pollRunnable = object : Runnable {
+        override fun run() {
+            fetchMyStatus()
+        }
+    }
+
+    fun fetchMyStatus() {
+        api.getStatus(gameId, userId).enqueue(object : Callback<StatusResponse> {
+            override fun onResponse(response: StatusResponse) {
+                updateUI(response)
+                scheduleNextPoll(response.pollInterval)
+            }
+        })
+    }
+
+    fun scheduleNextPoll(pollInterval: Int) {
+        if (pollInterval < 0) return
+
+        val jitter = (0..500).random()  // 0~500ms
+        val delay = pollInterval * 1000L + jitter
+
+        handler.postDelayed(pollRunnable, delay)
+    }
+}
+```
+
+**연결 유지 전략**
+- Foreground Service로 앱 강제 종료 방지
+- 배터리 최적화 예외 설정 안내
 
 ---
 
@@ -242,12 +403,12 @@
 **개발 환경**
 - Connect IQ SDK
 - Monkey C 언어
-- HTTP 또는 WebSocket 직접 구현
+- Communications API (HTTP 통신)
 
 **핵심 기능**
 - **Activity API**: 운동 세션 관리
 - **Sensor API**: 심박수, 가속도계, GPS 데이터 수집
-- **Communications API**: 서버 통신
+- **Communications API**: HTTP 통신
 
 **센서 매핑**
 - 심박수: `Activity.getActivityInfo().currentHeartRate`
@@ -259,38 +420,31 @@
 - 배터리 최적화를 위해 GPS 정확도 조정
 - 연결 끊김 시 로컬 데이터 큐잉 후 재전송
 
-**제약 사항**
-- WebSocket 지원이 제한적일 수 있음
-- HTTP Long Polling 대안 고려 필요
-- Connect IQ 버전별 API 차이 확인 필요
-
 ---
 
 ## 🎯 핵심 구현 포인트
 
 ### 1. 배터리 최적화
 
-**데이터 전송 주기**
-- 5초: 실시간성과 배터리의 균형점
-- 너무 짧으면 배터리 소모 증가
-- 너무 길면 순위 반영 지연
+**배치 전송**
+- 생체 데이터를 1초마다 수집
+- 3~5초마다 모아서 배치 전송
+- 개별 전송 대비 연결 오버헤드 감소
 
 **센서 샘플링**
-- 심박수: 1초마다 측정 → 5초 평균값 전송
+- 심박수: 1초마다 측정 → 배치 전송
 - GPS: 최소 정확도로 설정 (10~20m)
 - 불필요한 센서 비활성화
 
-### 2. 연결 안정성
+### 2. 네트워크 안정성
 
-**재연결 로직**
-- 연결 끊김 감지 시 자동 재연결
-- 최대 3회 재시도 (지수 백오프)
-- 재연결 실패 시 사용자 알림
+**재시도 로직**
+- 요청 실패 시 최대 3회 재시도 (지수 백오프)
+- 재시도 실패 시 사용자 알림
 
 **데이터 손실 방지**
 - 오프라인 시 로컬 큐에 데이터 저장
 - 재연결 시 누락된 데이터 일괄 전송
-- 중복 전송 방지 (타임스탬프 체크)
 
 ### 3. 사용자 경험
 
@@ -300,89 +454,56 @@
 - **선택**: 1위와의 거리 차이, 페이스 비교
 
 **완주 처리**
-- `isDone: true` 수신 시 축하 화면 표시
+- `done: true` 수신 시 축하 화면 표시
+- `pollInterval: -1` 수신 시 Polling 중단
 - 최종 순위 및 기록 안내
-- WebSocket 연결 유지 (경기 종료 시 까지)
 
 **에러 핸들링**
-- 네트워크 오류: 재연결 시도 안내
+- 네트워크 오류: 재시도 안내
 - 토큰 만료: 자동 갱신 시도
 - 서버 오류: 관리자 문의 안내
 
 ---
 
-## 🔧 개발 시 주의사항
-
-### 인증 토큰 관리
-- Access Token은 메모리에만 저장 (보안)
-- Refresh Token은 안전한 저장소에 보관
-- 토큰 만료 30초 전 자동 갱신
-
-### WebSocket 연결
-- 연결 전 네트워크 상태 확인
-- STOMP 헤더에 반드시 토큰 포함
-- 연결 실패 시 재시도 간격 증가 (1초 → 2초 → 4초)
-
-### 데이터 전송
-- JSON 직렬화 전 데이터 유효성 검증
-- 음수 거리/속도 등 비정상 값 필터링
-- 전송 실패 시 로컬 큐에 저장 후 재시도
-
-### 순위 표시
-- 순위 변동 시 애니메이션 효과 (선택)
-- "계산 중" 상태 표시 (15초 갱신 주기 고려)
-- 완주 후에도 순위 업데이트 지속 수신
-
----
-
-## 📊 메시지 흐름도
+## 📊 데이터 흐름도
 
 ```
-[워치 앱]                          [서버]
-   |                                 |
-   |---(1) HTTP 토큰 발급----------->|
-   |<------ Access/Refresh Token-----|
-   |                                 |
-   |---(2) WebSocket 연결: /game---->|
-   |     (Authorization 헤더 포함)    |
-   |<------ CONNECTED----------------|
-   |                                 |
-   |---(3) SUBSCRIBE---------------->|
-   |     /sub/game/my/123/456        |
-   |     /sub/game/first-place/123   |
-   |                                 |
-   |                                 |
-   |--- 5초 경과 ------------------- |
-   |                                 |
-   |---(4) SEND-------------------->|
-   |     /pub/game/update            |
-   |     {bpm:150, distance:100,...} |
-   |                                 |
-   |                                 |-> MongoDB 저장
-   |                                 |-> 누적 평균 계산
-   |                                 |-> 완주 체크
-   |                                 |
-   |<---(5) MESSAGE------------------|
-   |     /sub/game/my/123/456        |
-   |     {rank:3, distance:100,...}  |
-   |                                 |
-   |--- UI 업데이트 (순위, 거리) ----|
-   |                                 |
-   |                                 |
-   |--- 15초 경과 (순위 갱신) -------|
-   |                                 |
-   |                                 |-> 전체 순위 재계산
-   |                                 |
-   |<---(6) MESSAGE------------------|
-   |     /sub/game/my/123/456        |
-   |     {rank:2, distance:100,...}  | ← 순위 상승!
-   |                                 |
-   |<---(7) MESSAGE------------------|
-   |     /sub/game/first-place/123   |
-   |     {rank:1, distance:500,...}  | ← 1위 정보
-   |                                 |
-   |--- "1위와 400m 차이" 표시 ------|
-   |                                 |
+[워치 앱]                              [서버]                    [Redis]
+   |                                     |                          |
+   |---(1) HTTP 토큰 발급--------------->|                          |
+   |<------ Access/Refresh Token---------|                          |
+   |                                     |                          |
+   |                                     |                          |
+   |--- 생체 데이터 수집 (1초마다) --------|                          |
+   |                                     |                          |
+   |--- 3초 경과 -------------------------|                          |
+   |                                     |                          |
+   |---(2) PATCH /batch----------------->|                          |
+   |     {samples: [...]}                |                          |
+   |                                     |-> MongoDB 저장            |
+   |                                     |-> 캐시 갱신 ------------->|
+   |<------ 200 OK ----------------------|                          |
+   |                                     |                          |
+   |                                     |                          |
+   |---(3) GET /status------------------>|                          |
+   |     ?gameId=123&userId=456          |                          |
+   |                                     |<-- 캐시 조회 -------------|
+   |<------ 응답 ------------------------|                          |
+   |     {rank:3, pollInterval:3, ...}   |                          |
+   |                                     |                          |
+   |--- UI 업데이트 (순위, 거리) ---------|                          |
+   |                                     |                          |
+   |--- 3초 + jitter(0.3초) 후 ----------|                          |
+   |                                     |                          |
+   |---(4) GET /status------------------>|                          |
+   |     ...                             |                          |
+   |                                     |                          |
+   |                                     |                          |
+   |                             [15초마다 순위 계산]                 |
+   |                                     |                          |
+   |                                     |-> 전체 순위 재계산        |
+   |                                     |-> 캐시 전체 갱신 -------->|
+   |                                     |                          |
 ```
 
 ---
@@ -405,25 +526,33 @@
 
 ## 📝 요약
 
-### 연결 순서
-1. 토큰 발급 (HTTP)
-2. WebSocket 연결 (/game)
-3. 구독 설정 (내 상태, 1위 정보)
-4. 생체 데이터 전송 (5초마다)
-5. 서버 응답 수신 (즉시 + 15초마다)
+### 통신 순서
+1. 토큰 발급 (HTTP GET)
+2. 생체 데이터 배치 전송 (HTTP PATCH, 3~5초마다)
+3. 내 상태 조회 (HTTP GET, pollInterval에 따라)
+4. 1위 정보 조회 (HTTP GET, 선택)
 
-### 주요 URL
-- 토큰: `GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx`
-- WebSocket: `ws(s)://domain/game`
-- 전송: `/pub/game/update`
-- 구독: `/sub/game/my/{gameId}/{userId}`, `/sub/game/first-place/{gameId}`
+### 주요 API
+| 용도 | API |
+|------|-----|
+| 토큰 발급 | `GET /v1/api/users/watch-connect-information/tokens?watchKey=xxx` |
+| 배치 전송 | `PATCH /v1/api/game-histories/batch` |
+| 내 상태 | `GET /v1/api/game-histories/status?gameId=xxx&userId=xxx` |
+| 1위 정보 | `GET /v1/api/game-histories/first-status?gameId=xxx` |
 
 ### 데이터 주기
-- 생체 데이터 전송: 5초마다
-- 순위 갱신: 15초마다
+- 생체 데이터 수집: 1초마다
+- 배치 전송: 3~5초마다
+- 상태 조회: pollInterval (1~5초, 동적)
+- 순위 갱신 (서버): 15초마다
 - 토큰 갱신: Access Token 만료 30초 전
 
+### Polling 최적화
+- **Adaptive Polling**: 경기 진행률에 따라 주기 조절
+- **Jitter**: 0~0.5초 랜덤 지연으로 트래픽 분산
+- **Redis 캐시**: ZSet + Hash로 O(log N) 조회
+
 ### 스마트워치 SDK
-- Galaxy Watch: Wear OS + Kotlin
-- Apple Watch: watchOS + Swift + HealthKit
+- Apple Watch: watchOS + Swift + URLSession
+- Galaxy Watch: Wear OS + Kotlin + OkHttp
 - Garmin Watch: Connect IQ + Monkey C

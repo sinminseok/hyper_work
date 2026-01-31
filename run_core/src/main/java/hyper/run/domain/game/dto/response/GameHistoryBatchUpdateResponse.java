@@ -1,8 +1,10 @@
 package hyper.run.domain.game.dto.response;
 
 import hyper.run.domain.game.entity.GameHistory;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 /**
  * Apple Watch용 HTTP Polling 최적화를 위한 배치 업데이트 응답 DTO
@@ -10,6 +12,8 @@ import lombok.Getter;
  */
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameHistoryBatchUpdateResponse {
 
     private boolean success;

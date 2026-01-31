@@ -55,12 +55,6 @@ oauth:
   android-client-id: test-android-client-id
   ios-client-id: test-ios-client-id
 
-domain:
-  websocket:
-    game: /game
-    publish: /pub
-    subscribe: /sub
-
 server:
   tomcat:
     threads:

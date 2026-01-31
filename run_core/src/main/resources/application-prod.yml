@@ -100,13 +100,6 @@ oauth:
   android-client-id: ${ANDROID_OAUTH_CLIENT_KEY}
   ios-client-id: ${IOS_OAUTH_CLIENT_KEY}
 
-domain:
-  websocket:
-    game: /game
-    publish: /pub
-    subscribe: /sub
-
-
 server:
   tomcat:
     threads:

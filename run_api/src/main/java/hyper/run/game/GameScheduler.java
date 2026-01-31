@@ -1,15 +1,12 @@
 package hyper.run.game;
 
-import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.GameHistoryCacheService;
 import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameRankService;
-import hyper.run.domain.game.service.GameService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -23,9 +20,7 @@ public class GameScheduler {
     private final GameRepository gameRepository;
     private final GameHistoryService gameHistoryService;
     private final Map<GameType, GameRankService> gameRankServices;
-    private final SimpMessagingTemplate messagingTemplate;
     private final GameHistoryCacheService gameHistoryCacheService;
-    private final GameService gameService;
 
 
     public void testStart(final Long gameId){
@@ -33,6 +28,7 @@ public class GameScheduler {
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 경기입니다."));
         startGameRankLoop(game);
     }
+
     /**
      * 게임 시작 스케줄러
      * 매일 5시부터 23시까지 매시 정각 실행
@@ -77,16 +73,7 @@ public class GameScheduler {
 
     private void updateGameRank(GameRankService service, Game game) {
         if (service != null) {
-            service.calculateRank(game);
-            broadcastFirstPlace(game.getId());
-        }
-    }
-
-    private void broadcastFirstPlace(Long gameId) {
-        try {
-            GameInProgressWatchResponse firstPlace = gameService.findFirstPlaceByGameId(gameId);
-            messagingTemplate.convertAndSend("/sub/game/first-place/" + gameId, firstPlace);
-        } catch (Exception e) {
+            service.calculateRank(game);  // 내부에서 Redis 캐시도 함께 업데이트
         }
     }
 

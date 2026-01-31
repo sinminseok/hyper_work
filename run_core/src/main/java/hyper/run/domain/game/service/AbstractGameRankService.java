@@ -5,26 +5,25 @@ import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.event.GameFinishedEvent;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
-import hyper.run.utils.OptionalUtil;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Comparator;
 import java.util.List;
-
-import static hyper.run.exception.ErrorMessages.NOT_EXIST_GAME_ID;
 
 public abstract class AbstractGameRankService implements GameRankService {
 
     private final ApplicationEventPublisher applicationEventPublisher;
+    private final GameHistoryCacheService gameHistoryCacheService;
     protected final GameHistoryRepository gameHistoryRepository;
     protected final GameRepository gameRepository;
 
     protected AbstractGameRankService(
             ApplicationEventPublisher applicationEventPublisher,
+            GameHistoryCacheService gameHistoryCacheService,
             GameHistoryRepository gameHistoryRepository,
             GameRepository gameRepository) {
         this.applicationEventPublisher = applicationEventPublisher;
+        this.gameHistoryCacheService = gameHistoryCacheService;
         this.gameHistoryRepository = gameHistoryRepository;
         this.gameRepository = gameRepository;
     }
@@ -34,6 +33,7 @@ public abstract class AbstractGameRankService implements GameRankService {
         List<GameHistory> gameHistories = fetchSortedHistories(game);
         assignRanks(gameHistories);
         gameHistoryRepository.saveAll(gameHistories);
+        gameHistories.forEach(history -> gameHistoryCacheService.updateUserStatusCache(game.getId(), history.getUserId(), history));
     }
 
 
