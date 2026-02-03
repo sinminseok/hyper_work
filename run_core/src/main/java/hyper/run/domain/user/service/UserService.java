@@ -37,6 +37,7 @@ public class UserService {
         if (isExistEmail(userSignupRequest.getEmail())) {
             throw new UserDuplicatedException(ALREADY_EXIST_EMAIL);
         }
+
         User user = userSignupRequest.toEntity(encodePassword);
         userRepository.save(user);
     }
