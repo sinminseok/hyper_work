@@ -21,7 +21,7 @@ services:
     image: minseok1768/run_admin
     container_name: funy-run-admin
     environment:
-      SPRING_PROFILES_ACTIVE: admin
+      SPRING_PROFILES_ACTIVE: admin-prod
       JAVA_TOOL_OPTIONS: "-Dreactor.schedulers.defaultBoundedElasticSize=200"
     env_file:
       - .env
