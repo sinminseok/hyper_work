@@ -1,7 +1,6 @@
 package hyper.run.utils;
 
 import com.amazonaws.services.s3.AmazonS3;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import hyper.run.exception.custom.S3UploadException;
@@ -49,8 +48,7 @@ public class S3FileService implements FileService {
             metadata.setContentLength(file.getSize());
             metadata.setContentType(file.getContentType());
 
-            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata)
-                    .withCannedAcl(CannedAccessControlList.PublicRead);
+            PutObjectRequest putObjectRequest = new PutObjectRequest(bucketName, fileName, inputStream, metadata);
 
             amazonS3.putObject(putObjectRequest);
         } catch (IOException e) {

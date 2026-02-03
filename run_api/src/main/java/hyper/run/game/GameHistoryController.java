@@ -47,7 +47,6 @@ public class GameHistoryController {
     @PatchMapping("/batch")
     public ResponseEntity<?> updateGameHistoryBatch(@RequestBody final GameHistoryBatchUpdateRequest request) {
         gameHistoryService.updateBatchGameHistory(request);
-        System.out.println("call batch");
         SuccessResponse response = new SuccessResponse(true, "배치 업데이트 완료", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
@@ -62,6 +61,9 @@ public class GameHistoryController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 해당 경기의 1위(rank=1) 경기 기록을 조회하는 API (POLLING 용)
+     */
     @GetMapping("/first-status")
     public ResponseEntity<?> getFirstStatus(@RequestParam Long gameId){
         GameInProgressWatchResponse firstPlaceHistory = gameHistoryCacheService.getFirstPlaceStatus(gameId);

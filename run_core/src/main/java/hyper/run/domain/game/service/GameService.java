@@ -56,11 +56,30 @@ public class GameService {
     @Transactional
     public void applyGame(final Long userId, final GameApplyRequest request) {
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findByGameConditions(request.getStartAt(), request.getDistance(), request.getType(), request.getActivityType()), NOT_EXIST_GAME_ID);
+
+        validateGameApplyTime(game);
+
         if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()).isPresent()) {
             throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
         }
         game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
         gameRepository.save(game);
+    }
+
+    private void validateGameApplyTime(Game game) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime gameStartAt = game.getStartAt();
+
+        // 이미 시작된 경기
+        if (now.isAfter(gameStartAt)) {
+            throw new IllegalArgumentException(GAME_ALREADY_STARTED);
+        }
+
+        // 경기 시작 10분 전
+        LocalDateTime applyDeadline = gameStartAt.minusMinutes(10);
+        if (now.isAfter(applyDeadline)) {
+            throw new IllegalArgumentException(GAME_APPLY_CLOSED);
+        }
     }
 
     /**

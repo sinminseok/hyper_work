@@ -69,6 +69,23 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 서비스 초기 세팅용 - 오늘부터 일주일치 경기 생성
+     * todo 삭제
+     */
+    @PostMapping("/test/init-games")
+    public ResponseEntity<?> initGamesForWeek(){
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i <= 7; i++) {
+            LocalDate targetDate = today.plusDays(i);
+            for (GameType type : GameType.values()) {
+                gameRankServices.get(type).generateGame(targetDate);
+            }
+        }
+        SuccessResponse response = new SuccessResponse(true, "오늘부터 일주일치 경기 생성 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     //todo 삭제
     @PostMapping("/test/start/{gameId}")
     public ResponseEntity<?> testStartGame(@PathVariable Long gameId){

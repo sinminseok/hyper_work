@@ -32,15 +32,6 @@ public class GameInProgressWatchResponse {
 
     private double targetDistance;
 
-    private double currentFlightTime;
-
-    private double currentGroundContactTime;
-
-    private double currentPower;
-
-    private double currentVerticalOscillation;
-
-    private double currentSpeed;
 
     @JsonProperty("done")
     private boolean isDone;
@@ -60,11 +51,6 @@ public class GameInProgressWatchResponse {
                 .currentCadence(gameHistory.getCurrentCadence())
                 .currentDistance(gameHistory.getCurrentDistance())
                 .targetDistance(targetDist)
-                .currentFlightTime(gameHistory.getCurrentFlightTime())
-                .currentGroundContactTime(gameHistory.getCurrentGroundContactTime())
-                .currentPower(gameHistory.getCurrentPower())
-                .currentVerticalOscillation(gameHistory.getCurrentVerticalOscillation())
-                .currentSpeed(gameHistory.getCurrentSpeed())
                 .isDone(gameHistory.isDone())
                 .connectedWatch(gameHistory.isConnectedWatch())
                 .pollInterval(pollInterval)

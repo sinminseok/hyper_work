@@ -1,6 +1,5 @@
 package hyper.run.domain.game.entity;
 
-import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.request.GameHistoryBatchUpdateRequest;
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import lombok.*;
@@ -59,9 +58,6 @@ public class GameHistory {
     @Field("current_distance")
     private double currentDistance;
 
-    @Setter
-    @Field("current_flight_time")
-    private double currentFlightTime;
 
     @Setter
     @Field("start_at")
@@ -71,29 +67,6 @@ public class GameHistory {
     @Field("end_at")
     private LocalDateTime endAt; // 사용자가 경기를 종료한 시간 (초기값은 Game 의 endAt 참고)
 
-    @Setter
-    @Field("average_bpm")
-    private double average_bpm;
-
-    @Setter
-    @Field("average_cadence")
-    private double average_cadence;
-
-    @Setter
-    @Field("current_ground_contact_time")
-    private double currentGroundContactTime;
-
-    @Setter
-    @Field("current_power")
-    private double currentPower;
-
-    @Setter
-    @Field("current_speed")
-    private double currentSpeed;
-
-    @Setter
-    @Field("current_vertical_oscillation")
-    private double currentVerticalOscillation;
 
     @Field("update_count")
     private int updateCount;
@@ -185,10 +158,6 @@ public class GameHistory {
         currentDistance = request.getCurrentDistance();
         currentBpm = calculateAverage(currentBpm, request.getCurrentBpm(), previousCount);
         currentCadence = calculateAverage(currentCadence, request.getCurrentCadence(), previousCount);
-        currentPower = calculateAverage(currentPower, request.getCurrentPower(), previousCount);
-        currentGroundContactTime = calculateAverage(currentGroundContactTime, request.getCurrentGroundContactTime(), previousCount);
-        currentVerticalOscillation = calculateAverage(currentVerticalOscillation, request.getCurrentVerticalOscillation(), previousCount);
-        accumulateFlightTime(request.getCurrentFlightTime());
     }
 
     private double calculateAverage(double currentValue, double newValue, int previousCount) {
@@ -198,9 +167,6 @@ public class GameHistory {
         return ((currentValue * previousCount) + newValue) / updateCount;
     }
 
-    private void accumulateFlightTime(double additionalTime) {
-        currentFlightTime += additionalTime;
-    }
 
     /**
      * 배치 데이터로 업데이트 (Apple Watch HTTP Polling 최적화용)
@@ -219,16 +185,15 @@ public class GameHistory {
             this.startAt = LocalDateTime.now();
         }
 
-        // 배치의 마지막 샘플에서 거리 가져오기 (누적 거리)
+        // 배치의 마지막 샘플에서 거리 가져오기 (누적 거리, 0이면 생략)
         GameHistoryBatchUpdateRequest.BioDataSample lastSample = samples.get(sampleCount - 1);
-        currentDistance = lastSample.getCurrentDistance();
+        if (lastSample.getCurrentDistance() > 0) {
+            currentDistance = lastSample.getCurrentDistance();
+        }
 
         // 배치 샘플들의 평균 계산
-        double bpmSum = 0, cadenceSum = 0, powerSum = 0;
-        double groundContactTimeSum = 0, verticalOscillationSum = 0;
-        double flightTimeSum = 0;
-        int validBpmCount = 0, validCadenceCount = 0, validPowerCount = 0;
-        int validGroundContactTimeCount = 0, validVerticalOscillationCount = 0;
+        double bpmSum = 0, cadenceSum = 0;
+        int validBpmCount = 0, validCadenceCount = 0;
 
         for (GameHistoryBatchUpdateRequest.BioDataSample sample : samples) {
             if (sample.getCurrentBpm() > 0) {
@@ -239,19 +204,7 @@ public class GameHistory {
                 cadenceSum += sample.getCurrentCadence();
                 validCadenceCount++;
             }
-            if (sample.getCurrentPower() > 0) {
-                powerSum += sample.getCurrentPower();
-                validPowerCount++;
-            }
-            if (sample.getCurrentGroundContactTime() > 0) {
-                groundContactTimeSum += sample.getCurrentGroundContactTime();
-                validGroundContactTimeCount++;
-            }
-            if (sample.getCurrentVerticalOscillation() > 0) {
-                verticalOscillationSum += sample.getCurrentVerticalOscillation();
-                validVerticalOscillationCount++;
-            }
-            flightTimeSum += sample.getCurrentFlightTime();
+
         }
 
         // 배치 평균값을 기존 누적 평균과 병합
@@ -266,21 +219,6 @@ public class GameHistory {
             double batchAvgCadence = cadenceSum / validCadenceCount;
             currentCadence = mergeAverage(currentCadence, previousCount, batchAvgCadence, validCadenceCount);
         }
-        if (validPowerCount > 0) {
-            double batchAvgPower = powerSum / validPowerCount;
-            currentPower = mergeAverage(currentPower, previousCount, batchAvgPower, validPowerCount);
-        }
-        if (validGroundContactTimeCount > 0) {
-            double batchAvgGroundContactTime = groundContactTimeSum / validGroundContactTimeCount;
-            currentGroundContactTime = mergeAverage(currentGroundContactTime, previousCount, batchAvgGroundContactTime, validGroundContactTimeCount);
-        }
-        if (validVerticalOscillationCount > 0) {
-            double batchAvgVerticalOscillation = verticalOscillationSum / validVerticalOscillationCount;
-            currentVerticalOscillation = mergeAverage(currentVerticalOscillation, previousCount, batchAvgVerticalOscillation, validVerticalOscillationCount);
-        }
-
-        // 비행 시간은 누적
-        currentFlightTime += flightTimeSum;
     }
 
     /**

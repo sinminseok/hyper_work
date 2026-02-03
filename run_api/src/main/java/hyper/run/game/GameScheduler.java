@@ -2,13 +2,15 @@ package hyper.run.game;
 
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameType;
+import hyper.run.domain.game.event.GameStoppedEvent;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.GameHistoryCacheService;
-import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameRankService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.*;
@@ -18,9 +20,9 @@ import java.util.*;
 public class GameScheduler {
 
     private final GameRepository gameRepository;
-    private final GameHistoryService gameHistoryService;
     private final Map<GameType, GameRankService> gameRankServices;
     private final GameHistoryCacheService gameHistoryCacheService;
+    private final ApplicationEventPublisher eventPublisher;
 
 
     public void testStart(final Long gameId){
@@ -33,14 +35,14 @@ public class GameScheduler {
      * 게임 시작 스케줄러
      * 매일 5시부터 23시까지 매시 정각 실행
      */
+    @Transactional
     @Scheduled(cron = "0 0 5-23 * * *")
-    private void startGames() {
+    public void startGames() {
         LocalDateTime now = LocalDateTime.now();
         List<Game> games = gameRepository.findGamesByDateAndHour(now.toLocalDate(), now.getHour());
         for (Game game : games) {
             if(game.canNotStartGame()){
-                gameHistoryService.stopGame(game.getId());
-                gameRepository.delete(game);
+                eventPublisher.publishEvent(GameStoppedEvent.from(game.getId()));
             }else{
                 startGameRankLoop(game);
             }

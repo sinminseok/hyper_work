@@ -17,4 +17,6 @@ public interface GameHistoryRepository extends MongoRepository<GameHistory, Stri
     List<GameHistory> findAllByGameId(Long gameId);
 
     Optional<GameHistory> findByGameIdAndRank(Long gameId, int rank);
+
+    void deleteAllByUserId(Long userId);
 }

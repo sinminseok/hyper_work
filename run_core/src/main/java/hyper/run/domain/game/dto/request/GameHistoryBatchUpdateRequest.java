@@ -31,10 +31,5 @@ public class GameHistoryBatchUpdateRequest {
         private double currentBpm;
         private double currentCadence;
         private double currentDistance;
-        private double currentFlightTime;
-        private double currentGroundContactTime;
-        private double currentPower;
-        private double currentVerticalOscillation;
-        private double currentSpeed;
     }
 }
