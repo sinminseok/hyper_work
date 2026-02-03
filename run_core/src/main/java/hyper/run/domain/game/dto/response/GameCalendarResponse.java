@@ -1,13 +1,17 @@
 package hyper.run.domain.game.dto.response;
 
 import hyper.run.domain.game.entity.GameDistance;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameCalendarResponse {
     private Long gameId;
 

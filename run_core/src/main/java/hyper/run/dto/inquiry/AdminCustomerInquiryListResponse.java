@@ -4,14 +4,18 @@ import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.inquiry.entity.InquiryState;
 import hyper.run.domain.inquiry.entity.InquiryType;
 import hyper.run.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminCustomerInquiryListResponse {
     private Long id;
     private LocalDateTime createdAt;

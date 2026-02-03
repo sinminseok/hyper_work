@@ -4,14 +4,18 @@ import hyper.run.domain.inquiry.entity.CustomerInquiry;
 import hyper.run.domain.payment.entity.InAppType;
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminPaymentDetailResponse {
     private Long id;
     private int price;
@@ -38,6 +42,8 @@ public class AdminPaymentDetailResponse {
 
     @Getter
     @Builder
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class RefundInfo {
         private Long inquiryId;
         private String refundReason; // message

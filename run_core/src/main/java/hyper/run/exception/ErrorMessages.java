@@ -15,5 +15,8 @@ public class ErrorMessages {
     public static String DUPLICATED_APPLE_TRANSACTION = "이미 처리된 Apple 거래입니다.";
     public static String APPLE_RECEIPT_VERIFICATION_FAILED = "Apple 영수증 검증에 실패했습니다.";
     public static String NOT_EXIST_OUTBOX_EVENT_ID = "존재하지 않는 OutboxEvent Id 입니다.";
+    public static String GAME_ALREADY_STARTED = "이미 시작된 경기는 신청할 수 없습니다.";
+    public static String GAME_APPLY_CLOSED = "경기 시작 10분 전에는 신청할 수 없습니다.";
+    public static String ALREADY_EXIST_EMAIL = "이미 가입된 이메일입니다.";
 
 }

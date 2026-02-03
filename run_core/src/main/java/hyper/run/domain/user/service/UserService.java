@@ -3,12 +3,15 @@ package hyper.run.domain.user.service;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
+import hyper.run.domain.user.dto.response.UserVerifyResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.entity.User;
+import hyper.run.domain.user.event.UserDeleteEvent;
 import hyper.run.domain.user.event.UserEditEvent;
 import hyper.run.domain.user.event.UserProfileImageEvent;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.ApplicationEventPublisher;
@@ -18,6 +21,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Optional;
 
+import static hyper.run.exception.ErrorMessages.ALREADY_EXIST_EMAIL;
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 
 @Service
@@ -30,6 +34,9 @@ public class UserService {
 
     @Transactional
     public void save(final UserSignupRequest userSignupRequest, final String encodePassword) {
+        if (isExistEmail(userSignupRequest.getEmail())) {
+            throw new UserDuplicatedException(ALREADY_EXIST_EMAIL);
+        }
         User user = userSignupRequest.toEntity(encodePassword);
         userRepository.save(user);
     }
@@ -76,7 +83,7 @@ public class UserService {
     @Transactional
     public void deleteUser(final String email){
         User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
-        userRepository.delete(user);
+        eventPublisher.publishEvent(UserDeleteEvent.from(user.getId(), user.getProfileUrl()));
     }
 
     @Transactional
@@ -105,5 +112,24 @@ public class UserService {
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
                 .build();
+    }
+
+    public String getHashedPassword(final String email) {
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByEmail(email), NOT_EXIST_USER_EMAIL);
+        return user.getPassword();
+    }
+
+    public UserVerifyResponse verifyUser(final String loginEmail, final String inputEmail, final boolean passwordMatched) {
+        boolean emailMatched = loginEmail.equals(inputEmail);
+
+        if (emailMatched && passwordMatched) {
+            return UserVerifyResponse.success();
+        } else if (!emailMatched && !passwordMatched) {
+            return UserVerifyResponse.bothMismatch();
+        } else if (!emailMatched) {
+            return UserVerifyResponse.emailMismatch();
+        } else {
+            return UserVerifyResponse.passwordMismatch();
+        }
     }
 }

@@ -40,6 +40,7 @@ public class GameService {
     private final GameHistoryRepository gameHistoryRepository;
     private final Map<GameType, GameRankService> gameRankServices;
 
+
     //todo 삭제
     @Transactional
     public void test() {
@@ -55,11 +56,30 @@ public class GameService {
     @Transactional
     public void applyGame(final Long userId, final GameApplyRequest request) {
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findByGameConditions(request.getStartAt(), request.getDistance(), request.getType(), request.getActivityType()), NOT_EXIST_GAME_ID);
+
+        validateGameApplyTime(game);
+
         if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()).isPresent()) {
             throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
         }
         game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
         gameRepository.save(game);
+    }
+
+    private void validateGameApplyTime(Game game) {
+        LocalDateTime now = LocalDateTime.now();
+        LocalDateTime gameStartAt = game.getStartAt();
+
+        // 이미 시작된 경기
+        if (now.isAfter(gameStartAt)) {
+            throw new IllegalArgumentException(GAME_ALREADY_STARTED);
+        }
+
+        // 경기 시작 10분 전
+        LocalDateTime applyDeadline = gameStartAt.minusMinutes(10);
+        if (now.isAfter(applyDeadline)) {
+            throw new IllegalArgumentException(GAME_APPLY_CLOSED);
+        }
     }
 
     /**
@@ -211,13 +231,6 @@ public class GameService {
         return GameResponse.toResponse(game, GameStatus.PARTICIPATE_FINISH);
     }
 
-    /**
-     * 현재 경기 상태 조회 메서드
-     */
-    public GameInProgressWatchResponse getCurrentGameStatus(Long gameId, Long userId) {
-        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(userId, gameId), NOT_EXIST_GAME_ID);
-        return GameInProgressWatchResponse.toResponse(gameHistory);
-    }
 
     /**
      * gameId와 userId로 GameHistory를 단건 조회하는 메서드
@@ -242,17 +255,12 @@ public class GameService {
         return GameInProgressWatchResponse.toResponse(sortedHistories.get(0));
     }
 
-    /**
-     * gameId로 1위(rank=1) GameHistory를 조회하는 메서드
-     */
     public GameHistoryResponse findFirstPlaceGameHistory(Long gameId) {
-        GameHistory gameHistory = OptionalUtil.getOrElseThrow(
-                gameHistoryRepository.findByGameIdAndRank(gameId, 1),
-                NOT_EXIST_GAME_GISTORY_ID
-        );
+        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByGameIdAndRank(gameId, 1), NOT_EXIST_GAME_GISTORY_ID);
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameId), NOT_EXIST_GAME_ID);
         return GameHistoryResponse.toResponse(game, gameHistory);
     }
+
 
     private GameStatus determineGameStatus(Game game, Set<Long> participatedGameIds) {
         boolean userParticipated = participatedGameIds.contains(game.getId());
@@ -265,9 +273,7 @@ public class GameService {
         return GameStatus.REGISTRATION_OPEN;
     }
 
-    /**
-     * 이번주 운동 기록을 조회하는 메서드
-     */
+
     public WeeklyExerciseResponse findWeeklyExerciseRecord(final String email) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
 
@@ -325,9 +331,6 @@ public class GameService {
         return ChronoUnit.MINUTES.between(gameHistory.getStartAt(), gameHistory.getEndAt());
     }
 
-    /**
-     * 특정 년/월의 경기 기록을 조회하는 메서드
-     */
     public List<GameCalendarResponse> findMonthlyGameRecords(final String email, final int year, final int month) {
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
 

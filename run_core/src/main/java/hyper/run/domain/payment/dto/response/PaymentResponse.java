@@ -2,13 +2,17 @@ package hyper.run.domain.payment.dto.response;
 
 import hyper.run.domain.payment.entity.Payment;
 import hyper.run.domain.payment.entity.PaymentState;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class PaymentResponse {
 
     private Long id;

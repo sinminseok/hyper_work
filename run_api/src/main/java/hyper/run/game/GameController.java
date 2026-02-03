@@ -69,6 +69,23 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    /**
+     * 서비스 초기 세팅용 - 오늘부터 일주일치 경기 생성
+     * todo 삭제
+     */
+    @PostMapping("/test/init-games")
+    public ResponseEntity<?> initGamesForWeek(){
+        LocalDate today = LocalDate.now();
+        for (int i = 0; i <= 7; i++) {
+            LocalDate targetDate = today.plusDays(i);
+            for (GameType type : GameType.values()) {
+                gameRankServices.get(type).generateGame(targetDate);
+            }
+        }
+        SuccessResponse response = new SuccessResponse(true, "오늘부터 일주일치 경기 생성 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     //todo 삭제
     @PostMapping("/test/start/{gameId}")
     public ResponseEntity<?> testStartGame(@PathVariable Long gameId){
@@ -110,23 +127,6 @@ public class GameController {
     public ResponseEntity<?> getFirstPlace(@RequestParam Long gameId){
         GameInProgressWatchResponse gameInProgressWatchResponse = gameService.findFirstPlaceByGameId(gameId);
         SuccessResponse response = new SuccessResponse(true, "1등 정보 조회 성공", gameInProgressWatchResponse);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    /**
-     * 해당 경기의 1위(rank=1) 경기 기록을 조회하는 API
-     */
-    @GetMapping("/first-place-history")
-    public ResponseEntity<?> getFirstPlaceGameHistory(@RequestParam Long gameId){
-        GameHistoryResponse firstPlaceHistory = gameService.findFirstPlaceGameHistory(gameId);
-        SuccessResponse response = new SuccessResponse(true, "1위 경기 기록 조회 성공", firstPlaceHistory);
-        return new ResponseEntity<>(response, HttpStatus.OK);
-    }
-
-    @GetMapping("/status")
-    public ResponseEntity<?> getGameCurrentStatus(@RequestParam Long gameId, @RequestParam Long userId){
-        GameInProgressWatchResponse game = gameService.getCurrentGameStatus(gameId, userId);
-        SuccessResponse response = new SuccessResponse(true, "현재 내 등수 조회 성공", game);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

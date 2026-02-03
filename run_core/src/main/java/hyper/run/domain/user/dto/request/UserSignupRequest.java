@@ -3,10 +3,14 @@ package hyper.run.domain.user.dto.request;
 
 import hyper.run.domain.user.entity.LoginType;
 import hyper.run.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 @Getter
+@NoArgsConstructor
+@AllArgsConstructor
 @Builder
 public class UserSignupRequest {
 

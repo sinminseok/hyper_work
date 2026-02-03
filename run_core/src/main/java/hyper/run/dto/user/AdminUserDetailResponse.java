@@ -3,14 +3,18 @@ package hyper.run.dto.user;
 import hyper.run.domain.user.entity.LoginType;
 import hyper.run.domain.user.entity.Role;
 import hyper.run.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminUserDetailResponse {
     private Long id;
     private String email;

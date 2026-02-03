@@ -20,4 +20,10 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, String
      */
     @Query("SELECT o FROM OutboxEvent o WHERE o.type = :type AND o.isPublished = false AND o.retryCount < :maxRetryCount")
     List<OutboxEvent> findPendingEventsWithRetryLimit(@Param("type") JobType type, @Param("maxRetryCount") int maxRetryCount);
+
+    /**
+     * SNS 발행 실패한 이벤트 조회 (publishedToQueue = false 또는 null)
+     */
+    @Query("SELECT o FROM OutboxEvent o WHERE (o.publishedToQueue = false OR o.publishedToQueue IS NULL) AND o.retryCount < :maxRetryCount")
+    List<OutboxEvent> findSnsPublishFailedEvents(@Param("maxRetryCount") int maxRetryCount);
 }

@@ -2,13 +2,17 @@ package hyper.run.domain.exchange_transaction.dto.response;
 
 import hyper.run.domain.exchange_transaction.entity.ExchangeStatus;
 import hyper.run.domain.exchange_transaction.entity.ExchangeTransaction;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class ExchangeTransactionResponse {
 
     private Long exchangeTransactionId;

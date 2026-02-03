@@ -7,6 +7,7 @@ import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.game.service.AbstractGameRankService;
+import hyper.run.domain.game.service.GameHistoryCacheService;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 
@@ -26,9 +27,10 @@ public class CadenceRankService extends AbstractGameRankService {
     private final GameHistoryRepository gameHistoryRepository;
 
     public CadenceRankService(ApplicationEventPublisher applicationEventPublisher,
+                              GameHistoryCacheService gameHistoryCacheService,
                               GameHistoryRepository gameHistoryRepository,
                               GameRepository gameRepository) {
-        super(applicationEventPublisher, gameHistoryRepository, gameRepository);
+        super(applicationEventPublisher, gameHistoryCacheService, gameHistoryRepository, gameRepository);
         this.gameHistoryRepository = gameHistoryRepository;
         this.gameRepository = gameRepository;
     }
@@ -36,6 +38,11 @@ public class CadenceRankService extends AbstractGameRankService {
     @Override
     protected List<GameHistory> fetchSortedHistories(Game game) {
         List<GameHistory> histories = gameHistoryRepository.findAllByGameId(game.getId());
+        return sortHistories(histories);
+    }
+
+    @Override
+    protected List<GameHistory> sortHistories(List<GameHistory> histories) {
         histories.sort(
                 Comparator
                         .comparing(GameHistory::isDone)

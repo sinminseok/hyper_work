@@ -1,6 +1,6 @@
 package hyper.run.domain.game.entity;
 
-import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.request.GameHistoryBatchUpdateRequest;
 import hyper.run.domain.game.dto.request.GameHistoryUpdateRequest;
 import lombok.*;
 import org.springframework.data.annotation.Id;
@@ -58,9 +58,6 @@ public class GameHistory {
     @Field("current_distance")
     private double currentDistance;
 
-    @Setter
-    @Field("current_flight_time")
-    private double currentFlightTime;
 
     @Setter
     @Field("start_at")
@@ -70,29 +67,6 @@ public class GameHistory {
     @Field("end_at")
     private LocalDateTime endAt; // 사용자가 경기를 종료한 시간 (초기값은 Game 의 endAt 참고)
 
-    @Setter
-    @Field("average_bpm")
-    private double average_bpm;
-
-    @Setter
-    @Field("average_cadence")
-    private double average_cadence;
-
-    @Setter
-    @Field("current_ground_contact_time")
-    private double currentGroundContactTime;
-
-    @Setter
-    @Field("current_power")
-    private double currentPower;
-
-    @Setter
-    @Field("current_speed")
-    private double currentSpeed;
-
-    @Setter
-    @Field("current_vertical_oscillation")
-    private double currentVerticalOscillation;
 
     @Field("update_count")
     private int updateCount;
@@ -184,10 +158,6 @@ public class GameHistory {
         currentDistance = request.getCurrentDistance();
         currentBpm = calculateAverage(currentBpm, request.getCurrentBpm(), previousCount);
         currentCadence = calculateAverage(currentCadence, request.getCurrentCadence(), previousCount);
-        currentPower = calculateAverage(currentPower, request.getCurrentPower(), previousCount);
-        currentGroundContactTime = calculateAverage(currentGroundContactTime, request.getCurrentGroundContactTime(), previousCount);
-        currentVerticalOscillation = calculateAverage(currentVerticalOscillation, request.getCurrentVerticalOscillation(), previousCount);
-        accumulateFlightTime(request.getCurrentFlightTime());
     }
 
     private double calculateAverage(double currentValue, double newValue, int previousCount) {
@@ -197,7 +167,67 @@ public class GameHistory {
         return ((currentValue * previousCount) + newValue) / updateCount;
     }
 
-    private void accumulateFlightTime(double additionalTime) {
-        currentFlightTime += additionalTime;
+
+    /**
+     * 배치 데이터로 업데이트 (Apple Watch HTTP Polling 최적화용)
+     * 클라이언트에서 여러 샘플을 모아서 전송하면 마지막 거리와 평균값으로 업데이트
+     */
+    public void updateFromBatch(GameHistoryBatchUpdateRequest request) {
+        if (request.getSamples() == null || request.getSamples().isEmpty()) {
+            return;
+        }
+
+        java.util.List<GameHistoryBatchUpdateRequest.BioDataSample> samples = request.getSamples();
+        int sampleCount = samples.size();
+
+        // 첫 업데이트 시 실제 경기 시작 시간 기록
+        if (updateCount == 0) {
+            this.startAt = LocalDateTime.now();
+        }
+
+        // 배치의 마지막 샘플에서 거리 가져오기 (누적 거리, 0이면 생략)
+        GameHistoryBatchUpdateRequest.BioDataSample lastSample = samples.get(sampleCount - 1);
+        if (lastSample.getCurrentDistance() > 0) {
+            currentDistance = lastSample.getCurrentDistance();
+        }
+
+        // 배치 샘플들의 평균 계산
+        double bpmSum = 0, cadenceSum = 0;
+        int validBpmCount = 0, validCadenceCount = 0;
+
+        for (GameHistoryBatchUpdateRequest.BioDataSample sample : samples) {
+            if (sample.getCurrentBpm() > 0) {
+                bpmSum += sample.getCurrentBpm();
+                validBpmCount++;
+            }
+            if (sample.getCurrentCadence() > 0) {
+                cadenceSum += sample.getCurrentCadence();
+                validCadenceCount++;
+            }
+
+        }
+
+        // 배치 평균값을 기존 누적 평균과 병합
+        int previousCount = updateCount;
+        updateCount += sampleCount;
+
+        if (validBpmCount > 0) {
+            double batchAvgBpm = bpmSum / validBpmCount;
+            currentBpm = mergeAverage(currentBpm, previousCount, batchAvgBpm, validBpmCount);
+        }
+        if (validCadenceCount > 0) {
+            double batchAvgCadence = cadenceSum / validCadenceCount;
+            currentCadence = mergeAverage(currentCadence, previousCount, batchAvgCadence, validCadenceCount);
+        }
+    }
+
+    /**
+     * 기존 누적 평균과 새로운 배치 평균을 병합
+     */
+    private double mergeAverage(double existingAvg, int existingCount, double batchAvg, int batchCount) {
+        if (existingCount == 0) {
+            return batchAvg;
+        }
+        return ((existingAvg * existingCount) + (batchAvg * batchCount)) / (existingCount + batchCount);
     }
 }

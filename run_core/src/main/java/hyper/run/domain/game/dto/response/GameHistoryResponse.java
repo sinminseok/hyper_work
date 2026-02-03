@@ -5,14 +5,18 @@ import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameType;
 import hyper.run.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class GameHistoryResponse {
 
     private LocalDate gameDate;

@@ -3,7 +3,9 @@ package hyper.run.user;
 import hyper.run.auth.service.JwtService;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
+import hyper.run.domain.user.dto.request.UserVerifyRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
+import hyper.run.domain.user.dto.response.UserVerifyResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
 import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.service.UserService;
@@ -130,6 +132,22 @@ public class UserController {
 //        SuccessResponse response = new SuccessResponse(true, "쿠폰 충전 완료", null);
 //        return new ResponseEntity<>(response, HttpStatus.OK);
 //    }
+
+    /**
+     * 본인 확인 API
+     */
+    @PostMapping("/verify")
+    public ResponseEntity<?> verifyUser(@RequestBody UserVerifyRequest request){
+        String loginEmail = getLoginEmailBySecurityContext();
+
+        // 비밀번호 매칭은 run_api 모듈에서 수행 (PasswordEncoder 의존성)
+        String hashedPassword = userService.getHashedPassword(loginEmail);
+        boolean passwordMatched = passwordEncoder.matches(request.getPassword(), hashedPassword);
+
+        UserVerifyResponse verifyResponse = userService.verifyUser(loginEmail, request.getEmail(), passwordMatched);
+        SuccessResponse response = new SuccessResponse(verifyResponse.isVerified(), verifyResponse.getMessage(), verifyResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
 
     /**
      * 회원 삭제 API

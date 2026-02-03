@@ -3,14 +3,18 @@ package hyper.run.dto.game;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameType;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminGameListResponse {
     private Long id;
     private String name;

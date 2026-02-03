@@ -3,14 +3,18 @@ package hyper.run.dto.exchange;
 import hyper.run.domain.exchange_transaction.entity.ExchangeStatus;
 import hyper.run.domain.exchange_transaction.entity.ExchangeTransaction;
 import hyper.run.domain.user.entity.User;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @Getter
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class AdminExchangeTransactionDetailResponse {
     private Long id;
     private Long userId;
