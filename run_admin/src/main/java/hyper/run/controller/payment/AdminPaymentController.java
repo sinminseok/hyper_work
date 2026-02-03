@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/admin/payments")
+@RequestMapping("/payments")
 @RequiredArgsConstructor
 public class AdminPaymentController {
 
@@ -34,7 +34,7 @@ public class AdminPaymentController {
         model.addAttribute("filterStatus", filterStatus);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("currentUri", "/admin/payments");
+        model.addAttribute("currentUri", "/payments");
 
         return "payment/list";
     }
@@ -43,7 +43,7 @@ public class AdminPaymentController {
     public String paymentDetail(@PathVariable Long paymentId, Model model) {
         AdminPaymentDetailResponse payment = paymentManagementService.getPaymentDetail(paymentId);
         model.addAttribute("payment", payment);
-        model.addAttribute("currentUri", "/admin/payments");
+        model.addAttribute("currentUri", "/payments");
         return "payment/detail";
     }
 

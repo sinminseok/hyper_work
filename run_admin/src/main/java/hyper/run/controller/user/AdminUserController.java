@@ -11,7 +11,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
-@RequestMapping("/admin/users")
+@RequestMapping("/users")
 @RequiredArgsConstructor
 public class AdminUserController {
 
@@ -32,7 +32,7 @@ public class AdminUserController {
         model.addAttribute("users", users);
         model.addAttribute("searchKeyword", searchKeyword);
         model.addAttribute("sortBy", sortBy);
-        model.addAttribute("currentUri", "/admin/users");
+        model.addAttribute("currentUri", "/users");
 
         return "user/list";
     }
@@ -41,7 +41,7 @@ public class AdminUserController {
     public String userDetail(@PathVariable Long userId, Model model) {
         AdminUserDetailResponse user = userManagementService.getUserDetail(userId);
         model.addAttribute("user", user);
-        model.addAttribute("currentUri", "/admin/users");
+        model.addAttribute("currentUri", "/users");
         return "user/detail";
     }
 

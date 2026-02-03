@@ -332,7 +332,7 @@
             <div class="page-breadcrumb">홈 > 경기 관리 > 목록</div>
         </div>
 
-        <form th:action="@{/admin/games}" method="get" id="filterForm">
+        <form th:action="@{/games}" method="get" id="filterForm">
             <div class="filter-box">
                 <table class="form-table">
                     <tr>
@@ -406,7 +406,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="game, iterStat : ${games.content}"
-                    th:onclick="|location.href='@{/admin/games/{id}(id=${game.id})}'|"
+                    th:onclick="|location.href='@{/games/{id}(id=${game.id})}'|"
                     style="cursor: pointer;">
                     <td th:text="${games.number * games.size + iterStat.count}">1</td>
                     <td th:text="${game.name}">경기명</td>

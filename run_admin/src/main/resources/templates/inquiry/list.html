@@ -306,7 +306,7 @@
         </div>
 
         <!-- 필터 박스 -->
-        <form th:action="@{/admin/support}" method="get" id="filterForm">
+        <form th:action="@{/support}" method="get" id="filterForm">
             <div class="filter-box">
                 <table class="form-table">
                     <tr>
@@ -384,7 +384,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="inquiry, iterStat : ${inquiries.content}"
-                    th:onclick="|location.href='@{/admin/support/{id}(id=${inquiry.id})}'|"
+                    th:onclick="|location.href='@{/support/{id}(id=${inquiry.id})}'|"
                     style="cursor: pointer;">
                     <td th:text="${inquiries.number * inquiries.size + iterStat.count}">1</td>
                     <td th:text="${inquiry.createdAtFormatted}">2025-01-10 10:00</td>
