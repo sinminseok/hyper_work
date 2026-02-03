@@ -42,6 +42,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+
     @Transactional
     public void updateImage(Long userId, MultipartFile image){
         eventPublisher.publishEvent(new UserProfileImageEvent(userId, image));

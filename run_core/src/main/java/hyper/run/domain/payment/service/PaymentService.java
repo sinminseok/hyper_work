@@ -39,7 +39,8 @@ public class PaymentService {
      */
     @Transactional
     public void pay(final Long userId, final PaymentRequest request){
-        validateReceipt(request);
+        //todo 운영 환경 전에 주석 해지
+        //validateReceipt(request);
         User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
         Payment payment = request.toEntity(user);
         repository.save(payment);

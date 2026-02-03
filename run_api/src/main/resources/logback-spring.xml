@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
+    <!-- 날짜 변수 정의 (로그 스트림 이름에 사용) -->
+    <timestamp key="startDate" datePattern="yyyy-MM-dd"/>
+
     <!-- Console Appender (개발/로컬용) -->
     <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
@@ -12,7 +15,7 @@
         <awsAccessKey>${AWS_S3_ACCESS_KEY}</awsAccessKey>
         <awsSecretKey>${AWS_S3_SECRET_KEY}</awsSecretKey>
         <logGroupName>/funnyrun/error</logGroupName>
-        <logStreamName>error-%d{yyyy-MM-dd}</logStreamName>
+        <logStreamName>error-${startDate}</logStreamName>
         <logRegion>ap-northeast-2</logRegion>
         <maxBatchLogEvents>50</maxBatchLogEvents>
         <maxFlushTimeMillis>30000</maxFlushTimeMillis>
