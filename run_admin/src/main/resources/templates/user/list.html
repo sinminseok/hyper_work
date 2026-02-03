@@ -261,7 +261,7 @@
             <div class="page-breadcrumb">홈 > 사용자 관리 > 목록</div>
         </div>
 
-        <form th:action="@{/admin/users}" method="get" id="filterForm">
+        <form th:action="@{/users}" method="get" id="filterForm">
             <div class="filter-box">
                 <div class="filter-row">
                     <label>정렬:</label>
@@ -300,7 +300,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="user, iterStat : ${users.content}"
-                    th:onclick="|location.href='@{/admin/users/{id}(id=${user.id})}'|"
+                    th:onclick="|location.href='@{/users/{id}(id=${user.id})}'|"
                     style="cursor: pointer;">
                     <td th:text="${users.number * users.size + iterStat.count}">1</td>
                     <td th:text="${user.email}">user@example.com</td>

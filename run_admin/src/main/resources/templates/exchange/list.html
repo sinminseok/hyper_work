@@ -302,7 +302,7 @@
         </div>
 
         <!-- 필터 박스 -->
-        <form th:action="@{/admin/exchanges}" method="get" id="filterForm">
+        <form th:action="@{/exchanges}" method="get" id="filterForm">
             <div class="filter-box">
                 <table class="form-table">
                     <tr>
@@ -352,7 +352,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="exchange, iterStat : ${exchanges.content}"
-                    th:onclick="|location.href='@{/admin/exchanges/{id}(id=${exchange.id})}'|"
+                    th:onclick="|location.href='@{/exchanges/{id}(id=${exchange.id})}'|"
                     style="cursor: pointer;">
                     <td th:text="${exchanges.number * exchanges.size + iterStat.count}">1</td>
                     <td th:text="${exchange.createdAtFormatted}">2025-01-10 10:00</td>

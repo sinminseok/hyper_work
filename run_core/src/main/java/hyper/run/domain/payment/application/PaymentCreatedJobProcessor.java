@@ -45,7 +45,7 @@ public class PaymentCreatedJobProcessor implements JobProcessor<PaymentCreatedMe
             return;
         }
 
-        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(message.getPaymentId()), NOT_EXIST_USER_ID);
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(message.getUserId()), NOT_EXIST_USER_ID);
         user.increaseCouponByAmount(payment.getCouponAmount());
 
         payment.updateState(PaymentState.PAYMENT_COMPLETED);

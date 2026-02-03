@@ -262,31 +262,31 @@
     <ul class="sidebar-menu">
         <div class="menu-section-title">주요 메뉴</div>
         <li>
-            <a th:href="@{/admin/games}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/games')} ? 'active' : ''">
+            <a th:href="@{/games}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/games')} ? 'active' : ''">
                 <span class="menu-icon">🏃</span>
                 <span class="menu-text">경기 관리</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/admin/users}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/users')} ? 'active' : ''">
+            <a th:href="@{/users}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/users')} ? 'active' : ''">
                 <span class="menu-icon">👥</span>
                 <span class="menu-text">사용자 관리</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/admin/payments}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/payments')} ? 'active' : ''">
+            <a th:href="@{/payments}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/payments')} ? 'active' : ''">
                 <span class="menu-icon">💳</span>
                 <span class="menu-text">결제 관리</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/admin/exchanges}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/exchanges')} ? 'active' : ''">
+            <a th:href="@{/exchanges}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/exchanges')} ? 'active' : ''">
                 <span class="menu-icon">💰</span>
                 <span class="menu-text">포인트 환전 관리</span>
             </a>
         </li>
         <li>
-            <a th:href="@{/admin/support}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/admin/support')} ? 'active' : ''">
+            <a th:href="@{/support}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/support')} ? 'active' : ''">
                 <span class="menu-icon">💬</span>
                 <span class="menu-text">고객 지원</span>
             </a>

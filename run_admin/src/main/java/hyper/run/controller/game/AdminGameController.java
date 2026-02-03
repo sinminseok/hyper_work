@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @Controller
-@RequestMapping("/admin/games")
+@RequestMapping("/games")
 @RequiredArgsConstructor
 public class AdminGameController {
 
@@ -53,7 +53,7 @@ public class AdminGameController {
         model.addAttribute("gameTypes", GameType.values());
         model.addAttribute("gameDistances", GameDistance.values());
         model.addAttribute("page", page);
-        model.addAttribute("currentUri", "/admin/games");
+        model.addAttribute("currentUri", "/games");
 
         return "game/list";
     }
@@ -62,7 +62,7 @@ public class AdminGameController {
     public String gameDetail(@PathVariable Long gameId, Model model) {
         Game game = gameManagementService.getGameDetail(gameId);
         model.addAttribute("game", game);
-        model.addAttribute("currentUri", "/admin/games");
+        model.addAttribute("currentUri", "/games");
         return "game/detail";
     }
 }

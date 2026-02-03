@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @Controller
-@RequestMapping("/admin/exchanges")
+@RequestMapping("/exchanges")
 @RequiredArgsConstructor
 public class AdminExchangeTransactionController {
 
@@ -37,7 +37,7 @@ public class AdminExchangeTransactionController {
         model.addAttribute("filterStatus", filterStatus);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        model.addAttribute("currentUri", "/admin/exchanges");
+        model.addAttribute("currentUri", "/exchanges");
 
         return "exchange/list";
     }
@@ -46,7 +46,7 @@ public class AdminExchangeTransactionController {
     public String exchangeTransactionDetail(@PathVariable Long transactionId, Model model) {
         AdminExchangeTransactionDetailResponse exchange = exchangeTransactionManagementService.getExchangeTransactionDetail(transactionId);
         model.addAttribute("exchange", exchange);
-        model.addAttribute("currentUri", "/admin/exchanges");
+        model.addAttribute("currentUri", "/exchanges");
         return "exchange/detail";
     }
 

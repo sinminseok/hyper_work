@@ -23,7 +23,7 @@ public class ExchangeTransactionController {
     private final ExchangeTransactionService service;
 
     @PostMapping
-    public ResponseEntity<?> buyCoupons(@RequestBody ExchangeTransactionRequest request) {
+    public ResponseEntity<?> exchange(@RequestBody ExchangeTransactionRequest request) {
         service.save(request);
         SuccessResponse response = new SuccessResponse(true, "환전 신청 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 
 @Controller
-@RequestMapping("/admin/support")
+@RequestMapping("/support")
 @RequiredArgsConstructor
 public class AdminCustomerInquiryController {
 
@@ -41,7 +41,7 @@ public class AdminCustomerInquiryController {
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
         model.addAttribute("sortBy", sortBy);
-        model.addAttribute("currentUri", "/admin/support");
+        model.addAttribute("currentUri", "/support");
 
         return "inquiry/list";
     }
@@ -50,7 +50,7 @@ public class AdminCustomerInquiryController {
     public String inquiryDetail(@PathVariable Long inquiryId, Model model) {
         AdminCustomerInquiryDetailResponse inquiry = customerInquiryManagementService.getInquiryDetail(inquiryId);
         model.addAttribute("inquiry", inquiry);
-        model.addAttribute("currentUri", "/admin/support");
+        model.addAttribute("currentUri", "/support");
 
         // REFUND 타입인 경우 환불 처리 페이지로 리다이렉트
         if (inquiry.getType().name().equals("REFUND")) {
