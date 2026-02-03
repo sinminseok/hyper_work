@@ -86,6 +86,8 @@ jobs:
           echo "AWS_S3_SECRET_KEY=${{ secrets.AWS_S3_SECRET_KEY }}" >> .env
           echo "MAIL_PASSWORD=${{ secrets.MAIL_PASSWORD }}" >> .env
           echo "MAIL_SENDER=${{ secrets.MAIL_SENDER }}" >> .env
+          echo "ADMIN_INITIAL_EMAIL=${{ secrets.ADMIN_INITIAL_EMAIL }}" >> .env
+          echo "ADMIN_INITIAL_PASSWORD=${{ secrets.ADMIN_INITIAL_PASSWORD }}" >> .env
 
       - name: Create deployment artifact
         run: |
