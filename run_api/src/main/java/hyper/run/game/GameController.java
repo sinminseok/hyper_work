@@ -152,6 +152,14 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/{gameId}/cancel")
+    public ResponseEntity<?> cancelGameByGarmin(@PathVariable Long gameId) {
+        Long userId = getLoginUserIdBySecurityContext();
+        gameService.cancelGame(userId, gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 참여 철회", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /**
      * 참가중인 경기 포기 API
      */

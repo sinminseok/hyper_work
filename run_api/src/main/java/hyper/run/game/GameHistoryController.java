@@ -51,6 +51,13 @@ public class GameHistoryController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/batch")
+    public ResponseEntity<?> updateGameHistoryBatchByGarmin(@RequestBody final GameHistoryBatchUpdateRequest request) {
+        gameHistoryService.updateBatchGameHistory(request);
+        SuccessResponse response = new SuccessResponse(true, "배치 업데이트 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /**
      * 해당 경기의 1위(rank=1) 경기 기록을 조회하는 API
      */
