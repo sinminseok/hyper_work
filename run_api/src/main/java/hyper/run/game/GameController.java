@@ -171,6 +171,14 @@ public class GameController {
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
+    @PostMapping("/{gameId}/give-up")
+    public ResponseEntity<?> giveUpGameByGarmin(@PathVariable Long gameId) {
+        String email = getLoginEmailBySecurityContext();
+        gameService.giveUpGame(email, gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 포기", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
     /**
      * 메인 페이지에서 조회할 게임 API
      */
