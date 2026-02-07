@@ -56,14 +56,16 @@ public class GameService {
     @Transactional
     public void applyGame(final Long userId, final GameApplyRequest request) {
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findByGameConditions(request.getStartAt(), request.getDistance(), request.getType(), request.getActivityType()), NOT_EXIST_GAME_ID);
-
         validateGameApplyTime(game);
+        validateAlreadyApply(userId, game);
+        game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
+        gameRepository.save(game);
+    }
 
+    private void validateAlreadyApply(Long userId, Game game) {
         if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()).isPresent()) {
             throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
         }
-        game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
-        gameRepository.save(game);
     }
 
     private void validateGameApplyTime(Game game) {

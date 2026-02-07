@@ -25,9 +25,8 @@ public class GameCancelListener {
     public void handleGameCancel(GameCancelEvent event) {
         User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(event.userId()), NOT_EXIST_USER_EMAIL);
         user.increaseCoupon();
-
         GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(event.userId(), event.gameId()), NOT_EXIST_GAME_GISTORY_ID);
-
-        gameHistoryRepository.delete(gameHistory);
+        gameHistory.cancel();
+        gameHistoryRepository.save(gameHistory);
     }
 }

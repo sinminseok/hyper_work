@@ -58,7 +58,6 @@ public class GameHistory {
     @Field("current_distance")
     private double currentDistance;
 
-
     @Setter
     @Field("start_at")
     private LocalDateTime startAt; // 사용자가 경기를 시작한 시간 (초기값은 Game 의 startAt 참고)
@@ -85,12 +84,16 @@ public class GameHistory {
         }
     }
 
-
     public void markAsDone() {
         if (!this.done) {  // 처음 완주할 때만 endAt 기록
             this.done = true;
             this.endAt = LocalDateTime.now();
         }
+    }
+
+    public void cancel() {
+        endAt = startAt;
+        this.done = true;
     }
 
     public void connectWatch() {

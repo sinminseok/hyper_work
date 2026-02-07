@@ -36,4 +36,7 @@ public interface GameRepository extends JpaRepository<Game, Long>, GameRepositor
 
     Page<Game> findAllByCreateDateTimeBetween(LocalDateTime startDateTime, LocalDateTime endDateTime, Pageable pageable);
 
+    @Query("SELECT g FROM Game g WHERE DATE(g.endAt) < :targetDate AND g.participatedCount = 0")
+    List<Game> findExpiredGamesWithNoParticipants(@Param("targetDate") LocalDate targetDate);
+
 }
