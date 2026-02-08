@@ -87,6 +87,10 @@ dependencies {
     // Spring AOP
     implementation 'org.springframework.boot:spring-boot-starter-aop'
 
+    // Actuator & Prometheus (성능 모니터링)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
 }
 
 // [3] Querydsl 설정부

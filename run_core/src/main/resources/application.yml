@@ -4,3 +4,19 @@ spring:
   config:
     import:
       - optional:classpath:aws-sns-sqs-config-${spring.profiles.active}.yml
+
+# Actuator & Prometheus 모니터링 설정
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+    tags:
+      application: ${spring.application.name}
+  endpoint:
+    health:
+      show-details: always

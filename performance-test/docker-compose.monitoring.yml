@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  # InfluxDB - k6 테스트 결과 저장
+  influxdb:
+    image: influxdb:2.7-alpine
+    container_name: funnyrun-influxdb
+    ports:
+      - "8086:8086"
+    environment:
+      - DOCKER_INFLUXDB_INIT_MODE=setup
+      - DOCKER_INFLUXDB_INIT_USERNAME=admin
+      - DOCKER_INFLUXDB_INIT_PASSWORD=admin1234
+      - DOCKER_INFLUXDB_INIT_ORG=funnyrun
+      - DOCKER_INFLUXDB_INIT_BUCKET=k6-results
+      - DOCKER_INFLUXDB_INIT_ADMIN_TOKEN=my-super-secret-token
+    volumes:
+      - influxdb-data:/var/lib/influxdb2
+    networks:
+      - monitoring
+
+  # Grafana - 시각화
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: funnyrun-grafana
+    ports:
+      - "3000:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+      - GF_INSTALL_PLUGINS=
+    volumes:
+      - grafana-data:/var/lib/grafana
+    depends_on:
+      - influxdb
+    networks:
+      - monitoring
+
+  # Prometheus - 메트릭 수집
+  prometheus:
+    image: prom/prometheus:v2.48.0
+    container_name: funnyrun-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus-data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+    networks:
+      - monitoring
+
+volumes:
+  influxdb-data:
+  grafana-data:
+  prometheus-data:
+
+networks:
+  monitoring:
+    driver: bridge

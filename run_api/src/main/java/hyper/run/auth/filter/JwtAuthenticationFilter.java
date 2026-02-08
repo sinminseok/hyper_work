@@ -70,7 +70,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                                             });
                                 });
                     } catch (Exception e) {
-                        log.error("Token validation failed: {}", e.getMessage());
                         throw new AuthException(ErrorResponseCode.NOT_VALID_TOKEN, "유효하지 않는 토큰입니다.");
                     }
                 });
