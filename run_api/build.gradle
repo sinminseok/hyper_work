@@ -33,6 +33,10 @@ dependencies {
     // CloudWatch Logs Appender
     implementation 'ca.pjer:logback-awslogs-appender:1.6.0'
 
+    // Actuator & Prometheus (성능 모니터링)
+    implementation 'org.springframework.boot:spring-boot-starter-actuator'
+    implementation 'io.micrometer:micrometer-registry-prometheus'
+
     testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
     testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
 }
