@@ -22,4 +22,18 @@ public interface PaymentRepository extends JpaRepository<Payment, Long>, JpaSpec
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT p FROM Payment p WHERE p.id = :paymentId")
     Optional<Payment> findByIdForUpdate(@Param("paymentId") Long paymentId);
+
+    /**
+     * transactionId로 결제 내역 존재 여부 확인
+     * - 중복 결제 방지를 위해 사용
+     */
+    boolean existsByTransactionId(String transactionId);
+
+    /**
+     * transactionId로 결제 내역 조회 및 PESSIMISTIC_WRITE Lock 획득
+     * - 중복 결제 방지를 위한 동시성 제어에 사용
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT p FROM Payment p WHERE p.transactionId = :transactionId")
+    Optional<Payment> findByTransactionIdForUpdate(@Param("transactionId") String transactionId);
 }

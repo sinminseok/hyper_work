@@ -10,7 +10,6 @@ import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
@@ -25,7 +24,7 @@ public class OutboxEventPublisher {
     private final List<OutboxEventPublishProcessor> processors;
     private final OutboxEventRepository outboxEventRepository;
 
-    @TransactionalEventListener(phase = TransactionPhase.AFTER_COMMIT)
+    @TransactionalEventListener(phase = TransactionPhase.BEFORE_COMMIT)
     public void publish(OutboxCommittedEvent event) {
         publishEvent(event.getType(), event.getOutboxEventId(), event.getData());
     }
@@ -47,8 +46,7 @@ public class OutboxEventPublisher {
                 );
     }
 
-    @Transactional
-    protected void markPublishedToQueue(String eventId) {
+    private void markPublishedToQueue(String eventId) {
         try {
             OutboxEvent event = OptionalUtil.getOrElseThrow(outboxEventRepository.findById(eventId), NOT_EXIST_OUTBOX_EVENT_ID);
             event.markPublishedToQueue();
