@@ -125,6 +125,7 @@ cloud:
         max-messages-per-poll: 10
         poll-timeout: 20
         visibility-timeout: 300
+
     sns:
       enabled: ${AWS_SNS_ENABLED:true}
       region: ap-northeast-2
