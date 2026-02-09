@@ -58,7 +58,6 @@ spring:
         jdbc:
           time_zone: Asia/Seoul
 
-
 redis:
   host: ${REDIS_HOST}
   port: 6379
