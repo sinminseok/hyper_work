@@ -6,6 +6,7 @@ import hyper.run.domain.payment.dto.response.PaymentResponse;
 import hyper.run.domain.payment.service.PaymentService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,7 @@ import java.util.List;
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
 import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecurityContext;
 
+@Slf4j
 @RequiredArgsConstructor
 @RestController
 @RequestMapping("/v1/api/payments")
@@ -28,6 +30,8 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<?> buyCoupons(@RequestBody PaymentRequest request) {
         Long userId = getLoginUserIdBySecurityContext();
+        log.info("결제 요청 수신: userId={}, transactionId={}, productId={}",
+                userId, request.getTransactionId(), request.getProductId());
         paymentService.pay(userId, request);
         SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);

@@ -42,7 +42,7 @@ public class Payment extends BaseTimeEntity<Payment> {
     @Column(name = "payment_method", nullable = true)
     private String paymentMethod;
 
-    @Column(name = "transaction_id", nullable = false)
+    @Column(name = "transaction_id", nullable = false, unique = true)
     private String transactionId;
 
     @Column(name = "product_id", nullable = false)
