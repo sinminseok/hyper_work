@@ -40,4 +40,4 @@ out/
 
 ### Java heap dumps ###
 *.hprof
-run_core/src/main/resources/funyrun-*.json
+run_core/src/main/resources/funyrun-7d716a03e6f6.json
