@@ -22,8 +22,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Game extends BaseTimeEntity<Game> {
 
-    private static final int GAME_START_STANDARD_PEOPLE_COUNT = 3;
-    private static final int PARTICIPATION_FEE = 1200;
+    private static final int PARTICIPATION_FEE = 2500;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -62,16 +61,22 @@ public class Game extends BaseTimeEntity<Game> {
     private int participatedCount; // 총 참여 인원
 
     @Column(name = "total_prize")
-    private double totalPrize; // 총 상금
+    private Double totalPrize; // 총 상금
 
     @Column(name = "first_place_prize")
-    private double firstPlacePrize; // 우승 상금 (총상금의 80%)
+    private Double firstPlacePrize; // 우승 상금 (총상금의 80%)
 
     @Column(name = "second_place_prize")
-    private double secondPlacePrize; // 2등 상금 (총상금의 15%)
+    private Double secondPlacePrize; // 2등 상금 (총상금의 15%)
 
     @Column(name = "third_place_prize")
-    private double thirdPlacePrize; // 3등 상금 (총상금의 5%)
+    private Double thirdPlacePrize; // 3등 상금 (총상금의 6%)
+
+    @Column(name = "fourth_place_prize")
+    private Double fourthPlacePrize; // 4등 상금 (총상금의 3%)
+
+    @Column(name = "other_place_prize")
+    private Double otherPlacePrize; // 5~20등 상금 (총상금의 1% 각)
 
     @Column(name = "first_user_name", nullable = true)
     @Setter
@@ -107,15 +112,16 @@ public class Game extends BaseTimeEntity<Game> {
 
     // 참가 인원 수에 따라 상금 재계산
     private void updatePrizeByParticipants() {
-        this.totalPrize = this.participatedCount * PARTICIPATION_FEE;
-        this.firstPlacePrize = Math.floor(totalPrize * 0.80);
+        this.totalPrize = (double) (this.participatedCount * PARTICIPATION_FEE);
+        this.firstPlacePrize = Math.floor(totalPrize * 0.60);
         this.secondPlacePrize = Math.floor(totalPrize * 0.15);
-        this.thirdPlacePrize = Math.floor(totalPrize * 0.05);
+        this.thirdPlacePrize = Math.floor(totalPrize * 0.06);
+        this.fourthPlacePrize = Math.floor(totalPrize * 0.03);
+        this.otherPlacePrize = Math.floor(totalPrize * 0.01);
     }
 
-    //참여 인원이 3명 이하면 시작하지 않는다.
     public boolean canNotStartGame() {
-        return GAME_START_STANDARD_PEOPLE_COUNT >= this.participatedCount;
+        return this.participatedCount == 0;
     }
 
     // 경기 진행 여부 확인

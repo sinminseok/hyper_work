@@ -291,6 +291,12 @@
                 <span class="menu-text">고객 지원</span>
             </a>
         </li>
+        <li>
+            <a th:href="@{/banners}" th:classappend="${currentUri != null && #strings.startsWith(currentUri, '/banners')} ? 'active' : ''">
+                <span class="menu-icon">🖼️</span>
+                <span class="menu-text">배너 관리</span>
+            </a>
+        </li>
     </ul>
 
     <!-- 푸터 -->

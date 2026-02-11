@@ -43,19 +43,28 @@ public class GameFinishedListener {
 
         rankedHistories.forEach(history -> history.setDone(true));
 
+        // 1~20위까지 상금 지급 (완주자만)
         List<GameHistory> topRankers = rankedHistories.stream()
-                .limit(3)
+                .limit(20)
                 .toList();
 
         for (int i = 0; i < topRankers.size(); i++) {
             GameHistory history = topRankers.get(i);
             User user = userRepository.findById(history.getUserId()).orElseThrow(() -> new IllegalStateException("User not found: " + history.getUserId()));
-            double prize = calculatePrizeForRank(game, i);
-            if (prize > 0) {
-                user.increasePoint(prize);
-                history.setPrize(prize);
+
+            // 완주자만 상금 지급
+            if (history.isDone()) {
+                double prize = calculatePrizeForRank(game, i);
+                if (prize > 0) {
+                    user.increasePoint(prize);
+                    history.setPrize(prize);
+                }
             }
-            assignWinnerName(game, i, user);
+
+            // 상위 3명의 이름은 기록
+            if (i < 3) {
+                assignWinnerName(game, i, user);
+            }
         }
 
         gameHistoryRepository.saveAll(rankedHistories);
@@ -64,10 +73,12 @@ public class GameFinishedListener {
 
     private double calculatePrizeForRank(Game game, int rankIndex) {
         return switch (rankIndex) {
-            case 0 -> game.getFirstPlacePrize();
-            case 1 -> game.getSecondPlacePrize();
-            case 2 -> game.getThirdPlacePrize();
-            default -> 0;
+            case 0 -> game.getFirstPlacePrize();      // 1위: 60%
+            case 1 -> game.getSecondPlacePrize();     // 2위: 15%
+            case 2 -> game.getThirdPlacePrize();      // 3위: 6%
+            case 3 -> game.getFourthPlacePrize();     // 4위: 3%
+            case 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 -> game.getOtherPlacePrize();  // 5~20위: 1%
+            default -> 0;  // 21위 이상: 상금 없음
         };
     }
 

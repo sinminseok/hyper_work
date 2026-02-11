@@ -33,6 +33,10 @@ public class GameCalendarResponse {
 
     private double thirdPlacePrize;
 
+    private double fourthPlacePrize;
+
+    private double otherPlacePrize;
+
     private double myDistance; // 실제 이동 거리(GameHistory 의 currentDistance)
 
 }

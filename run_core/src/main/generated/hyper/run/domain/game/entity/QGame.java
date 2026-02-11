@@ -36,12 +36,16 @@ public class QGame extends EntityPathBase<Game> {
 
     public final StringPath firstUserName = createString("firstUserName");
 
+    public final NumberPath<Double> fourthPlacePrize = createNumber("fourthPlacePrize", Double.class);
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     //inherited
     public final DateTimePath<java.time.LocalDateTime> modifiedDateTime = _super.modifiedDateTime;
 
     public final StringPath name = createString("name");
+
+    public final NumberPath<Double> otherPlacePrize = createNumber("otherPlacePrize", Double.class);
 
     public final NumberPath<Integer> participatedCount = createNumber("participatedCount", Integer.class);
 
