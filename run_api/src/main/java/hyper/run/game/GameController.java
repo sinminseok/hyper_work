@@ -1,6 +1,7 @@
 package hyper.run.game;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.request.GameConditionRequest;
 import hyper.run.domain.game.dto.request.GamePrizeCursorRequest;
 import hyper.run.domain.game.dto.response.GameCalendarResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
@@ -21,6 +22,7 @@ import org.springframework.web.bind.annotation.*;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
 import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecurityContext;
@@ -275,5 +277,21 @@ public class GameController {
         GameResponse gameResponse = gameService.findById(gameId);
         SuccessResponse response = new SuccessResponse(true, "경기 단일 조회 성공", gameResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 경기 조건으로 경기를 조회하는 API
+     */
+    @PostMapping("/search")
+    public ResponseEntity<?> findGameByConditions(@RequestBody GameConditionRequest request){
+        Optional<GameResponse> gameResponse = gameService.findGameByConditions(request);
+
+        if (gameResponse.isPresent()) {
+            SuccessResponse response = new SuccessResponse(true, "경기 조회 성공", gameResponse.get());
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        } else {
+            SuccessResponse response = new SuccessResponse(false, "해당 조건의 경기를 찾을 수 없습니다.", null);
+            return new ResponseEntity<>(response, HttpStatus.OK);
+        }
     }
 }

@@ -1,6 +1,7 @@
 package hyper.run.domain.game.service;
 
 import hyper.run.domain.game.dto.request.GameApplyRequest;
+import hyper.run.domain.game.dto.request.GameConditionRequest;
 import hyper.run.domain.game.dto.request.GamePrizeCursorRequest;
 import hyper.run.domain.game.dto.response.GameCalendarResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
@@ -370,6 +371,8 @@ public class GameService {
                 .firstPlacePrize(game.getFirstPlacePrize())
                 .secondPlacePrize(game.getSecondPlacePrize())
                 .thirdPlacePrize(game.getThirdPlacePrize())
+                .fourthPlacePrize(game.getFourthPlacePrize())
+                .otherPlacePrize(game.getOtherPlacePrize())
                 .myDistance(gameHistory.getCurrentDistance())
                 .build();
     }
@@ -379,6 +382,20 @@ public class GameService {
                 .filter(gh -> gh.getGameId().equals(gameId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GAME_GISTORY_ID));
+    }
+
+    /**
+     * 경기 조건으로 경기를 조회하는 메서드
+     */
+    public Optional<GameResponse> findGameByConditions(GameConditionRequest request) {
+        Optional<Game> game = gameRepository.findByGameConditions(
+                request.getStartAt(),
+                request.getDistance(),
+                request.getType(),
+                request.getActivityType()
+        );
+
+        return game.map(g -> GameResponse.toResponse(g, GameStatus.REGISTRATION_OPEN));
     }
 
 }

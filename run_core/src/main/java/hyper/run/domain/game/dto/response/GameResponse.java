@@ -41,6 +41,10 @@ public class GameResponse {
 
     private double thirdPlacePrize;
 
+    private double fourthPlacePrize;
+
+    private double otherPlacePrize;
+
     private GameStatus status;
 
     private String firstUserName;
@@ -63,6 +67,8 @@ public class GameResponse {
                 .firstPlacePrize(game.getFirstPlacePrize())
                 .secondPlacePrize(game.getSecondPlacePrize())
                 .thirdPlacePrize(game.getThirdPlacePrize())
+                .fourthPlacePrize(game.getFourthPlacePrize())
+                .otherPlacePrize(game.getOtherPlacePrize())
                 .status(status)
                 .firstUserName(game.getFirstUserName())
                 .secondUserName(game.getSecondUserName())

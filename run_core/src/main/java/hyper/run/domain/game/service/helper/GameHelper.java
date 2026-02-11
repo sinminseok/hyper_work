@@ -19,10 +19,12 @@ public class GameHelper {
                 .startAt(date.atTime(startHour, startMinute))
                 .endAt(date.atTime(startHour, startMinute).plusMinutes(distance.getTime()))
                 .participatedCount(0)
-                .totalPrize(0)
-                .firstPlacePrize(calculateFirstPlacePrize(0))
-                .secondPlacePrize(calculateSecondPlacePrize(0))
-                .thirdPlacePrize(calculateThirdPlacePrize(0))
+                .totalPrize(0.0)
+                .firstPlacePrize(calculateFirstPlacePrize(0.0))
+                .secondPlacePrize(calculateSecondPlacePrize(0.0))
+                .thirdPlacePrize(calculateThirdPlacePrize(0.0))
+                .fourthPlacePrize(calculateFourthPlacePrize(0.0))
+                .otherPlacePrize(calculateOtherPlacePrize(0.0))
                 .adminGameStatus(AdminGameStatus.SCHEDULED)
                 .build();
     }
