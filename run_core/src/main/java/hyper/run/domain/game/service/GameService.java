@@ -96,6 +96,23 @@ public class GameService {
     }
 
     /**
+     * 경기 시작 전 참가 취소
+     */
+    @Transactional
+    public void cancelGameAndDeleteHistory(final Long userId, final Long gameId){
+        Game game = OptionalUtil.getOrElseThrow(gameRepository.findByIdForUpdate(gameId), NOT_EXIST_GAME_ID);
+        game.decreaseParticipatedCount();
+        gameRepository.save(game);
+
+        User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
+        user.increaseCoupon();
+        userRepository.save(user);
+
+        GameHistory gameHistory = OptionalUtil.getOrElseThrow(gameHistoryRepository.findByUserIdAndGameId(userId, gameId), NOT_EXIST_GAME_GISTORY_ID);
+        gameHistoryRepository.delete(gameHistory);
+    }
+
+    /**
      * 참가 취소 메서드
      */
     @Transactional
@@ -211,11 +228,9 @@ public class GameService {
      * 자신의 참가중 or 참가 예정인 경기 내역을 모두 조회한다.
      */
     public List<GameHistoryResponse> findMyParticipateGames(final String email){
-        System.out.println("emailemail===" + email);
         User user = userRepository.findByEmail(email).orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_USER_EMAIL));
         return gameHistoryRepository.findAllByUserId(user.getId()).stream()
                 .map(gameHistory -> {
-                    System.out.println("gameHistory = " + gameHistory.getGameId());
                     Game game = OptionalUtil.getOrElseThrow(gameRepository.findById(gameHistory.getGameId()), NOT_EXIST_GAME_ID);
                     if (game.isInProgress() || game.isNotYetStart()) {
                         return GameHistoryResponse.toResponse(game, gameHistory);
@@ -368,11 +383,11 @@ public class GameService {
                 .gameEndAt(game.getEndAt())
                 .userStartAt(gameHistory.getStartAt())
                 .userEndAt(gameHistory.getEndAt())
-                .firstPlacePrize(game.getFirstPlacePrize())
-                .secondPlacePrize(game.getSecondPlacePrize())
-                .thirdPlacePrize(game.getThirdPlacePrize())
-                .fourthPlacePrize(game.getFourthPlacePrize())
-                .otherPlacePrize(game.getOtherPlacePrize())
+                .firstPlacePrize(nullSafePrize(game.getFirstPlacePrize()))
+                .secondPlacePrize(nullSafePrize(game.getSecondPlacePrize()))
+                .thirdPlacePrize(nullSafePrize(game.getThirdPlacePrize()))
+                .fourthPlacePrize(nullSafePrize(game.getFourthPlacePrize()))
+                .otherPlacePrize(nullSafePrize(game.getOtherPlacePrize()))
                 .myDistance(gameHistory.getCurrentDistance())
                 .build();
     }
@@ -382,6 +397,10 @@ public class GameService {
                 .filter(gh -> gh.getGameId().equals(gameId))
                 .findFirst()
                 .orElseThrow(() -> new IllegalArgumentException(NOT_EXIST_GAME_GISTORY_ID));
+    }
+
+    private double nullSafePrize(Double prize) {
+        return prize != null ? prize : 0.0;
     }
 
     /**

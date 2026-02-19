@@ -3,12 +3,14 @@ package hyper.run.game;
 import hyper.run.domain.game.dto.request.GameApplyRequest;
 import hyper.run.domain.game.dto.request.GameConditionRequest;
 import hyper.run.domain.game.dto.request.GamePrizeCursorRequest;
+import hyper.run.domain.game.dto.request.GameStartRequest;
 import hyper.run.domain.game.dto.response.GameCalendarResponse;
 import hyper.run.domain.game.dto.response.GameHistoryResponse;
 import hyper.run.domain.game.dto.response.GameInProgressWatchResponse;
 import hyper.run.domain.game.dto.response.GameResponse;
 import hyper.run.domain.game.dto.response.WeeklyExerciseResponse;
 import hyper.run.domain.game.entity.GameType;
+import hyper.run.domain.game.service.GameHistoryService;
 import hyper.run.domain.game.service.GameRankService;
 import hyper.run.domain.game.service.GameService;
 import hyper.run.domain.user.dto.request.EmailRequest;
@@ -33,6 +35,7 @@ import static hyper.run.auth.service.SecurityContextHelper.getLoginUserIdBySecur
 public class GameController {
 
     private final GameService gameService;
+    private final GameHistoryService gameHistoryService;
     private final Map<GameType, GameRankService> gameRankServices;
     private final EmailService emailService;
     private final GameScheduler gameScheduler;
@@ -144,6 +147,17 @@ public class GameController {
     }
 
     /**
+     * 경기 참가 시작 API (ConnectType 등록)
+     */
+    @PostMapping("/start")
+    public ResponseEntity<?> startGame(@RequestBody GameStartRequest request){
+        Long userId = getLoginUserIdBySecurityContext();
+        gameHistoryService.startGame(userId, request);
+        SuccessResponse response = new SuccessResponse(true, "경기 참가 시작 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
      * 예정된 경기 취소 API
      */
     @PatchMapping("/{gameId}/cancel")
@@ -159,6 +173,28 @@ public class GameController {
         Long userId = getLoginUserIdBySecurityContext();
         gameService.cancelGame(userId, gameId);
         SuccessResponse response = new SuccessResponse(true, "경기 참여 철회", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 경기 시작 전 참가 취소 및 GameHistory 삭제 API
+     * - 경기 참가 인원 1 감소
+     * - 사용자 쿠폰 1 증가
+     * - GameHistory 삭제
+     */
+    @DeleteMapping("/{gameId}/withdraw")
+    public ResponseEntity<?> withdrawGame(@PathVariable Long gameId) {
+        Long userId = getLoginUserIdBySecurityContext();
+        gameService.cancelGameAndDeleteHistory(userId, gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 참여 취소 및 기록 삭제 완료", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    @PostMapping("/{gameId}/withdraw")
+    public ResponseEntity<?> withdrawGameByGarmin(@PathVariable Long gameId) {
+        Long userId = getLoginUserIdBySecurityContext();
+        gameService.cancelGameAndDeleteHistory(userId, gameId);
+        SuccessResponse response = new SuccessResponse(true, "경기 참여 취소 및 기록 삭제 완료", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 

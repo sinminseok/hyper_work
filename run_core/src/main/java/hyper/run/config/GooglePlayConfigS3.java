@@ -77,21 +77,17 @@ public class GooglePlayConfigS3 {
     private InputStream loadKeyFileWithFallback() throws IOException {
         // 1. Classpath에서 로드 시도 (개발 환경)
         try {
-            log.info("Classpath에서 키 파일 로드 시도: funyrun-7d716a03e6f6.json");
             Resource resource = new ClassPathResource("funyrun-7d716a03e6f6.json");
             if (resource.exists()) {
-                log.info("✅ Classpath에서 키 파일 로드 성공");
                 return resource.getInputStream();
             }
         } catch (Exception e) {
             log.debug("Classpath에서 키 파일을 찾을 수 없음: {}", e.getMessage());
         }
 
-        // 2. 로컬 파일 시스템에서 로드 시도
         try {
             Path localPath = Paths.get("run_core/src/main/resources/funyrun-7d716a03e6f6.json");
             if (Files.exists(localPath)) {
-                log.info("✅ 로컬 파일에서 키 파일 로드 성공: {}", localPath);
                 return new FileInputStream(localPath.toFile());
             }
         } catch (Exception e) {

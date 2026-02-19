@@ -78,6 +78,10 @@ public class GameHistory {
     @Field("is_connected_watch")
     private boolean connectedWatch;
 
+    @Setter
+    @Field("connect_type")
+    private ConnectType connectType;
+
     public void checkDoneByDistance() {
         if (currentDistance >= gameDistance.getDistance()) {
             markAsDone();
@@ -110,7 +114,8 @@ public class GameHistory {
                 .done(false)
                 .rank(0)
                 .startAt(gameStartAt)
-                .endAt(gameEndAt);
+                .endAt(gameEndAt)
+                .connectType(ConnectType.NOT_STARTED);
 
         if (averageBpm != null) {
             builder.targetBpm(averageBpm);
@@ -153,11 +158,6 @@ public class GameHistory {
         updateCount++;
         int previousCount = updateCount - 1;
 
-        // 첫 업데이트 시 실제 경기 시작 시간 기록
-        if (updateCount == 1) {
-            this.startAt = LocalDateTime.now();
-        }
-
         currentDistance = request.getCurrentDistance();
         currentBpm = calculateAverage(currentBpm, request.getCurrentBpm(), previousCount);
         currentCadence = calculateAverage(currentCadence, request.getCurrentCadence(), previousCount);
@@ -183,11 +183,6 @@ public class GameHistory {
         java.util.List<GameHistoryBatchUpdateRequest.BioDataSample> samples = request.getSamples();
         int sampleCount = samples.size();
 
-        // 첫 업데이트 시 실제 경기 시작 시간 기록
-        if (updateCount == 0) {
-            this.startAt = LocalDateTime.now();
-        }
-
         // 배치의 마지막 샘플에서 거리 가져오기 (누적 거리, 0이면 생략)
         GameHistoryBatchUpdateRequest.BioDataSample lastSample = samples.get(sampleCount - 1);
         if (lastSample.getCurrentDistance() > 0) {
@@ -199,7 +194,7 @@ public class GameHistory {
         int validBpmCount = 0, validCadenceCount = 0;
 
         for (GameHistoryBatchUpdateRequest.BioDataSample sample : samples) {
-            if (sample.getCurrentBpm() > 0) {
+            if (sample.getCurrentBpm() != null && sample.getCurrentBpm() > 0) {
                 bpmSum += sample.getCurrentBpm();
                 validBpmCount++;
             }

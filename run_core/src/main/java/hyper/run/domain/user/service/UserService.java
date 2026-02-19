@@ -2,15 +2,19 @@ package hyper.run.domain.user.service;
 
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
+import hyper.run.domain.user.dto.request.UserWatchRegisterRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserVerifyResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
+import hyper.run.domain.user.dto.response.UserWatchResponse;
 import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.entity.User;
+import hyper.run.domain.user.entity.UserWatch;
 import hyper.run.domain.user.event.UserDeleteEvent;
 import hyper.run.domain.user.event.UserEditEvent;
 import hyper.run.domain.user.event.UserProfileImageEvent;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.domain.user.repository.UserWatchRepository;
 import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +27,7 @@ import java.util.Optional;
 
 import static hyper.run.exception.ErrorMessages.ALREADY_EXIST_EMAIL;
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_WATCH;
 
 @Service
 @RequiredArgsConstructor
@@ -30,6 +35,7 @@ public class UserService {
     private static final String NONE = "NONE";
 
     private final UserRepository userRepository;
+    private final UserWatchRepository userWatchRepository;
     private final ApplicationEventPublisher eventPublisher;
 
     @Transactional
@@ -133,5 +139,16 @@ public class UserService {
         } else {
             return UserVerifyResponse.passwordMismatch();
         }
+    }
+
+    @Transactional
+    public void registerUserWatch(Long userId, UserWatchRegisterRequest request) {
+        UserWatch userWatch = request.toEntity(userId);
+        userWatchRepository.save(userWatch);
+    }
+
+    public UserWatchResponse getUserWatch(Long userId) {
+        UserWatch userWatch = OptionalUtil.getOrElseThrow(userWatchRepository.findByUserId(userId), NOT_EXIST_USER_WATCH);
+        return UserWatchResponse.from(userWatch);
     }
 }

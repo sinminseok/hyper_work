@@ -1,10 +1,10 @@
 package hyper.run.domain.game.dto.response;
 
+import hyper.run.domain.game.entity.ConnectType;
 import hyper.run.domain.game.entity.Game;
 import hyper.run.domain.game.entity.GameDistance;
 import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.entity.GameType;
-import hyper.run.domain.user.entity.User;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -49,6 +49,8 @@ public class GameHistoryResponse {
 
     private boolean connectedWatch;
 
+    private ConnectType connectType;
+
     private boolean isDone;
 
     public static GameHistoryResponse toResponse(Game game , GameHistory gameHistory){
@@ -68,6 +70,7 @@ public class GameHistoryResponse {
                 .myPrize(gameHistory.getPrize())
                 .participatedCount(game.getParticipatedCount())
                 .connectedWatch(gameHistory.isConnectedWatch())
+                .connectType(gameHistory.getConnectType())
                 .startAt(game.getStartAt())
                 .build();
     }

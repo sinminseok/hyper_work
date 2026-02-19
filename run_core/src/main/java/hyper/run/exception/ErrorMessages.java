@@ -17,5 +17,6 @@ public class ErrorMessages {
     public static String GAME_ALREADY_STARTED = "이미 시작된 경기는 신청할 수 없습니다.";
     public static String GAME_APPLY_CLOSED = "경기 시작 10분 전에는 신청할 수 없습니다.";
     public static String ALREADY_EXIST_EMAIL = "이미 가입된 이메일입니다.";
+    public static String NOT_EXIST_USER_WATCH = "등록된 워치 정보가 존재하지 않습니다.";
 
 }
