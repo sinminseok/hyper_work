@@ -4,9 +4,11 @@ import hyper.run.auth.service.JwtService;
 import hyper.run.domain.user.dto.request.UserSignupRequest;
 import hyper.run.domain.user.dto.request.UserUpdateRequest;
 import hyper.run.domain.user.dto.request.UserVerifyRequest;
+import hyper.run.domain.user.dto.request.UserWatchRegisterRequest;
 import hyper.run.domain.user.dto.response.UserProfileResponse;
 import hyper.run.domain.user.dto.response.UserVerifyResponse;
 import hyper.run.domain.user.dto.response.UserWatchConnectedResponse;
+import hyper.run.domain.user.dto.response.UserWatchResponse;
 import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
@@ -184,6 +186,28 @@ public class UserController {
         WatchTokenResponse watchTokenResponse = userService.saveWatchRefreshToken(email, accessToken, refreshToken);
 
         SuccessResponse response = new SuccessResponse(true, "워치 연결 성공", watchTokenResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 워치 등록 API
+     */
+    @PostMapping("/watch")
+    public ResponseEntity<?> registerUserWatch(@RequestBody UserWatchRegisterRequest request) {
+        Long userId = getLoginUserIdBySecurityContext();
+        userService.registerUserWatch(userId, request);
+        SuccessResponse response = new SuccessResponse(true, "워치 등록 성공", null);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 워치 정보 조회 API
+     */
+    @GetMapping("/watch")
+    public ResponseEntity<?> getUserWatch() {
+        Long userId = getLoginUserIdBySecurityContext();
+        UserWatchResponse userWatchResponse = userService.getUserWatch(userId);
+        SuccessResponse response = new SuccessResponse(true, "워치 정보 조회 성공", userWatchResponse);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

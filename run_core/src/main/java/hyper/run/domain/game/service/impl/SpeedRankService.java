@@ -56,6 +56,7 @@ public class SpeedRankService extends AbstractGameRankService {
     public void generateGame(LocalDate date) {
         for (GameDistance distance : GameDistance.values()) {
             if(distance.isWalk()) continue; // 걷기 유형은 x
+            if(distance == GameDistance.NEWBIE_COURSE) continue; // 왕초보 경기는 스피드 제외
             for (int hour = 5; hour <= 23; hour++) {
                 Game game = createGame(GameType.SPEED, distance, date, hour, 0);
                 gameRepository.save(game);

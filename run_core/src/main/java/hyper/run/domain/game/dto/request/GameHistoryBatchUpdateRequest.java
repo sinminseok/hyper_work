@@ -28,7 +28,7 @@ public class GameHistoryBatchUpdateRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class BioDataSample {
-        private double currentBpm;
+        private Double currentBpm;
         private double currentCadence;
         private double currentDistance;
     }

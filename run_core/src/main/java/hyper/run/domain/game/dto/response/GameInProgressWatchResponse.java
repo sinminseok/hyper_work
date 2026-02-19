@@ -32,7 +32,6 @@ public class GameInProgressWatchResponse {
 
     private double targetDistance;
 
-
     @JsonProperty("done")
     private boolean isDone;
 

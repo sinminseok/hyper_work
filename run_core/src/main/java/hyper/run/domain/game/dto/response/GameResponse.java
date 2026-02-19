@@ -63,16 +63,20 @@ public class GameResponse {
                 .startAt(game.getStartAt())
                 .endAt(game.getEndAt())
                 .participatedCount(game.getParticipatedCount())
-                .totalPrize(game.getTotalPrize())
-                .firstPlacePrize(game.getFirstPlacePrize())
-                .secondPlacePrize(game.getSecondPlacePrize())
-                .thirdPlacePrize(game.getThirdPlacePrize())
-                .fourthPlacePrize(game.getFourthPlacePrize())
-                .otherPlacePrize(game.getOtherPlacePrize())
+                .totalPrize(nullSafePrize(game.getTotalPrize()))
+                .firstPlacePrize(nullSafePrize(game.getFirstPlacePrize()))
+                .secondPlacePrize(nullSafePrize(game.getSecondPlacePrize()))
+                .thirdPlacePrize(nullSafePrize(game.getThirdPlacePrize()))
+                .fourthPlacePrize(nullSafePrize(game.getFourthPlacePrize()))
+                .otherPlacePrize(nullSafePrize(game.getOtherPlacePrize()))
                 .status(status)
                 .firstUserName(game.getFirstUserName())
                 .secondUserName(game.getSecondUserName())
                 .thirdUserName(game.getThirdUserName())
                 .build();
+    }
+
+    private static double nullSafePrize(Double prize) {
+        return prize != null ? prize : 0.0;
     }
 }
