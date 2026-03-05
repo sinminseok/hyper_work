@@ -13,6 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 public class UserWatchRegisterRequest {
 
+    private String deviceId;
+
+    private String name;
+
     private boolean canGCT;
 
     private boolean canVerticalOscillation;
@@ -26,6 +30,8 @@ public class UserWatchRegisterRequest {
     public UserWatch toEntity(Long userId) {
         return UserWatch.builder()
                 .userId(userId)
+                .deviceId(this.deviceId)
+                .name(this.name)
                 .canGCT(this.canGCT)
                 .canVerticalOscillation(this.canVerticalOscillation)
                 .canPower(this.canPower)

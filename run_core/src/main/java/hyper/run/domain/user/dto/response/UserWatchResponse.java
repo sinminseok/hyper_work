@@ -13,6 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class UserWatchResponse {
 
+    private Long id;
+
+    private String deviceId;
+
+    private String name;
+
     private boolean canGCT;
 
     private boolean canVerticalOscillation;
@@ -25,6 +31,9 @@ public class UserWatchResponse {
 
     public static UserWatchResponse from(UserWatch userWatch) {
         return UserWatchResponse.builder()
+                .id(userWatch.getId())
+                .deviceId(userWatch.getDeviceId())
+                .name(userWatch.getName())
                 .canGCT(userWatch.isCanGCT())
                 .canVerticalOscillation(userWatch.isCanVerticalOscillation())
                 .canPower(userWatch.isCanPower())

@@ -51,6 +51,8 @@ public class GameHistoryResponse {
 
     private ConnectType connectType;
 
+    private Long watchId;
+
     private boolean isDone;
 
     public static GameHistoryResponse toResponse(Game game , GameHistory gameHistory){
@@ -71,6 +73,7 @@ public class GameHistoryResponse {
                 .participatedCount(game.getParticipatedCount())
                 .connectedWatch(gameHistory.isConnectedWatch())
                 .connectType(gameHistory.getConnectType())
+                .watchId(gameHistory.getWatchId())
                 .startAt(game.getStartAt())
                 .build();
     }

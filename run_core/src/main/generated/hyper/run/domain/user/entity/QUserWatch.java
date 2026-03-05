@@ -25,7 +25,11 @@ public class QUserWatch extends EntityPathBase<UserWatch> {
 
     public final BooleanPath canVerticalOscillation = createBoolean("canVerticalOscillation");
 
+    public final StringPath deviceId = createString("deviceId");
+
     public final NumberPath<Long> id = createNumber("id", Long.class);
+
+    public final StringPath name = createString("name");
 
     public final NumberPath<Long> userId = createNumber("userId", Long.class);
 

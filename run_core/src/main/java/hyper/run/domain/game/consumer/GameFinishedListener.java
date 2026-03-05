@@ -48,16 +48,30 @@ public class GameFinishedListener {
                 .limit(20)
                 .toList();
 
+        double actualFirstPrize = 0;
+        double actualSecondPrize = 0;
+        double actualThirdPrize = 0;
+        double actualFourthPrize = 0;
+        double actualOtherPrize = 0;
+
         for (int i = 0; i < topRankers.size(); i++) {
             GameHistory history = topRankers.get(i);
             User user = userRepository.findById(history.getUserId()).orElseThrow(() -> new IllegalStateException("User not found: " + history.getUserId()));
 
-            // 완주자만 상금 지급
-            if (history.isDone()) {
+            // 실제 완주자만 상금 지급 (목표 거리 달성 여부로 판단)
+            if (history.getCurrentDistance() >= history.getGameDistance().getDistance()) {
                 double prize = calculatePrizeForRank(game, i);
                 if (prize > 0) {
                     user.increasePoint(prize);
                     history.setPrize(prize);
+
+                    switch (i) {
+                        case 0 -> actualFirstPrize = prize;
+                        case 1 -> actualSecondPrize = prize;
+                        case 2 -> actualThirdPrize = prize;
+                        case 3 -> actualFourthPrize = prize;
+                        default -> actualOtherPrize += prize;
+                    }
                 }
             }
 
@@ -67,6 +81,7 @@ public class GameFinishedListener {
             }
         }
 
+        game.updateActualPrize(actualFirstPrize, actualSecondPrize, actualThirdPrize, actualFourthPrize, actualOtherPrize);
         gameHistoryRepository.saveAll(rankedHistories);
     }
 

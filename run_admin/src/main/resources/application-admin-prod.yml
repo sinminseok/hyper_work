@@ -111,10 +111,13 @@ jwt:
 
 apple:
   key-url: https://appleid.apple.com/auth/keys
-  verify-receipt-url:
-    production: https://buy.itunes.apple.com/verifyReceipt
-    sandbox: https://sandbox.itunes.apple.com/verifyReceipt
-  shared-secret: ${APPLE_SHARED_SECRET}
+  store-kit:
+    key-id: ${APPLE_STORE_KIT_KEY_ID}
+    issuer-id: ${APPLE_STORE_KIT_ISSUER_ID}
+    bundle-id: ${APPLE_BUNDLE_ID:com.hyper.funnyrun}
+    private-key-path: ${APPLE_STORE_KIT_PRIVATE_KEY_PATH}
+    environment: PRODUCTION
+    app-apple-id: ${APPLE_APP_APPLE_ID:0}
 
 
 oauth:

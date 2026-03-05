@@ -66,7 +66,7 @@ public class GameController {
     //todo 삭제
     @PostMapping("/test/create-game")
     public ResponseEntity<?> testStart2(){
-        for(GameType type : GameType.values()) {
+        for(GameType type : gameRankServices.keySet()) {
             LocalDate oneWeekLater = LocalDate.now().plusWeeks(1);
             gameRankServices.get(type).generateGame(oneWeekLater);
         }
@@ -83,7 +83,7 @@ public class GameController {
         LocalDate today = LocalDate.now();
         for (int i = 0; i <= 7; i++) {
             LocalDate targetDate = today.plusDays(i);
-            for (GameType type : GameType.values()) {
+            for (GameType type : gameRankServices.keySet()) {
                 gameRankServices.get(type).generateGame(targetDate);
             }
         }

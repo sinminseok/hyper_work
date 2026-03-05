@@ -4,6 +4,7 @@ import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.event.GameHistoryBatchUpdateEvent;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.service.GameHistoryCacheService;
+import hyper.run.exception.custom.WatchMismatchException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -13,6 +14,7 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_GAME_HISTORY;
+import static hyper.run.exception.ErrorMessages.WATCH_MISMATCH;
 
 @Component
 @RequiredArgsConstructor
@@ -32,6 +34,8 @@ public class GameHistoryBatchUpdateListener {
             return;
         }
 
+        validateWatch(gameHistory, event.watchId());
+
         if (!gameHistory.isConnectedWatch()) {
             gameHistory.connectWatch();
         }
@@ -39,12 +43,17 @@ public class GameHistoryBatchUpdateListener {
         gameHistory.updateFromBatch(event.request());
         gameHistory.checkDoneByDistance();
 
-        System.out.println(">> MongoDB 저장 시도");
         gameHistoryRepository.save(gameHistory);
-        System.out.println(">> MongoDB 저장 완료!");
 
-        System.out.println(">> 캐시 업데이트 시작");
         gameHistoryCacheService.updateUserStatusCache(event.gameId(), event.userId(), gameHistory);
-        System.out.println(">> 배치 업데이트 전체 완료!");
+    }
+
+    private void validateWatch(GameHistory gameHistory, Long requestWatchId) {
+        if (gameHistory.getWatchId() == null) {
+            return;
+        }
+        if (requestWatchId == null || !gameHistory.getWatchId().equals(requestWatchId)) {
+            throw new WatchMismatchException(WATCH_MISMATCH);
+        }
     }
 }

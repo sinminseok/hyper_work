@@ -15,6 +15,7 @@ import hyper.run.domain.user.event.UserEditEvent;
 import hyper.run.domain.user.event.UserProfileImageEvent;
 import hyper.run.domain.user.repository.UserRepository;
 import hyper.run.domain.user.repository.UserWatchRepository;
+import hyper.run.exception.custom.NotFoundDataException;
 import hyper.run.exception.custom.UserDuplicatedException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,11 +24,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static hyper.run.exception.ErrorMessages.ALREADY_EXIST_EMAIL;
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_EMAIL;
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_WATCH;
+import static hyper.run.exception.ErrorMessages.NOT_EXIST_USER_WATCH_ID;
 
 @Service
 @RequiredArgsConstructor
@@ -142,13 +146,47 @@ public class UserService {
     }
 
     @Transactional
-    public void registerUserWatch(Long userId, UserWatchRegisterRequest request) {
+    public UserWatchResponse registerUserWatch(Long userId, UserWatchRegisterRequest request) {
+        Optional<UserWatch> existing = userWatchRepository.findByUserIdAndDeviceId(userId, request.getDeviceId());
+
+        if (existing.isPresent()) {
+            UserWatch existingWatch = existing.get();
+            existingWatch.updateFrom(request.toEntity(userId));
+            userWatchRepository.save(existingWatch);
+            return UserWatchResponse.from(existingWatch);
+        }
+
         UserWatch userWatch = request.toEntity(userId);
         userWatchRepository.save(userWatch);
+        return UserWatchResponse.from(userWatch);
     }
 
     public UserWatchResponse getUserWatch(Long userId) {
         UserWatch userWatch = OptionalUtil.getOrElseThrow(userWatchRepository.findByUserId(userId), NOT_EXIST_USER_WATCH);
         return UserWatchResponse.from(userWatch);
+    }
+
+    public List<UserWatchResponse> getUserWatches(Long userId) {
+        List<UserWatch> watches = userWatchRepository.findAllByUserId(userId);
+        return watches.stream()
+                .map(UserWatchResponse::from)
+                .collect(Collectors.toList());
+    }
+
+    public UserWatchResponse getUserWatchById(Long userId, Long watchId) {
+        UserWatch userWatch = userWatchRepository.findByIdAndUserId(watchId, userId)
+                .orElseThrow(() -> new NotFoundDataException(NOT_EXIST_USER_WATCH_ID));
+        return UserWatchResponse.from(userWatch);
+    }
+
+    public boolean isWatchRegistered(Long userId, String deviceId) {
+        return userWatchRepository.findByUserIdAndDeviceId(userId, deviceId).isPresent();
+    }
+
+    @Transactional
+    public void deleteUserWatch(Long userId, Long watchId) {
+        UserWatch userWatch = userWatchRepository.findByIdAndUserId(watchId, userId)
+                .orElseThrow(() -> new NotFoundDataException(NOT_EXIST_USER_WATCH_ID));
+        userWatchRepository.delete(userWatch);
     }
 }

@@ -23,6 +23,7 @@ import java.time.LocalDateTime;
 public class Game extends BaseTimeEntity<Game> {
 
     private static final int PARTICIPATION_FEE = 2500;
+    private static final double PRIZE_RATE = 0.42; // 상금 배당 비율 (42% = 1,050원)
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -64,7 +65,7 @@ public class Game extends BaseTimeEntity<Game> {
     private Double totalPrize; // 총 상금
 
     @Column(name = "first_place_prize")
-    private Double firstPlacePrize; // 우승 상금 (총상금의 80%)
+    private Double firstPlacePrize; // 우승 상금 (총상금의 60%)
 
     @Column(name = "second_place_prize")
     private Double secondPlacePrize; // 2등 상금 (총상금의 15%)
@@ -110,9 +111,9 @@ public class Game extends BaseTimeEntity<Game> {
         }
     }
 
-    // 참가 인원 수에 따라 상금 재계산
+    // 참가 인원 수에 따라 상금 재계산 (참가비의 42%만 상금 풀에 적립)
     private void updatePrizeByParticipants() {
-        this.totalPrize = (double) (this.participatedCount * PARTICIPATION_FEE);
+        this.totalPrize = Math.floor(this.participatedCount * PARTICIPATION_FEE * PRIZE_RATE);
         this.firstPlacePrize = Math.floor(totalPrize * 0.60);
         this.secondPlacePrize = Math.floor(totalPrize * 0.15);
         this.thirdPlacePrize = Math.floor(totalPrize * 0.06);
@@ -145,5 +146,17 @@ public class Game extends BaseTimeEntity<Game> {
     // 경기 상태 업데이트
     public void updateAdminGameStatus(AdminGameStatus newStatus) {
         this.adminGameStatus = newStatus;
+    }
+
+    // 실제 지급된 상금으로 업데이트
+    public void updateActualPrize(double actualFirstPrize, double actualSecondPrize,
+                                   double actualThirdPrize, double actualFourthPrize,
+                                   double actualOtherPrize) {
+        this.firstPlacePrize = actualFirstPrize;
+        this.secondPlacePrize = actualSecondPrize;
+        this.thirdPlacePrize = actualThirdPrize;
+        this.fourthPlacePrize = actualFourthPrize;
+        this.otherPlacePrize = actualOtherPrize;
+        this.totalPrize = actualFirstPrize + actualSecondPrize + actualThirdPrize + actualFourthPrize + actualOtherPrize;
     }
 }

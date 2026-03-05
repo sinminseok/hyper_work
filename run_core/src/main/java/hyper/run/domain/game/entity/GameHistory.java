@@ -82,6 +82,10 @@ public class GameHistory {
     @Field("connect_type")
     private ConnectType connectType;
 
+    @Setter
+    @Field("watch_id")
+    private Long watchId;
+
     public void checkDoneByDistance() {
         if (currentDistance >= gameDistance.getDistance()) {
             markAsDone();
