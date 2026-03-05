@@ -22,5 +22,6 @@ public class ErrorMessages {
     public static String WATCH_MISMATCH = "지정된 경기용 워치와 일치하지 않는 데이터입니다.";
     public static String WATCH_NOT_SELECTED = "경기에 사용할 워치가 선택되지 않았습니다.";
     public static String NOT_EXIST_USER_WATCH_ID = "존재하지 않는 워치 ID 입니다.";
+    public static String GAME_ALREADY_IN_PROGRESS = "이미 진행중인 경기입니다.";
 
 }
