@@ -57,6 +57,11 @@ public class GameHistoryService {
                 repository.findByUserIdAndGameId(userId, request.getGameId()),
                 NOT_EXIST_GAME_HISTORY
         );
+
+        if (gameHistory.getWatchId() != null) {
+            throw new IllegalStateException(GAME_ALREADY_IN_PROGRESS);
+        }
+
         gameHistory.setConnectType(request.getConnectType());
         gameHistory.setStartAt(java.time.LocalDateTime.now());
 
