@@ -179,8 +179,10 @@ public class UserService {
         return UserWatchResponse.from(userWatch);
     }
 
-    public boolean isWatchRegistered(Long userId, String deviceId) {
-        return userWatchRepository.findByUserIdAndDeviceId(userId, deviceId).isPresent();
+    public Long getRegisteredWatchId(Long userId, String deviceId) {
+        return userWatchRepository.findByUserIdAndDeviceId(userId, deviceId)
+                .map(UserWatch::getId)
+                .orElse(null);
     }
 
     @Transactional
