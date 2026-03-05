@@ -4,7 +4,6 @@ import hyper.run.domain.game.entity.GameHistory;
 import hyper.run.domain.game.event.GameHistoryBatchUpdateEvent;
 import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.service.GameHistoryCacheService;
-import hyper.run.exception.custom.WatchMismatchException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
@@ -14,7 +13,6 @@ import org.springframework.transaction.event.TransactionPhase;
 import org.springframework.transaction.event.TransactionalEventListener;
 
 import static hyper.run.exception.ErrorMessages.NOT_EXIST_GAME_HISTORY;
-import static hyper.run.exception.ErrorMessages.WATCH_MISMATCH;
 
 @Component
 @RequiredArgsConstructor
@@ -34,7 +32,9 @@ public class GameHistoryBatchUpdateListener {
             return;
         }
 
-        validateWatch(gameHistory, event.watchId());
+        if (!validateWatch(gameHistory, event.watchId())) {
+            return;
+        }
 
         if (!gameHistory.isConnectedWatch()) {
             gameHistory.connectWatch();
@@ -48,12 +48,16 @@ public class GameHistoryBatchUpdateListener {
         gameHistoryCacheService.updateUserStatusCache(event.gameId(), event.userId(), gameHistory);
     }
 
-    private void validateWatch(GameHistory gameHistory, Long requestWatchId) {
+    private boolean validateWatch(GameHistory gameHistory, Long requestWatchId) {
         if (gameHistory.getWatchId() == null) {
-            return;
+            return true;
         }
         if (requestWatchId == null || !gameHistory.getWatchId().equals(requestWatchId)) {
-            throw new WatchMismatchException(WATCH_MISMATCH);
+            System.out.println("[WatchMismatch] gameId=" + gameHistory.getGameId()
+                    + ", expected watchId=" + gameHistory.getWatchId()
+                    + ", request watchId=" + requestWatchId);
+            return false;
         }
+        return true;
     }
 }

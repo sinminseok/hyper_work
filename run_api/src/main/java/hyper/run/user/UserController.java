@@ -13,6 +13,7 @@ import hyper.run.domain.user.dto.response.WatchTokenResponse;
 import hyper.run.domain.user.service.UserService;
 import hyper.run.utils.SuccessResponse;
 import lombok.RequiredArgsConstructor;
+import java.util.Map;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -197,8 +198,12 @@ public class UserController {
     @GetMapping("/watch/exists")
     public ResponseEntity<?> isWatchRegistered(@RequestParam String deviceId) {
         Long userId = getLoginUserIdBySecurityContext();
-        boolean exists = userService.isWatchRegistered(userId, deviceId);
-        SuccessResponse response = new SuccessResponse(true, "워치 등록 여부 확인", exists);
+        Long watchId = userService.getRegisteredWatchId(userId, deviceId);
+        Map<String, Object> data = Map.of(
+                "exists", watchId != null,
+                "watchId", watchId != null ? watchId : 0
+        );
+        SuccessResponse response = new SuccessResponse(true, "워치 등록 여부 확인", data);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
