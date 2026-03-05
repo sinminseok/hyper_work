@@ -17,4 +17,6 @@ public class GameHistoryUpdateRequest {
 
     private double currentDistance;
 
+    private Long watchId;
+
 }

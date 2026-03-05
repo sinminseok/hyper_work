@@ -9,4 +9,6 @@ public class GameStartRequest {
     private Long gameId;
 
     private ConnectType connectType;
+
+    private Long watchId;
 }

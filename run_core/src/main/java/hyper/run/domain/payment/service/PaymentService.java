@@ -46,42 +46,34 @@ public class PaymentService {
         this.lockManager = lockManager;
     }
 
-    /**
-     * 결제 메서드
-     * 1. transactionId 기반 락 획득 (동시성 제어)
-     * 2. 중복 결제 체크
-     * 3. 영수증 검증 (Apple/Google)
-     * 4. 결제 정보 저장
-     */
     @Transactional
     public void pay(final Long userId, final PaymentRequest request){
         String transactionId = request.getTransactionId();
-        Lock lock = lockManager.getLock(transactionId);
 
+        Lock lock = lockManager.getLock(transactionId);
         lock.lock();
         try {
-            // 중복 결제 체크 (첫 번째 방어선)
             if (repository.existsByTransactionId(transactionId)) {
-                log.warn("중복 결제 시도 감지: userId={}, transactionId={}", userId, transactionId);
                 throw new DuplicatedTransactionException("이미 처리된 결제입니다. transactionId: " + transactionId);
             }
 
             validateReceipt(request);
 
             User user = OptionalUtil.getOrElseThrow(userRepository.findByIdForUpdate(userId), NOT_EXIST_USER_EMAIL);
+
             Payment payment = request.toEntity(user);
+            payment.updateState(PaymentState.PAYMENT_COMPLETED);
 
             try {
                 repository.save(payment);
             } catch (DataIntegrityViolationException e) {
-                // UNIQUE 제약조건 위반 시 (두 번째 방어선)
-                log.error("중복 결제 DB 제약조건 위반: userId={}, transactionId={}", userId, transactionId, e);
                 throw new DuplicatedTransactionException("이미 처리된 결제입니다. transactionId: " + transactionId);
             }
+
+            user.increaseCouponByAmount(payment.getCouponAmount());
         } finally {
             lock.unlock();
             lockManager.releaseLock(transactionId);
-            log.debug("락 해제: transactionId={}", transactionId);
         }
     }
 

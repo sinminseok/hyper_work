@@ -48,7 +48,7 @@ public class Payment extends BaseTimeEntity<Payment> {
     @Column(name = "product_id", nullable = false)
     private String productId;
 
-    @Column(name = "receipt_data", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "receipt_data", nullable = true, columnDefinition = "TEXT")
     private String receiptData;
 
     @Setter

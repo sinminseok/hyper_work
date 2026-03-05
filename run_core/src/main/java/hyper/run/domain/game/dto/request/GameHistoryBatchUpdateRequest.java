@@ -21,6 +21,8 @@ public class GameHistoryBatchUpdateRequest {
 
     private Long userId;
 
+    private Long watchId;
+
     private List<BioDataSample> samples;
 
     @Getter

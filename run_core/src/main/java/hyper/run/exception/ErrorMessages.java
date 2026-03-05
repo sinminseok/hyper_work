@@ -18,5 +18,9 @@ public class ErrorMessages {
     public static String GAME_APPLY_CLOSED = "경기 시작 10분 전에는 신청할 수 없습니다.";
     public static String ALREADY_EXIST_EMAIL = "이미 가입된 이메일입니다.";
     public static String NOT_EXIST_USER_WATCH = "등록된 워치 정보가 존재하지 않습니다.";
+    public static String ACTIVITY_TYPE_TIME_CONFLICT = "동일 시간대에 걷기와 달리기 경기를 동시에 신청할 수 없습니다.";
+    public static String WATCH_MISMATCH = "지정된 경기용 워치와 일치하지 않는 데이터입니다.";
+    public static String WATCH_NOT_SELECTED = "경기에 사용할 워치가 선택되지 않았습니다.";
+    public static String NOT_EXIST_USER_WATCH_ID = "존재하지 않는 워치 ID 입니다.";
 
 }

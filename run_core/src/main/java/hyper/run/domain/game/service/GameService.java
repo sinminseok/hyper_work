@@ -16,6 +16,7 @@ import hyper.run.domain.game.repository.GameHistoryRepository;
 import hyper.run.domain.game.repository.GameRepository;
 import hyper.run.domain.user.entity.User;
 import hyper.run.domain.user.repository.UserRepository;
+import hyper.run.exception.custom.ActivityTypeConflictException;
 import hyper.run.exception.custom.AlreadyApplyGameException;
 import hyper.run.utils.OptionalUtil;
 import lombok.RequiredArgsConstructor;
@@ -45,7 +46,7 @@ public class GameService {
     //todo 삭제
     @Transactional
     public void test() {
-        for(GameType type : GameType.values()) {
+        for(GameType type : gameRankServices.keySet()) {
             LocalDate oneWeekLater = LocalDate.now().plusWeeks(1);
             gameRankServices.get(type).generateGame(oneWeekLater);
         }
@@ -59,6 +60,7 @@ public class GameService {
         Game game = OptionalUtil.getOrElseThrow(gameRepository.findByGameConditions(request.getStartAt(), request.getDistance(), request.getType(), request.getActivityType()), NOT_EXIST_GAME_ID);
         validateGameApplyTime(game);
         validateAlreadyApply(userId, game);
+        validateActivityTypeTimeConflict(userId, game);
         game.applyGame(userId, request.getAverageBpm(), request.getTargetCadence());
         gameRepository.save(game);
     }
@@ -67,6 +69,24 @@ public class GameService {
         if(gameHistoryRepository.findByUserIdAndGameId(userId, game.getId()).isPresent()) {
             throw new AlreadyApplyGameException("이미 신청한 경기 입니다.");
         }
+    }
+
+    private void validateActivityTypeTimeConflict(Long userId, Game targetGame) {
+        List<GameHistory> userHistories = gameHistoryRepository.findAllByUserId(userId);
+
+        for (GameHistory history : userHistories) {
+            Game existingGame = gameRepository.findById(history.getGameId()).orElse(null);
+            if (existingGame == null) continue;
+
+            if (existingGame.getActivityType() != targetGame.getActivityType()
+                    && isTimeOverlap(existingGame, targetGame)) {
+                throw new ActivityTypeConflictException(ACTIVITY_TYPE_TIME_CONFLICT);
+            }
+        }
+    }
+
+    private boolean isTimeOverlap(Game a, Game b) {
+        return a.getStartAt().isBefore(b.getEndAt()) && b.getStartAt().isBefore(a.getEndAt());
     }
 
     private void validateGameApplyTime(Game game) {

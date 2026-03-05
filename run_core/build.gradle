@@ -82,6 +82,9 @@ dependencies {
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sqs'
     implementation 'io.awspring.cloud:spring-cloud-aws-starter-sns'
 
+    // Apple App Store Server API v2 (replaces deprecated verifyReceipt)
+    implementation 'com.apple.itunes.storekit:app-store-server-library:4.0.0'
+
     // Redisson (Redis 분산락)
     implementation 'org.redisson:redisson-spring-boot-starter:3.25.2'
 

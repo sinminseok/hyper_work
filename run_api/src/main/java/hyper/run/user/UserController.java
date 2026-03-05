@@ -17,6 +17,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import static hyper.run.auth.service.SecurityContextHelper.getLoginEmailBySecurityContext;
@@ -190,24 +192,68 @@ public class UserController {
     }
 
     /**
-     * 워치 등록 API
+     * 워치 등록 여부 확인 API (deviceId 기반)
      */
-    @PostMapping("/watch")
-    public ResponseEntity<?> registerUserWatch(@RequestBody UserWatchRegisterRequest request) {
+    @GetMapping("/watch/exists")
+    public ResponseEntity<?> isWatchRegistered(@RequestParam String deviceId) {
         Long userId = getLoginUserIdBySecurityContext();
-        userService.registerUserWatch(userId, request);
-        SuccessResponse response = new SuccessResponse(true, "워치 등록 성공", null);
+        boolean exists = userService.isWatchRegistered(userId, deviceId);
+        SuccessResponse response = new SuccessResponse(true, "워치 등록 여부 확인", exists);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 
     /**
-     * 워치 정보 조회 API
+     * 워치 등록 API (upsert: 같은 deviceId 재등록 시 업데이트)
+     */
+    @PostMapping("/watch")
+    public ResponseEntity<?> registerUserWatch(@RequestBody UserWatchRegisterRequest request) {
+        Long userId = getLoginUserIdBySecurityContext();
+        UserWatchResponse watchResponse = userService.registerUserWatch(userId, request);
+        SuccessResponse response = new SuccessResponse(true, "워치 등록 성공", watchResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 워치 정보 조회 API (하위호환: 단일 워치)
      */
     @GetMapping("/watch")
     public ResponseEntity<?> getUserWatch() {
         Long userId = getLoginUserIdBySecurityContext();
         UserWatchResponse userWatchResponse = userService.getUserWatch(userId);
         SuccessResponse response = new SuccessResponse(true, "워치 정보 조회 성공", userWatchResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 워치 상세 조회 API (watchId 기반)
+     */
+    @GetMapping("/watches/{watchId}")
+    public ResponseEntity<?> getUserWatchById(@PathVariable Long watchId) {
+        Long userId = getLoginUserIdBySecurityContext();
+        UserWatchResponse userWatchResponse = userService.getUserWatchById(userId, watchId);
+        SuccessResponse response = new SuccessResponse(true, "워치 상세 조회 성공", userWatchResponse);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 다중 워치 목록 조회 API
+     */
+    @GetMapping("/watches")
+    public ResponseEntity<?> getUserWatches() {
+        Long userId = getLoginUserIdBySecurityContext();
+        List<UserWatchResponse> watches = userService.getUserWatches(userId);
+        SuccessResponse response = new SuccessResponse(true, "워치 목록 조회 성공", watches);
+        return new ResponseEntity<>(response, HttpStatus.OK);
+    }
+
+    /**
+     * 워치 삭제 API
+     */
+    @DeleteMapping("/watches/{watchId}")
+    public ResponseEntity<?> deleteUserWatch(@PathVariable Long watchId) {
+        Long userId = getLoginUserIdBySecurityContext();
+        userService.deleteUserWatch(userId, watchId);
+        SuccessResponse response = new SuccessResponse(true, "워치 삭제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
 }

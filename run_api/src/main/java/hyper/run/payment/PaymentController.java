@@ -30,8 +30,6 @@ public class PaymentController {
     @PostMapping
     public ResponseEntity<?> buyCoupons(@RequestBody PaymentRequest request) {
         Long userId = getLoginUserIdBySecurityContext();
-        log.info("결제 요청 수신: userId={}, transactionId={}, productId={}",
-                userId, request.getTransactionId(), request.getProductId());
         paymentService.pay(userId, request);
         SuccessResponse response = new SuccessResponse(true, "결제 성공", null);
         return new ResponseEntity<>(response, HttpStatus.OK);
