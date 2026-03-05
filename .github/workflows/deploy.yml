@@ -90,6 +90,11 @@ jobs:
           echo "ADMIN_INITIAL_PASSWORD=${{ secrets.ADMIN_INITIAL_PASSWORD }}" >> .env
           echo "AWS_SNS_PAYMENT_CREATED_TOPIC_ARN=${{ secrets.AWS_SNS_PAYMENT_CREATED_TOPIC_ARN }}" >> .env
           echo "AWS_SNS_GAME_FINISHED_TOPIC_ARN=${{ secrets.AWS_SNS_GAME_FINISHED_TOPIC_ARN }}" >> .env
+          echo "APPLE_STORE_KIT_KEY_ID=${{ secrets.APPLE_STORE_KIT_KEY_ID }}" >> .env
+          echo "APPLE_STORE_KIT_ISSUER_ID=${{ secrets.APPLE_STORE_KIT_ISSUER_ID }}" >> .env
+          echo "APPLE_BUNDLE_ID=${{ secrets.APPLE_BUNDLE_ID }}" >> .env
+          echo "APPLE_STORE_KIT_PRIVATE_KEY_PATH=${{ secrets.APPLE_STORE_KIT_PRIVATE_KEY_PATH }}" >> .env
+          echo "APPLE_APP_APPLE_ID=${{ secrets.APPLE_APP_APPLE_ID }}" >> .env
 
       - name: Create deployment artifact
         run: |
